@@ -13,7 +13,7 @@ const WelcomeScreen = () => {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <Text style={styles.brandTitle}>ChicShop</Text>
+          <Text style={styles.brandTitle}><Text style={styles.letter}>Swap</Text><Text style={styles.brandTitle}>Chic</Text></Text>
           <Text style={styles.subtitle}>The Ultimate Marketplace</Text>
         </View>
       </ImageBackground>
@@ -49,28 +49,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   brandTitle: {
-    fontSize: 34,
+    fontSize: 45,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 5,
+    textShadowColor: '#1466b8', 
+    textShadowOffset: { width: 2, height: 3 }, 
+    textShadowRadius: 5, 
   },
   subtitle: {
     fontSize: 18,
     color: '#fff',
     textAlign: 'center',
     fontWeight: '300',
+    textShadowColor: '#000', 
+    textShadowOffset: { width: 2, height: 3 }, 
+    textShadowRadius: 5, 
   },
   whiteSection: {
     flex: 1,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderTopLeftRadius: 40, // Coins arrondis pour un effet de transition
+    borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    marginTop: -40, // Superposition douce
+    marginTop: -40, 
     paddingHorizontal: 20,
-    elevation: 5,
+    elevation: 5,  
   },
+  
   heading: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -96,6 +103,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign:'center',
+  },
+  letter:{
+    color:'#1466b8',
+    fontWeight:'bold',
+    fontSize:50,
+    textShadowColor: '#fff',  // Couleur de l'ombre (bordure)
+    textShadowOffset: { width: 2, height: 3 }, // Décalage de l'ombre (bordure)
+    textShadowRadius: 5, // Taille de l'ombre (bordure)
+    
   },
 });
 

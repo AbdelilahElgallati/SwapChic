@@ -1,64 +1,110 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { launchImageLibrary } from "react-native-image-picker";
+// import axios from 'axios';
+import { registerUser } from "../../api/api";
 
-const SignUp = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const SingUp = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    localisation: "",
+  });
+  const [photo, setPhoto] = useState(null);
 
-  const handleSignUp = () => {
-    // Vérifie si les champs sont remplis
-    if (name === '' || email === '' || password === '') {
-      Alert.alert('Error', 'Please fill all the fields.');
-      return;
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const handleSelectPhoto = () => {
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.assets) {
+        const selectedPhoto = response.assets[0];
+        setPhoto({
+          uri: selectedPhoto.uri,
+          type: selectedPhoto.type,
+          name: selectedPhoto.fileName,
+        });
+      }
+    });
+  };
+
+  const handleRegister = async () => {
+    if (!formData.name || !formData.email || !formData.password || !photo) {
+      return Alert.alert(
+        "Erreur",
+        "Tous les champs et une photo sont obligatoires."
+      );
     }
 
-    // Simule une action d'inscription
-    Alert.alert('Success', `Welcome, ${name}!`);
+    try {
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      data.append("phone", formData.phone);
+      data.append("localisation", formData.localisation);
+      data.append("photo", {
+        uri: photo.uri,
+        type: photo.type,
+        name: photo.name,
+      });
+
+      const response = await registerUser(data);
+      Alert.alert("Succès", response.data.message);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erreur", error.response?.data?.message || "Erreur serveur.");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create an Account</Text>
-
-      {/* Champ Nom */}
+      <Text style={styles.title}>Inscription</Text>
       <TextInput
         style={styles.input}
-        placeholder="Full Name"
-        placeholderTextColor="#888"
-        value={name}
-        onChangeText={setName}
+        placeholder="Nom"
+        onChangeText={(text) => handleInputChange("name", text)}
       />
-
-      {/* Champ Email */}
       <TextInput
         style={styles.input}
-        placeholder="Email Address"
-        placeholderTextColor="#888"
+        placeholder="E-mail"
         keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => handleInputChange("email", text)}
       />
-
-      {/* Champ Mot de passe */}
       <TextInput
         style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
+        placeholder="Mot de passe"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        onChangeText={(text) => handleInputChange("password", text)}
       />
-
-      {/* Bouton d'inscription */}
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Téléphone"
+        keyboardType="phone-pad"
+        onChangeText={(text) => handleInputChange("phone", text)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Localisation"
+        onChangeText={(text) => handleInputChange("localisation", text)}
+      />
+      <TouchableOpacity style={styles.photoButton} onPress={handleSelectPhoto}>
+        <Text style={styles.photoButtonText}>Choisir une photo</Text>
       </TouchableOpacity>
-
-      {/* Lien vers Sign In */}
-      <TouchableOpacity>
-        <Text style={styles.link}>Already have an account? Sign In</Text>
-      </TouchableOpacity>
+      {photo && <Image source={{ uri: photo.uri }} style={styles.preview} />}
+      <Button title="S'inscrire" onPress={handleRegister} />
     </View>
   );
 };
@@ -66,46 +112,40 @@ const SignUp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 20,
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "center",
   },
   input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 15,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
   },
-  button: {
-    width: '100%',
-    backgroundColor: '#1466b8',
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
+  photoButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  photoButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
-  link: {
-    color: '#1466b8',
-    fontSize: 16,
-    marginTop: 10,
-    textDecorationLine: 'underline',
+  preview: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+    borderRadius: 5,
   },
 });
 
-export default SignUp;
+export default SingUp;

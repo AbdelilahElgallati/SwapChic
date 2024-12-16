@@ -25,7 +25,10 @@ const WelcomeScreen = () => {
           Discover and shop quality products tailored to your style.
         </Text>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign Up with Email</Text>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -93,6 +96,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width:350,
+    marginTop:10,
     backgroundColor: '#000',
     paddingVertical: 12,
     paddingHorizontal: 30,

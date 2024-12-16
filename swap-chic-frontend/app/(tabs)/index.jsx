@@ -26,10 +26,12 @@ const WelcomeScreen = () => {
           Discover and shop quality products tailored to your style.
         </Text>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Link style={styles.buttonText} href="/sign-up">Sign Up</Link>
+          {/* <Text ></Text> */}
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
+           <Link style={styles.buttonText} href="/sign-in">Sign In</Link>
+          {/* <Text style={styles.buttonText}>Sign In</Text> */}
         </TouchableOpacity>
       </View>
     </View>

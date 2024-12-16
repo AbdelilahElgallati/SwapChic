@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import imgbg from '@/assets/images/bg.jpg';
+import { Link } from 'expo-router';
 const { width, height } = Dimensions.get('window'); // Pour récupérer les dimensions de l'écran
 
 const WelcomeScreen = () => {
@@ -25,10 +26,12 @@ const WelcomeScreen = () => {
           Discover and shop quality products tailored to your style.
         </Text>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Link style={styles.buttonText} href="/sign-up">Sign Up</Link>
+          {/* <Text ></Text> */}
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
+           <Link style={styles.buttonText} href="/sign-in">Sign In</Link>
+          {/* <Text style={styles.buttonText}>Sign In</Text> */}
         </TouchableOpacity>
       </View>
     </View>

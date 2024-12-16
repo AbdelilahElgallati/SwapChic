@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import imgbg from '@/assets/images/bg.jpg';
+import { Link } from 'expo-router';
 const { width, height } = Dimensions.get('window'); // Pour récupérer les dimensions de l'écran
 
 const WelcomeScreen = () => {

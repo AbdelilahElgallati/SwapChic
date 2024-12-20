@@ -5,16 +5,7 @@ const UserSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
-    photo: {
-        public_id: {
-          type: String,
-          required: true,
-        },
-        url: {
-          type: String,
-          required: true,
-        },
-    },
+    photo: { type: Buffer }, 
     phone: { type: String },
     localisation: { type: String},
     role: { type: String, default: 'user'},

@@ -9,6 +9,7 @@ const session = require("express-session");
 const url = process.env.DATABASE_URL;
 const bodyParser = require("body-parser");
 const app = express();
+const myPort = process.env.PORT;
 const Port = 3001;
 
 const CategoryRouter = require("./routes/categoryRouter");
@@ -55,6 +56,6 @@ mongoose
     console.log(err);
   });
 
-app.listen(Port, () => {
+app.listen(myPort || Port, () => {
   console.log("the platform is running well");
 });

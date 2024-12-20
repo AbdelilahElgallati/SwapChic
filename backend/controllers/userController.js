@@ -5,32 +5,48 @@ const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log("body");
+    console.log(req.body);
+    console.log("file");
+    console.log(req.file);
     const { name, email, password, phone, localisation, photo } = req.body;
-    
+    const { buffer, originalname, mimetype } = req.file;
+
     const existeUser = await User.findOne({ email: email });
-    if (!existeUser) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const result = await cloudinary.uploader.upload(photo, {
-        folder: "Users",
-      });
-      const User = new User({
-        name,
-        email,
-        password: hashedPassword,
-        phone,
-        localisation,
-        photo: {
-          public_id: result.public_id,
-          url: result.secure_url,
-        },
-      });
-      await User.save();
-    } else {
+    if (existeUser) {
       return res
         .status(400)
         .json({ success: false, message: "L'utilisateur existe déjà" });
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Upload photo to Cloudinary
+
+    // if (req.file) {
+    //   const result = await cloudinary.uploader.upload_stream(
+    //     { folder: "Users" },
+    //     (error, result) => {
+    //       if (error) throw error;
+    //       return result;
+    //     }
+    //   );
+    //   console.log("result")
+    //   console.log(result)
+    //   let photo = {
+    //     public_id: result.public_id,
+    //     url: result.secure_url,
+    //   };
+      
+    // }
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      localisation,
+      photo: buffer,
+    });
+    await user.save();
+    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user: newUser });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'utilisateur :", error);
     return res.status(500).json({
@@ -52,10 +68,17 @@ const getAllUsers = async (req, res) => {
 
 const getOneUser = async (req, res) => {
   try {
-    const User = await User.findById(req.params.id);
-    res.status(201).json(User);
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+    }
+
+    // Pour renvoyer l'image en tant que fichier binaire
+    res.set("Content-Type", "image/jpeg");
+    res.send(user.photo);
   } catch (error) {
-    res.status(500).send("Erreur serveur lors de la recherche d'utilisateur");
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -94,13 +117,9 @@ const updateUser = async (req, res) => {
                 url: result.secure_url,
               };
 
-              const User = await User.findByIdAndUpdate(
-                req.params.id,
-                data,
-                {
-                  new: true,
-                }
-              );
+              const User = await User.findByIdAndUpdate(req.params.id, data, {
+                new: true,
+              });
               res.status(200).json({
                 success: true,
                 User,
@@ -110,13 +129,9 @@ const updateUser = async (req, res) => {
         )
         .end(req.file.buffer);
     } else {
-      const User = await User.findByIdAndUpdate(
-        req.params.id,
-        data,
-        {
-          new: true,
-        }
-      );
+      const User = await User.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
       res.status(200).json({
         success: true,
         User,
@@ -140,10 +155,15 @@ const updateStausUser = async (req, res) => {
     );
     res.status(200).json({
       success: true,
-      enterprise, 
+      enterprise,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Erreur lors de la mise à jour du statut de l'utilisateur" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Erreur lors de la mise à jour du statut de l'utilisateur",
+      });
   }
 };
 

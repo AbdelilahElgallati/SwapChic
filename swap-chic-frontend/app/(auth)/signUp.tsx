@@ -242,6 +242,152 @@
 
 // export default SignUp;
 
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// import React, { useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   Button,
+//   StyleSheet,
+//   TouchableOpacity,
+//   Image,
+//   Alert,
+// } from 'react-native';
+// import * as ImagePicker from 'expo-image-picker';
+// import axios from 'axios';
+
+// const SignUp = () => {
+//   const [form, setForm] = useState({
+//     name: '',
+//     email: '',
+//     password: '',
+//     phone: '',
+//     localisation: '',
+//     photo: null,
+//   });
+
+//   const handleInputChange = (field, value) => {
+//     setForm({ ...form, [field]: value });
+//   };
+
+//   const handlePickImage = async () => {
+//     const result = await ImagePicker.launchImageLibraryAsync({
+//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//       allowsEditing: true,
+//       base64: true,
+//     });
+
+//     if (!result.canceled) {
+//       setForm({ ...form, photo: result.assets[0].base64 });
+//     }
+//   };
+
+//   const handleSubmit = async () => {
+//     if (!form.photo) {
+//       Alert.alert('Error', 'Please select a photo.');
+//       return;
+//     }
+
+//     try {
+//       await axios.post('https://swapchic-api.onrender.com/user/register', form);
+//       Alert.alert('Success', 'Account created successfully!');
+//     } catch (error) {
+//       console.log(error)
+//       Alert.alert('Error', error.response?.data?.message || 'Something went wrong.');
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.title}>Sign Up</Text>
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Name"
+//         value={form.name}
+//         onChangeText={(value) => handleInputChange('name', value)}
+//       />
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Email"
+//         keyboardType="email-address"
+//         value={form.email}
+//         onChangeText={(value) => handleInputChange('email', value)}
+//       />
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Password"
+//         secureTextEntry
+//         value={form.password}
+//         onChangeText={(value) => handleInputChange('password', value)}
+//       />
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Phone"
+//         keyboardType="phone-pad"
+//         value={form.phone}
+//         onChangeText={(value) => handleInputChange('phone', value)}
+//       />
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Localisation"
+//         value={form.localisation}
+//         onChangeText={(value) => handleInputChange('localisation', value)}
+//       />
+//       <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+//         {form.photo ? (
+//           <Image
+//             source={{ uri: `data:image/png;base64,${form.photo}` }}
+//             style={styles.image}
+//           />
+//         ) : (
+//           <Text>Select Photo</Text>
+//         )}
+//       </TouchableOpacity>
+//       <Button title="Sign Up" onPress={handleSubmit} />
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 20,
+//     justifyContent: 'center',
+//   },
+//   title: {
+//     fontSize: 24,
+//     marginBottom: 20,
+//     textAlign: 'center',
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 5,
+//     padding: 10,
+//     marginBottom: 10,
+//   },
+//   imagePicker: {
+//     height: 150,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 5,
+//     marginBottom: 10,
+//   },
+//   image: {
+//     width: '100%',
+//     height: '100%',
+//   },
+// });
+
+// export default SignUp;
+
+
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 import React, { useState } from 'react';
 import {
   View,
@@ -254,96 +400,126 @@ import {
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
 
 const SignUp = () => {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    localisation: '',
-    photo: null,
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [localisation, setLocalisation] = useState('');
+  const [photo, setPhoto] = useState(null);
 
-  const handleInputChange = (field, value) => {
-    setForm({ ...form, [field]: value });
-  };
-
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      setForm({ ...form, photo: result.assets[0].base64 });
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!form.photo) {
-      Alert.alert('Error', 'Please select a photo.');
+  // Fonction pour sélectionner une photo
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission requise", "Autorisez l'accès à votre galerie pour ajouter une photo.");
       return;
     }
 
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
+  // Fonction pour soumettre les données
+  const handleSignUp = async () => {
+    if (!name || !email || !password || !phone || !localisation) {
+      Alert.alert("Erreur", "Tous les champs sont obligatoires.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('phone', phone);
+    formData.append('localisation', localisation);
+
+    if (photo) {
+      const filename = photo.split('/').pop();
+      const type = `image/${filename.split('.').pop()}`;
+      formData.append('photo', {
+        uri: photo,
+        name: filename,
+        type,
+      });
+    }
+
     try {
-      await axios.post('https://swapchic-api.onrender.com/user/register', form);
-      Alert.alert('Success', 'Account created successfully!');
+      const response = await fetch('https://swapchic-api.onrender.com/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert("Succès", "Utilisateur ajouté avec succès !");
+      } else {
+        Alert.alert("Erreur", data.message || "Échec de l'inscription.");
+      }
     } catch (error) {
-      console.log(error)
-      Alert.alert('Error', error.response?.data?.message || 'Something went wrong.');
+      console.error("Erreur :", error);
+      Alert.alert("Erreur", "Un problème est survenu lors de l'inscription.");
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Inscription</Text>
+      
       <TextInput
         style={styles.input}
-        placeholder="Name"
-        value={form.name}
-        onChangeText={(value) => handleInputChange('name', value)}
+        placeholder="Nom complet"
+        value={name}
+        onChangeText={setName}
       />
       <TextInput
         style={styles.input}
         placeholder="Email"
         keyboardType="email-address"
-        value={form.email}
-        onChangeText={(value) => handleInputChange('email', value)}
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Mot de passe"
         secureTextEntry
-        value={form.password}
-        onChangeText={(value) => handleInputChange('password', value)}
+        value={password}
+        onChangeText={setPassword}
       />
       <TextInput
         style={styles.input}
-        placeholder="Phone"
+        placeholder="Téléphone"
         keyboardType="phone-pad"
-        value={form.phone}
-        onChangeText={(value) => handleInputChange('phone', value)}
+        value={phone}
+        onChangeText={setPhone}
       />
       <TextInput
         style={styles.input}
         placeholder="Localisation"
-        value={form.localisation}
-        onChangeText={(value) => handleInputChange('localisation', value)}
+        value={localisation}
+        onChangeText={setLocalisation}
       />
-      <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-        {form.photo ? (
-          <Image
-            source={{ uri: `data:image/png;base64,${form.photo}` }}
-            style={styles.image}
-          />
-        ) : (
-          <Text>Select Photo</Text>
-        )}
+      
+      <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+        <Text style={styles.photoButtonText}>
+          {photo ? "Changer de photo" : "Ajouter une photo"}
+        </Text>
       </TouchableOpacity>
-      <Button title="Sign Up" onPress={handleSubmit} />
+      {photo && <Image source={{ uri: photo }} style={styles.imagePreview} />}
+      
+      <Button title="S'inscrire" onPress={handleSignUp} />
     </View>
   );
 };
@@ -353,31 +529,40 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 20,
   },
   input: {
-    borderWidth: 1,
+    height: 50,
     borderColor: '#ccc',
+    borderWidth: 1,
     borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  photoButton: {
+    backgroundColor: '#007BFF',
     padding: 10,
-    marginBottom: 10,
-  },
-  imagePicker: {
-    height: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 5,
+    alignItems: 'center',
     marginBottom: 10,
   },
-  image: {
-    width: '100%',
-    height: '100%',
+  photoButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
 });
 

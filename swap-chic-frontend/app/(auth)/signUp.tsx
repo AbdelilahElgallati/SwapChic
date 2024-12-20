@@ -23,32 +23,32 @@ const SignUp = () => {
     photo: Yup.object().required("Photo is required"),
   });
 
-  // const handleImagePick = async (setFieldValue) => {
-  //   const result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   if (!result.canceled && result.assets && result.assets.length > 0) {
-  //     const selectedImage = result.assets[0];
-  //     setFieldValue("photo", selectedImage);
-  //     setImagePreview(selectedImage.uri);
-  //   }
-  // };
-
-  const pickImage = async () => {
+  const handleImagePick = async (setFieldValue) => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: [ImagePicker.MediaType.Images], // Updated usage
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
+      aspect: [4, 3],
       quality: 1,
     });
-  
-    if (!result.canceled) {
-      console.log(result);
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      setFieldValue("photo", selectedImage);
+      setImagePreview(selectedImage.uri);
     }
   };
+
+  // const pickImage = async () => {
+  //   const result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: [ImagePicker.MediaType.Images], // Updated usage
+  //     allowsEditing: true,
+  //     quality: 1,
+  //   });
+  
+  //   if (!result.canceled) {
+  //     console.log(result);
+  //   }
+  // };
 
   const handleRegister = async (values) => {
     const formData = new FormData();
@@ -69,19 +69,19 @@ const SignUp = () => {
 
     try {
       // const response = await registerUser(formData)
-      // const response = await fetch("https://swapchic-api.onrender.com/user/register", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      //   body: formData,
-      // });
-
-      const response = await fetch("https://your-api-endpoint.com/user/register", {
+      const response = await fetch("https://swapchic-api.onrender.com/user/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData), // Ensure userData is correctly structured
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
       });
+
+      // const response = await fetch("https://your-api-endpoint.com/user/register", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData), // Ensure userData is correctly structured
+      // });
 
       if (!response.ok) {
         const errorText = await response.text(); // Read raw response in case of errors

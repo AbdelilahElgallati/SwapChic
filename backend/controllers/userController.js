@@ -3,43 +3,42 @@ const bcrypt = require("bcrypt");
 const cloudinary = require("../utils/cloudinary");
 const User = require("../models/userModel");
 
+const bcrypt = require('bcrypt');
+
 const addUser = async (req, res) => {
   try {
     console.log("Request Body:", req.body);
     console.log("Uploaded File:", req.file);
 
     const { name, email, password, phone, localisation } = req.body;
-    
+    const photo = req.file
+      ? {
+          id: req.file.id,
+          filename: req.file.filename,
+          contentType: req.file.mimetype,
+        }
+      : null;
 
-    if (!name || !email || !password || !phone || !localisation || req.file ) {
+    // Vérification des champs obligatoires
+    if (!name || !email || !password || !phone || !localisation) {
       return res.status(400).json({
         success: false,
         message: "Tous les champs doivent être remplis.",
       });
     }
 
-    const photo = req.file ? {
-      id: req.file.id,
-      filename: req.file.filename,
-      constentType: req.file.mimetype
-      
-    }: null;
-
+    // Vérifier si l'utilisateur existe déjà
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {
       return res
         .status(400)
         .json({ success: false, message: "L'utilisateur existe déjà" });
     }
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "Le mot de passe est requis.",
-      });
-    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // Hachage du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10); 
+    console.log("Password to hash:", password);
+    // Création du nouvel utilisateur
     const user = new User({
       name,
       email,
@@ -50,16 +49,77 @@ const addUser = async (req, res) => {
     });
 
     await user.save();
-    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
+    res
+      .status(201)
+      .json({ success: true, message: "Utilisateur ajouté avec succès", user });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'utilisateur :", error);
     return res.status(500).json({
       success: false,
-      message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
+      message: `Erreur serveur lors de l'ajout d'utilisateur : ${error.message}`,
       error,
     });
   }
 };
+
+
+// const addUser = async (req, res) => {
+//   try {
+//     console.log("Request Body:", req.body);
+//     console.log("Uploaded File:", req.file);
+
+//     const { name, email, password, phone, localisation } = req.body;
+    
+
+//     if (!name || !email || !password || !phone || !localisation || req.file ) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Tous les champs doivent être remplis.",
+//       });
+//     }
+
+//     const photo = req.file ? {
+//       id: req.file.id,
+//       filename: req.file.filename,
+//       constentType: req.file.mimetype
+      
+//     }: null;
+
+//     const existeUser = await User.findOne({ email: email });
+//     if (existeUser) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "L'utilisateur existe déjà" });
+//     }
+//     if (!password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Le mot de passe est requis.",
+//       });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const user = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//       phone,
+//       localisation,
+//       photo,
+//     });
+
+//     await user.save();
+//     res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
+//   } catch (error) {
+//     console.error("Erreur lors de l'ajout d'utilisateur :", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
+//       error,
+//     });
+//   }
+// };
 
 const getAllUsers = async (req, res) => {
   try {

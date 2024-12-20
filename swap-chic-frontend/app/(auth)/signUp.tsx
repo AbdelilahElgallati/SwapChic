@@ -443,6 +443,8 @@ const SignUp = () => {
     formData.append('phone', phone);
     formData.append('localisation', localisation);
 
+    
+
     if (photo) {
       const filename = photo.split('/').pop();
       const type = `image/${filename.split('.').pop()}`;
@@ -452,6 +454,10 @@ const SignUp = () => {
         type,
       });
     }
+
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
 
     try {
       const response = await fetch('https://swapchic-api.onrender.com/user/register', {

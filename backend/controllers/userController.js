@@ -5,7 +5,8 @@ const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
+    console.log("Request Body:");
+    console.log(req.body)
 
     const { name, email, password, phone, localisation } = req.body;
     const photoFile = req.file;

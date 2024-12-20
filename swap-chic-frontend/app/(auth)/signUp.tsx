@@ -276,14 +276,6 @@ const SignUp = () => {
         body: formData,
       });
 
-      // const response = await fetch("http://localhost:3001/user/register", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      //   body: formData,
-      // });
-      // const result = await response.json();
       const result = await response.json();
       console.log("Registration successful:", result);
     } catch (error) {

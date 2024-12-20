@@ -41,8 +41,9 @@ const addUser = async (req, res) => {
       localisation,
       photo: photo ? photo.buffer : undefined,
     });
+
     await user.save();
-    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user: newUser });
+    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user: user });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'utilisateur :", error);
     return res.status(500).json({

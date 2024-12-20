@@ -5,11 +5,11 @@ const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
   try {
-    console.log("body", req.body);
-    console.log("file", req.file);
+    console.log("Request Body:", req.body);
+    console.log("Uploaded File:", req.file);
 
     const { name, email, password, phone, localisation } = req.body;
-    const photo = req.file;
+    // const photo = req.file;
 
     if (!name || !email || !password || !phone || !localisation) {
       return res.status(400).json({
@@ -39,11 +39,11 @@ const addUser = async (req, res) => {
       password: hashedPassword,
       phone,
       localisation,
-      photo: photo ? photo.buffer : undefined,
+      photo: req.file ? req.file.buffer : undefined,
     });
 
     await user.save();
-    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user: user });
+    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'utilisateur :", error);
     return res.status(500).json({

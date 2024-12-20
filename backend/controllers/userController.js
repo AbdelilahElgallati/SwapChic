@@ -9,19 +9,21 @@ const addUser = async (req, res) => {
     console.log("Uploaded File:", req.file);
 
     const { name, email, password, phone, localisation } = req.body;
+    
+
+    if (!name || !email || !password || !phone || !localisation || req.file ) {
+      return res.status(400).json({
+        success: false,
+        message: "Tous les champs doivent être remplis.",
+      });
+    }
+
     const photo = req.file ? {
       id: req.file.id,
       filename: req.file.filename,
       constentType: req.file.mimetype
       
     }: null;
-
-    if (!name || !email || !password || !phone || !localisation) {
-      return res.status(400).json({
-        success: false,
-        message: "Tous les champs doivent être remplis.",
-      });
-    }
 
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {

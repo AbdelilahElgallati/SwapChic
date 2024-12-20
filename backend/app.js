@@ -29,13 +29,12 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("Public"));
-app.use(
-  session({
-    secret: "secret",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+app.use(session({
+  store: new RedisStore({ client: redis.createClient() }),
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 

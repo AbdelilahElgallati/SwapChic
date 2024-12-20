@@ -4,53 +4,80 @@ const cloudinary = require("../utils/cloudinary");
 const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
+  // try {
+  //   console.log("Request Body:", req.body);
+  //   console.log("Uploaded File:", req.file);
+
+  //   const { name, email, password, phone, localisation } = req.body;
+  //   // const photo = req.file;
+
+  //   if (!name || !email || !password || !phone || !localisation) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Tous les champs doivent être remplis.",
+  //     });
+  //   }
+
+  //   const existeUser = await User.findOne({ email: email });
+  //   if (existeUser) {
+  //     return res
+  //       .status(400)
+  //       .json({ success: false, message: "L'utilisateur existe déjà" });
+  //   }
+  //   if (!password) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Le mot de passe est requis.",
+  //     });
+  //   }
+
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+
+  //   const user = new User({
+  //     name,
+  //     email,
+  //     password: hashedPassword,
+  //     phone,
+  //     localisation,
+  //     photo: req.file ? req.file.buffer : undefined,
+  //   });
+
+  //   await user.save();
+  //   res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
+  // } catch (error) {
+  //   console.error("Erreur lors de l'ajout d'utilisateur :", error);
+  //   return res.status(500).json({
+  //     success: false,
+  //     message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
+  //     error,
+  //   });
+  // }
+
+  const { name, email, password, photo, phone, localisation } = req.body;
+
+  if (!name || !email || !password || !photo || !phone || !localisation) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   try {
-    console.log("Request Body:", req.body);
-    console.log("Uploaded File:", req.file);
-
-    const { name, email, password, phone, localisation } = req.body;
-    // const photo = req.file;
-
-    if (!name || !email || !password || !phone || !localisation) {
-      return res.status(400).json({
-        success: false,
-        message: "Tous les champs doivent être remplis.",
-      });
-    }
-
-    const existeUser = await User.findOne({ email: email });
-    if (existeUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "L'utilisateur existe déjà" });
-    }
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "Le mot de passe est requis.",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = new User({
       name,
       email,
       password: hashedPassword,
+      photo: Buffer.from(photo, 'base64'),
       phone,
       localisation,
-      photo: req.file ? req.file.buffer : undefined,
     });
-
     await user.save();
-    res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
-  } catch (error) {
-    console.error("Erreur lors de l'ajout d'utilisateur :", error);
-    return res.status(500).json({
-      success: false,
-      message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
-      error,
-    });
+    res.status(201).send({ success: true,message: 'User created successfully' });
+  } catch (err) {
+    if (err.code === 11000) {
+      res.status(400).send({ success: false,message: 'Email already exists' });
+    } else {
+      res.status(500).send({ success: false,message: 'Server error' });
+    }
   }
 };
 

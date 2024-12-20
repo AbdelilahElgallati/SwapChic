@@ -12,6 +12,8 @@ const addUser = async (req, res) => {
 
     // Vérification des champs obligatoires
     if (!name || !email || !password || !phone || !localisation) {
+      console.log("Tous les champs doivent être remplis.");
+      
       return res.status(400).json({
         success: false,
         message: "Tous les champs doivent être remplis.",
@@ -23,6 +25,8 @@ const addUser = async (req, res) => {
     // Vérifier si l'utilisateur existe déjà
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {
+      console.log("L'utilisateur existe déjà");
+      
       return res
         .status(400)
         .json({ success: false, message: "L'utilisateur existe déjà." });
@@ -34,6 +38,8 @@ const addUser = async (req, res) => {
     const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
       folder: "users", 
     });
+    console.log("uploadResult");
+    console.log(uploadResult);
 
     // Création du nouvel utilisateur
     const user = new User({
@@ -46,7 +52,8 @@ const addUser = async (req, res) => {
     });
 
     await user.save();
-
+    console.log("Utilisateur ajouté avec succès");
+    
     res
       .status(201)
       .json({ success: true, message: "Utilisateur ajouté avec succès", user });

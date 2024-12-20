@@ -5,12 +5,10 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const passport = require("passport");
-// const session = require("express-session");
-const session = require('express-session');
+const session = require("express-session");
 const url = process.env.DATABASE_URL;
 const bodyParser = require("body-parser");
 const app = express();
-const myPort = process.env.PORT;
 const Port = 3001;
 
 const CategoryRouter = require("./routes/categoryRouter");
@@ -30,11 +28,13 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("Public"));
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -55,6 +55,6 @@ mongoose
     console.log(err);
   });
 
-app.listen(myPort || Port, () => {
+app.listen(Port, () => {
   console.log("the platform is running well");
 });

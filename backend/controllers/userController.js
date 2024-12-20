@@ -20,9 +20,6 @@ const addUser = async (req, res) => {
       });
     }
 
-    console.log("Password to hash:", password); // Debugging log
-
-    // Vérifier si l'utilisateur existe déjà
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {
       console.log("L'utilisateur existe déjà");
@@ -32,16 +29,13 @@ const addUser = async (req, res) => {
         .json({ success: false, message: "L'utilisateur existe déjà." });
     }
 
-    // Hachage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
       folder: "users", 
     });
-    console.log("uploadResult");
-    console.log(uploadResult);
 
-    // Création du nouvel utilisateur
     const user = new User({
       name,
       email,

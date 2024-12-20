@@ -258,8 +258,8 @@ const SignUp = () => {
     formData.append("localisation", values.localisation);
     formData.append("photo", {
       uri: values.photo.uri,
-      type: values.photo.type,
-      name: values.photo.name || "profile.jpg",
+      type: "image/jpeg", 
+      name: "profile.jpg",
     });
 
     for (let [key, value] of formData.entries()) {
@@ -267,14 +267,14 @@ const SignUp = () => {
     }
 
     try {
-      const response = await registerUser(formData)
-      // const response = await fetch("http://192.168.1.2:3001/user/register", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      //   body: formData,
-      // });
+      // const response = await registerUser(formData)
+      const response = await fetch("https://swapchic-api.onrender.com/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
 
       // const response = await fetch("http://localhost:3001/user/register", {
       //   method: "POST",
@@ -284,7 +284,8 @@ const SignUp = () => {
       //   body: formData,
       // });
       // const result = await response.json();
-      console.log("Registration response:", response);
+      const result = await response.json();
+      console.log("Registration successful:", result);
     } catch (error) {
       console.error("Registration error:", error);
       console.error(error);

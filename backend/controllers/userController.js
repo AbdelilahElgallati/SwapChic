@@ -5,12 +5,18 @@ const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
   try {
-    console.log("body");
-    console.log(req.body);
-    console.log("file");
-    console.log(req.file);
-    const { name, email, password, phone, localisation, photo } = req.body;
-    const { buffer, originalname, mimetype } = req.file;
+    console.log("body", req.body);
+    console.log("file", req.file);
+
+    const { name, email, password, phone, localisation } = req.body;
+    const photo = req.file;
+
+    if (!name || !email || !password || !phone || !localisation) {
+      return res.status(400).json({
+        success: false,
+        message: "Tous les champs doivent être remplis.",
+      });
+    }
 
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {
@@ -18,32 +24,22 @@ const addUser = async (req, res) => {
         .status(400)
         .json({ success: false, message: "L'utilisateur existe déjà" });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Upload photo to Cloudinary
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Le mot de passe est requis.",
+      });
+    }
 
-    // if (req.file) {
-    //   const result = await cloudinary.uploader.upload_stream(
-    //     { folder: "Users" },
-    //     (error, result) => {
-    //       if (error) throw error;
-    //       return result;
-    //     }
-    //   );
-    //   console.log("result")
-    //   console.log(result)
-    //   let photo = {
-    //     public_id: result.public_id,
-    //     url: result.secure_url,
-    //   };
-      
-    // }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = new User({
       name,
       email,
       password: hashedPassword,
       phone,
       localisation,
-      photo: buffer,
+      photo: photo ? photo.buffer : undefined,
     });
     await user.save();
     res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user: newUser });

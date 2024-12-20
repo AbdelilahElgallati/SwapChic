@@ -4,8 +4,9 @@ const UserController = require("../controllers/userController");
 const Auth = require("../middlewares/auth");
 
 const multer = require("multer");
-const storage = multer.memoryStorage(); // Store file in memory as buffer
-const upload = multer({ storage });
+// const storage = multer.memoryStorage(); // Store file in memory as buffer
+// const upload = multer({ storage });
+const upload = multer({ dest: 'uploads/' });
 
 UserRouter.get( "/", UserController.getAllUsers); 
 UserRouter.get( "/:id", UserController.getOneUser); 

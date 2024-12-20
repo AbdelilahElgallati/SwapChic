@@ -7,15 +7,8 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     photo: {
-      id: {
-        type: String,
-      },
-      filename: {
-        type: String,
-      },
-      contentType: {
-        type: String,
-      },
+      type: String, 
+      required: true,
     },
     phone: { type: String, required: true },
     localisation: { type: String, required: true },

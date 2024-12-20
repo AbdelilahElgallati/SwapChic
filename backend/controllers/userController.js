@@ -8,6 +8,7 @@ const addUser = async (req, res) => {
     console.log("Request Body:", req.body);
 
     const { name, email, password, phone, localisation } = req.body;
+    const photoFile = req.file;
 
     // Vérification des champs obligatoires
     if (!name || !email || !password || !phone || !localisation) {
@@ -30,6 +31,10 @@ const addUser = async (req, res) => {
     // Hachage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
+      folder: "users", 
+    });
+
     // Création du nouvel utilisateur
     const user = new User({
       name,
@@ -37,13 +42,7 @@ const addUser = async (req, res) => {
       password: hashedPassword,
       phone,
       localisation,
-      photo: req.file
-        ? {
-            id: req.file.id,
-            filename: req.file.filename,
-            contentType: req.file.mimetype,
-          }
-        : null,
+      photo: uploadResult.secure_url,
     });
 
     await user.save();
@@ -60,15 +59,12 @@ const addUser = async (req, res) => {
   }
 };
 
-
-
 // const addUser = async (req, res) => {
 //   try {
 //     console.log("Request Body:", req.body);
 //     console.log("Uploaded File:", req.file);
 
 //     const { name, email, password, phone, localisation } = req.body;
-    
 
 //     if (!name || !email || !password || !phone || !localisation || req.file ) {
 //       return res.status(400).json({
@@ -81,7 +77,7 @@ const addUser = async (req, res) => {
 //       id: req.file.id,
 //       filename: req.file.filename,
 //       constentType: req.file.mimetype
-      
+
 //     }: null;
 
 //     const existeUser = await User.findOne({ email: email });
@@ -133,7 +129,9 @@ const getOneUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Utilisateur non trouvé" });
     }
 
     // Pour renvoyer l'image en tant que fichier binaire
@@ -221,12 +219,10 @@ const updateStausUser = async (req, res) => {
       enterprise,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Erreur lors de la mise à jour du statut de l'utilisateur",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Erreur lors de la mise à jour du statut de l'utilisateur",
+    });
   }
 };
 

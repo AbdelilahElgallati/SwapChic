@@ -10,7 +10,6 @@ const upload = multer({ storage });
 UserRouter.get( "/", UserController.getAllUsers); 
 UserRouter.get( "/:id", UserController.getOneUser); 
 UserRouter.put('/changePassword/:id', UserController.changePassword);
-// UserRouter.post('/register',upload.single('photo'), UserController.addUser);
 UserRouter.post('/register', upload.single('photo'), UserController.addUser);
 UserRouter.put('/edit/:id', upload.single('photo'), UserController.updateUser);
 UserRouter.put('/editStatus/:id', UserController.updateStausUser);

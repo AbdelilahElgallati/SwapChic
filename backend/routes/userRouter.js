@@ -9,6 +9,7 @@ const multer = require("multer");
 const upload = multer({ dest: 'uploads/' });
 
 UserRouter.get( "/", UserController.getAllUsers); 
+UserRouter.get( "/me", UserController.getUserData); 
 UserRouter.get( "/:id", UserController.getOneUser); 
 UserRouter.put('/changePassword/:id', UserController.changePassword);
 UserRouter.post('/register', upload.single('photo'), UserController.addUser);

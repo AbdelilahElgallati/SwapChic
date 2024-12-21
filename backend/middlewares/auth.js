@@ -4,7 +4,6 @@ const User = require("../models/userModel")
 
 const loginMiddleware = async (req, res, next) => {
   try {
-    console.log(req.body)
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
     if (!user) {

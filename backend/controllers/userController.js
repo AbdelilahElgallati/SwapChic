@@ -250,6 +250,24 @@ const login = async (req, res) => {
   }
 };
 
+// const jwt = require("jsonwebtoken");
+// const User = require("../models/userModel");
+
+const getUserData = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, "AbdelilahElgallati1230");
+    const user = await User.findById(decoded.userId).select("-password"); // Exclut le mot de passe
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ error: "Non autorisé" });
+  }
+};
+
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
@@ -281,4 +299,5 @@ module.exports = {
   login,
   changePassword,
   updateStausUser,
+  getUserData,
 };

@@ -1,6 +1,7 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
-import {FontAwesome, FontAwesome6, MaterialIcons} from '@expo/vector-icons'
+import React from "react";
+import { Tabs } from "expo-router";
+import { FontAwesome, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const Layout = () => {
   return (
@@ -32,7 +33,16 @@ const Layout = () => {
           ),
         }}
       />
-      
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="user" size={28} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 };

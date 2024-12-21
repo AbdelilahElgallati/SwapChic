@@ -239,9 +239,11 @@ const removeUser = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+
     const jsenwebtkn = req.token;
     const user = req.user;
-    res.json({ jsenwebtkn, user });
+    console.log("login success")
+    res.json({ token: jsenwebtkn, user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur serveur" });

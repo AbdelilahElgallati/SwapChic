@@ -1,16 +1,12 @@
 import axios from "axios";
 import React from 'react';
 
-const BASE_URL = "https://swapchic-api.onrender.com";
+// const BASE_URL = "https://swapchic-api.onrender.com";
 
-export const registerUser = async (formData) => {
+export const loginUser = async (formData) => {
   try {
     console.log("start")
-    const response = await axios.post(`${BASE_URL}/user/register`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", 
-      },
-    });
+    const response = await axios.post(`http://192.168.1.2:3001/user/login`, userData);
     console.log("Server response:", response);  
     return response.data; 
   } catch (error) {

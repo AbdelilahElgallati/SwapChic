@@ -1,100 +1,95 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useSignIn } from '@clerk/clerk-expo';
+import { Link, useRouter } from 'expo-router';
+import { Text, TextInput, Button, View, Alert } from 'react-native';
+import React from 'react';
 
-const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function SignIn() {
+  
+  const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
 
-  const handleSignIn = () => {
-    if (email === 'test@example.com' && password === 'password123') {
-      Alert.alert('Connexion réussie', 'Bienvenue !');
-      router.push('/'); // Naviguer vers la page "Home"
-    } else {
-      Alert.alert('Erreur', 'Identifiants incorrects.');
+  const [emailAddress, setEmailAddress] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const onSignInPress = React.useCallback(async () => {
+    if (!isLoaded) return;
+
+    setIsLoading(true); // Start loading
+
+    try {
+      // Attempt sign-in with the provided email and password
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
+        password,
+      });
+
+      // If sign-in is complete, set the session as active and navigate to home
+      if (signInAttempt.status === 'complete') {
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace('/');
+      } else {
+        // Handle incomplete sign-in (e.g., multi-factor authentication required)
+        setErrorMessage('Une erreur est survenue pendant la connexion.');
+        console.error(JSON.stringify(signInAttempt, null, 2));
+      }
+    } catch (err) {
+      // Handle sign-in error (e.g., invalid credentials)
+      setErrorMessage('Erreur de connexion, veuillez réessayer.');
+      console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false); // End loading
     }
-  };
+  }, [isLoaded, emailAddress, password]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Connexion</Text>
+    <View style={{ padding: 20, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Connexion</Text>
 
       <TextInput
-        style={styles.input}
-        placeholder="Adresse e-mail"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
+        style={{
+          width: '100%',
+          padding: 15,
+          borderWidth: 1,
+          borderColor: '#ddd',
+          borderRadius: 10,
+          marginBottom: 15,
+          backgroundColor: '#fff',
+        }}
         autoCapitalize="none"
+        value={emailAddress}
+        placeholder="Entrez votre e-mail"
+        onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
       />
-
       <TextInput
-        style={styles.input}
-        placeholder="Mot de passe"
-        secureTextEntry
+        style={{
+          width: '100%',
+          padding: 15,
+          borderWidth: 1,
+          borderColor: '#ddd',
+          borderRadius: 10,
+          marginBottom: 15,
+          backgroundColor: '#fff',
+        }}
         value={password}
-        onChangeText={setPassword}
+        placeholder="Entrez votre mot de passe"
+        secureTextEntry={true}
+        onChangeText={(password) => setPassword(password)}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Se connecter</Text>
-      </TouchableOpacity>
+      {errorMessage ? (
+        <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>
+      ) : null}
 
-      <Text style={styles.footerText}>
-        Pas encore inscrit ?{' '}
-        <Text style={styles.link} onPress={() => router.push('/sign-up')}>
-          Créer un compte
-        </Text>
-      </Text>
+      <Button title={isLoading ? 'Chargement...' : 'Se connecter'} onPress={onSignInPress} disabled={isLoading} />
+
+      <View style={{ marginTop: 20 }}>
+        <Text>Vous n'avez pas de compte ?</Text>
+        <Link href="/sign-up">
+          <Text style={{ color: '#6200EE', fontWeight: 'bold' }}>S'inscrire</Text>
+        </Link>
+      </View>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
-  button: {
-    backgroundColor: '#6200EE',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '100%',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  footerText: {
-    marginTop: 20,
-    fontSize: 14,
-    color: '#666',
-  },
-  link: {
-    color: '#6200EE',
-    fontWeight: 'bold',
-  },
-});
-
-export default SignIn;
+}

@@ -1,26 +1,39 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "SwapChic",
+    "slug": "swapchic",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "swapchic",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "platforms": ["ios", "android", "web"],
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "extra": {
+      "clerkPublishableKey": "pk_test_YWJsZS1kb25rZXktMjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.swapchic.app",
+      "buildNumber": "1.0.0"
     },
     "android": {
+      "package": "com.swapchic.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": []
     },
     "web": {
+      "favicon": "./assets/images/favicon.png",
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
       "expo-router",
@@ -28,7 +41,6 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
@@ -36,6 +48,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "description": "SwapChic, The Ultimate Marketplace App"
   }
 }

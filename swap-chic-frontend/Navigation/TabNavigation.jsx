@@ -6,9 +6,30 @@ import ProfileScreen from '../app/(tabs)/Profil';
 import ExploreScreen from '../app/(tabs)/explore';
 import AddPostScreen from '../app/(tabs)/AddPostScreen';
 import AntDesign from '@expo/vector-icons/AntDesign';
-
+import Panier from '../app/(tabs)/Profil_infos/Panier';
+import MyProducts from '../app/(tabs)/Profil_infos/MyProducts';
+import Connections from '../app/(tabs)/Profil_infos/connections';
+import Login from '../app/(tabs)/index';
+import EditProfile from '../app/(tabs)/Profil_infos/EditProfile';
 import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const ProfileStack = createStackNavigator();
+
+function ProfileStackScreen() {
+    return (
+        <ProfileStack.Navigator initialRouteName='Profil'>
+            <ProfileStack.Screen name="Profil" component={ProfileScreen} options={{headerShown: false}} />
+            <ProfileStack.Screen name="Panier" component={Panier} />
+            <ProfileStack.Screen name="MyProducts" component={MyProducts} />
+            <ProfileStack.Screen name="Connections" component={Connections} />
+            <ProfileStack.Screen name="Login" component={Login} />
+            <ProfileStack.Screen name="EditProfile" component={EditProfile} />
+        </ProfileStack.Navigator>
+    );
+}
 const Tab = createBottomTabNavigator();
+
 export default function TabNavigation() {
   return (
     <Tab.Navigator screenOptions={{headerShown: false}} tabBarActiveTintColor="#000" initialRouteName="Home">
@@ -23,18 +44,7 @@ export default function TabNavigation() {
             )
 
         }}/>
-        <Tab.Screen name="Profile" component={ProfileScreen} 
-        options={{
-            tabBarLabel: ({color}) => (
-                <View>
-                <Text style={{color:color,fontSize:12,marginBottom:3}}>Profile</Text>
-                </View>
-            ),
-            tabBarIcon: ({color,size}) => {
-                return <AntDesign name="user" size={size} color={color} />
-            }
-        }}
-        />
+       
         <Tab.Screen name="explore" component={ExploreScreen} 
         options={{
             tabBarLabel: ({color}) => (
@@ -59,6 +69,18 @@ export default function TabNavigation() {
         }}
     }
         
+        />
+     <Tab.Screen name="Profil" component={ProfileStackScreen} 
+        options={{
+            tabBarLabel: ({color}) => (
+                <View>
+                <Text style={{color:color,fontSize:12,marginBottom:3}}>Profile</Text>
+                </View>
+            ),
+            tabBarIcon: ({color,size}) => {
+                return <AntDesign name="user" size={size} color={color} />
+            }
+        }}
         />
     </Tab.Navigator>
   )

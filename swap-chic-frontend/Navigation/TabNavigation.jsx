@@ -13,6 +13,7 @@ import Login from '../app/(tabs)/index';
 import EditProfile from '../app/(tabs)/Profil_infos/EditProfile';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import ChatScreen from '../app/(tabs)/Profil_infos/Chat';
 
 const ProfileStack = createStackNavigator();
 
@@ -25,6 +26,7 @@ function ProfileStackScreen() {
             <ProfileStack.Screen name="Connections" component={Connections} />
             <ProfileStack.Screen name="Login" component={Login} />
             <ProfileStack.Screen name="EditProfile" component={EditProfile} />
+            <ProfileStack.Screen name="Chat" component={ChatScreen} />
         </ProfileStack.Navigator>
     );
 }

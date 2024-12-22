@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, ScrollView, TextInput, Button } from 'react-native';
-import { TouchableOpacity } from 'react-native';
-import { StyleSheet } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const exampleVendors = [
     { id: 1, name: 'Vendeur 1' },
     { id: 2, name: 'Vendeur 2' },
@@ -14,75 +14,80 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#f0f8ff', // Light blue background color
     },
     title: {
+        flexDirection: 'row',
+        alignItems: 'center',
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+        color: '#4682b4', // Steel blue text color
     },
     subtitle: {
         fontSize: 16,
         marginBottom: 20,
+        color: '#4682b4', // Steel blue text color
     },
     vendorName: {
         fontSize: 18,
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-    },
-    messageContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-    },
-    messageScroll: {
-        flex: 1,
-        marginBottom: 10,
-    },
-    message: {
-        fontSize: 16,
-        padding: 10,
-        backgroundColor: '#f1f1f1',
-        borderRadius: 5,
-        marginBottom: 5,
+        color: '#2f4f4f', // Dark slate gray text color
     },
     input: {
         height: 40,
+        width: '90%',
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
         paddingHorizontal: 10,
         marginBottom: 10,
+        marginRight: 10,
+        backgroundColor: '#fff', // White background color for input
     },
+    icon: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        right: 10,
+        top: 2,
+    }
 });
-const getMessagesForVendor = (vendorId) => {
-    // This function should return messages for the selected vendor
-    // For now, it returns all messages as a placeholder
-    return messages;
-};
 
 const Connections = () => {
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState('');
-    const [selectedVendor, setSelectedVendor] = useState(null);
+    const [search, setSearch] = useState('');
+    const navigation = useNavigation();
+
+    const filteredVendors = exampleVendors.filter(vendor =>
+        vendor.name.toLowerCase().includes(search.toLowerCase())
+    );
 
     const handleVendorSelect = (vendor) => {
-        setSelectedVendor(vendor);
-    };
-
-    const handleSendMessage = () => {
-        if (input.trim()) {
-            setMessages([...messages, input]);
-            setInput('');
-        }
+        navigation.navigate('Chat', { vendor });
+    // Fetch and display the latest messages for the selected vendor
+    // This is a placeholder for the actual implementation
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Mes Connections</Text>
-            <Text style={styles.subtitle}>Voici la liste de vos connections avec les vendeurs des produits.</Text>
+           
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                    style={[styles.input, { flex: 1 }]}
+                    placeholder="Rechercher un vendeur"
+                    value={search}
+                    onChangeText={setSearch}
+                />
+                <TouchableOpacity onPress={() => { /* Trigger search action */ }} style={styles.icon}>
+                <MaterialCommunityIcons name="account-search" size={35} color="black"/>
+                </TouchableOpacity>
+            </View>
+            
             <FlatList
-                data={exampleVendors}
+                data={filteredVendors}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handleVendorSelect(item)}>
@@ -90,23 +95,6 @@ const Connections = () => {
                     </TouchableOpacity>
                 )}
             />
-            
-            <View style={styles.messageContainer}>
-                <ScrollView style={styles.messageScroll}>
-                    {messages.map((message, index) => (
-                        <Text key={index} style={styles.message}>
-                            {message}
-                        </Text>
-                    ))}
-                </ScrollView>
-                <TextInput
-                    style={styles.input}
-                    value={input}
-                    onChangeText={(text) => setInput(text)}
-                    placeholder="Tapez votre message..."
-                />
-                <Button title="Envoyer" onPress={handleSendMessage} />
-            </View>
         </View>
     );
 };

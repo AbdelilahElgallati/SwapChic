@@ -1,26 +1,38 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Dimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
-import * as WebBrowser from 'expo-web-browser';
-import { useWarmUpBrowser } from '@/hooks/warmUpBrowser';
-import { useOAuth } from '@clerk/clerk-expo';
-import * as Linking from 'expo-linking';  // Assurez-vous d'importer `expo-linking` au lieu de `react-native` Linking
+import * as WebBrowser from "expo-web-browser";
+import { useWarmUpBrowser } from "@/hooks/warmUpBrowser";
+import { useOAuth } from "@clerk/clerk-expo";
+import * as Linking from "expo-linking";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const { width, height } = Dimensions.get('window'); // Pour récupérer les dimensions de l'écran
+const { width, height } = Dimensions.get("window");
 
 // Assurez-vous de gérer l'authentification à partir de Clerk ici
 WebBrowser.maybeCompleteAuthSession();
 
 const SignIn = () => {
-  useWarmUpBrowser(); // Échauffement du navigateur
+  useWarmUpBrowser();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
 
-  const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
+  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
   const handleSignInGoogle = React.useCallback(async () => {
     try {
       // Utilisation de `expo-linking` pour créer l'URL de redirection
-      const redirectUrl = Linking.createURL('/', { scheme: 'swapchic' });
+      const redirectUrl = Linking.createURL("/", { scheme: "swapchic" });
 
       const { createdSessionId, setActive } = await startOAuthFlow({
         redirectUrl: redirectUrl, // Utilisez l'URL créée avec expo-linking
@@ -28,21 +40,16 @@ const SignIn = () => {
 
       // Si le flux d'authentification est réussi
       if (createdSessionId) {
-        await setActive({ session: createdSessionId }); // Définit la session comme active
-        // Redirection après connexion réussie
-        router.replace('/(tabs)');  // Redirige l'utilisateur vers la page du tableau de bord
+        setActive({ session: createdSessionId }); // Définit la session comme acti
+        router.replace("/(tabs)"); // Redirige l'utilisateur vers la page du tableau de bord
       } else {
-        alert('Veuillez compléter le processus d’authentification.');
+        alert("Veuillez compléter le processus d’authentification.");
       }
     } catch (err) {
       console.error(err);
-      handleErrors(err);
+      alert("Erreur d’authentification. Veuillez réessayer.");
     }
   }, [startOAuthFlow]);
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
 
   const validateFields = () => {
     const errors = {};
@@ -68,14 +75,17 @@ const SignIn = () => {
       // console.log(response.data);
       if (response.data.token) {
         await AsyncStorage.setItem("token", response.data.token);
-      
+
         try {
           const userData = await fetchUserData(response.data.token);
           console.log("Données utilisateur :", userData);
-      
+
           router.push("/(tabs)"); // Redirection vers le tableau de bord
         } catch {
-          Alert.alert("Erreur", "Impossible de récupérer les données utilisateur.");
+          Alert.alert(
+            "Erreur",
+            "Impossible de récupérer les données utilisateur."
+          );
         }
       }
     } catch (err) {
@@ -91,7 +101,10 @@ const SignIn = () => {
       });
       return response.data; // Renvoie les données utilisateur
     } catch (err) {
-      console.error("Erreur lors de la récupération des données utilisateur : ", err);
+      console.error(
+        "Erreur lors de la récupération des données utilisateur : ",
+        err
+      );
       throw err;
     }
   };
@@ -99,7 +112,7 @@ const SignIn = () => {
   const handleErrors = (err) => {
     if (err.response?.data?.error) {
       const errorMessage = err.response.data.error;
-  
+
       if (errorMessage.includes("Email incorrect")) {
         setFieldErrors({
           email: "Email incorrect",
@@ -220,4 +233,3 @@ const styles = StyleSheet.create({
 });
 
 export default SignIn;
-

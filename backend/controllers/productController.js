@@ -3,27 +3,22 @@ const cloudinary = require("../utils/cloudinary");
 
 const addProduct = async (req, res) => {
   try {
-    const { userId, categoryId, name, description, condition, price, photos } =
+    const { userId, categoryId, name, description, condition, price } =
       req.body;
+    const photoFile = req.file;
 
-    if (!Array.isArray(photos) || photos.length === 0) {
+    if (!userId || !categoryId || !name || !description || !condition || !price) {
+      console.log("Tous les champs doivent être remplis.");
+      
       return res.status(400).json({
         success: false,
-        message: "Veuillez fournir au moins une photo.",
+        message: "Tous les champs doivent être remplis.",
       });
     }
 
-    const photosLinks = await Promise.all(
-      photos.map(async (photo) => {
-        const result = await cloudinary.uploader.upload(photo, {
-          folder: "Products",
-        });
-        return {
-          public_id: result.public_id,
-          url: result.secure_url,
-        };
-      })
-    );
+    const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
+          folder: "product", 
+    });
 
     const product = new Product({
       userId,
@@ -32,7 +27,7 @@ const addProduct = async (req, res) => {
       description,
       condition,
       price,
-      photos: photosLinks,
+      photo: uploadResult.secure_url,
     });
 
     await product.save();

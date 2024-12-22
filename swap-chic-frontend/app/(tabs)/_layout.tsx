@@ -5,7 +5,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 const Layout = () => {
   return (
-    <Tabs screenOptions={{ headerShown: true }}>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{

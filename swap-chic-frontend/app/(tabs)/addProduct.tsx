@@ -130,7 +130,7 @@ const addProduct = () => {
     }
 
     try {
-      const response = await fetch("http://192.168.1.2:3001/product/add", {
+      const response = await fetch("https://swapchic-api.onrender.com/product/add", {
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
@@ -139,6 +139,7 @@ const addProduct = () => {
       });
 
       const data = await response.json();
+      console.log(data);
       if (response.ok) {
         Alert.alert("Succès", "Produit ajouté avec succès.");
 

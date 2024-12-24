@@ -68,7 +68,7 @@ const SignIn = () => {
     if (!validateFields()) return;
 
     try {
-      const response = await axios.post("http://192.168.1.2:3001/user/login", {
+      const response = await axios.post("https://swapchic-api.onrender.com/user/login", {
         email,
         password,
       });
@@ -96,7 +96,7 @@ const SignIn = () => {
 
   const fetchUserData = async (token) => {
     try {
-      const response = await axios.get("http://192.168.1.2:3001/user/me", {
+      const response = await axios.get("https://swapchic-api.onrender.com/user/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data; // Renvoie les données utilisateur

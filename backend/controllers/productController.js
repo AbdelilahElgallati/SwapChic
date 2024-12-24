@@ -6,6 +6,7 @@ const addProduct = async (req, res) => {
     const { userId, categoryId, name, description, condition, price } =
       req.body;
     const photoFile = req.file;
+    console.log(photoFile);
 
     if (!userId || !categoryId || !name || !description || !condition || !price) {
       console.log("Tous les champs doivent être remplis.");

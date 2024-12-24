@@ -129,14 +129,22 @@ const addProduct = () => {
       });
     }
 
+    console.log("Contenu du FormData:");
+    formData.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
+
     try {
-      const response = await fetch("https://swapchic-api.onrender.com/product/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        "https://swapchic-api.onrender.com/product/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: formData,
+        }
+      );
 
       const data = await response.json();
       console.log(data);

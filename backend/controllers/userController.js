@@ -61,63 +61,6 @@ const addUser = async (req, res) => {
   }
 };
 
-// const addUser = async (req, res) => {
-//   try {
-//     console.log("Request Body:", req.body);
-//     console.log("Uploaded File:", req.file);
-
-//     const { name, email, password, phone, localisation } = req.body;
-
-//     if (!name || !email || !password || !phone || !localisation || req.file ) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Tous les champs doivent être remplis.",
-//       });
-//     }
-
-//     const photo = req.file ? {
-//       id: req.file.id,
-//       filename: req.file.filename,
-//       constentType: req.file.mimetype
-
-//     }: null;
-
-//     const existeUser = await User.findOne({ email: email });
-//     if (existeUser) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "L'utilisateur existe déjà" });
-//     }
-//     if (!password) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Le mot de passe est requis.",
-//       });
-//     }
-
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const user = new User({
-//       name,
-//       email,
-//       password: hashedPassword,
-//       phone,
-//       localisation,
-//       photo,
-//     });
-
-//     await user.save();
-//     res.status(201).json({ success: true, message: "Utilisateur ajouté avec succès", user });
-//   } catch (error) {
-//     console.error("Erreur lors de l'ajout d'utilisateur :", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
-//       error,
-//     });
-//   }
-// };
-
 const getAllUsers = async (req, res) => {
   try {
     const Users = await User.find();

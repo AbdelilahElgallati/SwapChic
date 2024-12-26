@@ -9,28 +9,25 @@ import {
   TextInput,
   ScrollView,
   RefreshControl,
+  FlatList,
 } from "react-native";
-import { useUser, useAuth } from "@clerk/clerk-react"; 
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
-import CategoryScroll from "../../components/CategoryScroll";
-import { getProduct } from "../(services)/api/api";
-import ProductCard from "../../components/productCard";
+import { getProduct } from "../../Services/api";
 
 const Dashboard = () => {
   const router = useRouter();
   const { user } = useUser();
   const { signOut } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
 
   const fetchProducts = async () => {
     try {
       const data = await getProduct();
       setProducts(data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des porduit", error);
+      console.error("Erreur lors de la récupération des produits", error);
     }
   };
 
@@ -40,7 +37,6 @@ const Dashboard = () => {
     }, [])
   );
 
-  // Gestion du rafraîchissement (Pull-to-Refresh)
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchProducts();
@@ -50,20 +46,23 @@ const Dashboard = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.replace("/");
+      router.push("/");
     } catch (error) {
-      console.error("Failed to log out:", error);
+      console.error("Erreur lors de la déconnexion:", error);
     }
   };
 
-  const handleSearch = (query) => {
-    Alert.alert("Recherche", `Vous avez recherché : ${query}`);
-  };
-
-  const navigateToProductDetails = (product) => {
-    console.log(product);
-    // router.push(`/product/${product._id}`);
-  };
+  const renderItem = ({ item }) => (
+    <View style={styles.productContainer}>
+      <Image source={{ uri: item.photo }} style={styles.productImage} />
+      <View style={styles.productDetails}>
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.productCategory}>{item.categoryId.name}</Text>
+        <Text style={styles.productDescription}>{item.description}</Text>
+        <Text style={styles.productPrice}>Prix: {item.price} DH</Text>
+      </View>
+    </View>
+  );
 
   return (
     <ScrollView
@@ -83,37 +82,15 @@ const Dashboard = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchBarContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Rechercher..."
-            placeholderTextColor="#888"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={() => handleSearch(searchQuery)}
-          />
-          <TouchableOpacity
-            style={styles.searchButton}
-            onPress={() => handleSearch(searchQuery)}
-          >
-            <Image
-              source={require("../../assets/images/search.png")}
-              style={styles.searchIcon}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <CategoryScroll />
+        <Text style={styles.productsTitle}>Produits</Text>
 
         <View style={styles.productList}>
-          {products.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-              onPress={navigateToProductDetails}
-            />
-          ))}
+          <FlatList
+            data={products}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id.toString()}
+            contentContainerStyle={styles.containerProductList}
+          />
         </View>
       </View>
     </ScrollView>
@@ -123,6 +100,7 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
+    backgroundColor: "#F5F7FA",
   },
   mainContainer: {
     flex: 1,
@@ -136,7 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   userName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "600",
     color: "#2C3E50",
   },
@@ -145,38 +123,63 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
+    elevation: 3,
   },
   logoutButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "500",
   },
-  searchBarContainer: {
+  productsTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#2C3E50",
+    marginBottom: 15,
+    textAlign: "center"
+  },
+  containerProductList: {
+    paddingBottom: 20,
+  },
+  productContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 15,
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    paddingHorizontal: 10,
-    elevation: 2,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#2C3E50",
-    paddingVertical: 10,
-  },
-  searchButton: {
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 3,
     padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  searchIcon: {
-    width: 20,
-    height: 20,
-    tintColor: "#3498DB",
+  productImage: {
+    width: 100,
+    height: 100,
+    marginRight: 16,
+    borderRadius: 8,
+    backgroundColor: "#F0F0F0", // fallback for missing images
   },
-  productList: {
-    marginTop: 20,
+  productDetails: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#2C3E50",
+  },
+  productCategory: {
+    color: "#888",
+    marginBottom: 5,
+  },
+  productDescription: {
+    color: "#666",
+    marginBottom: 5,
+  },
+  productPrice: {
+    fontWeight: "bold",
+    color: "#3498DB",
+    fontSize: 16,
   },
 });
 

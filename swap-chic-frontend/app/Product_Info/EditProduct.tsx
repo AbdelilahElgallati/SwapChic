@@ -9,16 +9,36 @@ import {
   Image,
   ScrollView,
   RefreshControl,
+  BackHandler,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
-import { getCategory } from "../../Services/api";
+import { getOneProduct, getCategory } from "../../Services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const addProduct = () => {
+const EditProduct = () => {
   const router = useRouter();
   const { user } = useUser();
+
+  const [productId, setProductId] = useState(null);
+
+  // Récupérer l'ID du produit depuis AsyncStorage et charger les données du produit
+  const fetchProductId = async () => {
+    const storedProductId = await AsyncStorage.getItem("productId");
+    if (storedProductId) {
+      setProductId(storedProductId);
+      fetchProducts(storedProductId); // Charger les produits avec l'ID récupéré
+    } else {
+      console.error("productId non trouvé dans AsyncStorage");
+    }
+  };
+
+  useEffect(() => {
+    fetchProductId(); // Appeler la fonction pour récupérer l'ID du produit au chargement initial
+    fetchCategories(); // Charger les catégories au démarrage
+  }, []);
 
   const [categoryId, setCategoryId] = useState("");
   const [name, setName] = useState("");
@@ -32,58 +52,57 @@ const addProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // useEffect(() => {
+  // Récupérer les catégories
   const fetchCategories = async () => {
     try {
-      const data = await getCategory(); // Récupère les catégories depuis l'API
-      setCategories(data); // Mettre à jour l'état des catégories
+      const data = await getCategory();
+      setCategories(data);
     } catch (error) {
       console.error("Erreur lors de la récupération des catégories", error);
     }
   };
 
-  //   fetchCategories();
-  // }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-      setName("");
-      setDescription("");
-      setCondition("New");
-      setPrice("");
-      setCategoryId("");
-      setPhoto(null);
-      setStatus("Published");
-    }, [])
-  );
+  // Récupérer les informations du produit par ID
+  const fetchProducts = async (productId) => {
+    try {
+      if (!productId) {
+        console.error("ID du produit manquant.");
+        return;
+      }
+      const data = await getOneProduct(productId);
+      setName(data.name);
+      setDescription(data.description);
+      setCondition(data.condition || "New");
+      setPrice(data.price.toString());
+      setCategoryId(data.categoryId._id);
+      setPhoto(data.photo);
+      setStatus(data.status || "Published");
+    } catch (error) {
+      console.error("Erreur lors de la récupération du produit", error);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchCategories();
-    setName("");
-    setDescription("");
-    setCondition("New");
-    setPrice("");
-    setCategoryId("");
-    setPhoto(null);
-    setStatus("Published");
+    await fetchProductId(); // Récupérer l'ID du produit au rafraîchissement
     setRefreshing(false);
   };
 
+  // Validation des champs
   const validateFields = () => {
     const errors = {};
-
     if (!name.trim()) errors.name = "Le nom est requis.";
-    if (!description.trim()) errors.description = "L'description est requis.";
-    if (!condition.trim()) errors.condition = "La condition est requis.";
+    if (!description.trim()) errors.description = "La description est requise.";
+    if (!condition.trim()) errors.condition = "La condition est requise.";
     if (!price.trim()) errors.price = "Le prix est requis.";
-    if (!categoryId.trim()) errors.categoryId = "La catégorie est requis.";
+    if (!categoryId.trim()) errors.categoryId = "La catégorie est requise.";
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  // Choisir une image depuis la galerie
   const pickImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -107,12 +126,14 @@ const addProduct = () => {
     }
   };
 
+  // Soumettre le formulaire de modification
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (!validateFields()) return;
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("userId", user?.id);
+    formData.append("_id", productId);
     formData.append("categoryId", categoryId);
     formData.append("name", name);
     formData.append("description", description);
@@ -129,16 +150,11 @@ const addProduct = () => {
       });
     }
 
-    // console.log("Contenu du FormData:");
-    // formData.forEach((value, key) => {
-    //   console.log(`${key}:`, value);
-    // });
-
     try {
       const response = await fetch(
-        "http://192.168.1.8:3001/product/add",
+        `http://192.168.1.8:3001/product/edit/${productId}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -147,29 +163,49 @@ const addProduct = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
-        Alert.alert("Succès", "Produit ajouté avec succès.");
-
-        // Réinitialiser les champs après l'ajout
-        setName("");
-        setDescription("");
-        setCondition("New");
-        setPrice("");
-        setCategoryId("");
-        setPhoto(null);
-        setStatus("Published");
-        router.replace("/(tabs)");
+        Alert.alert("Succès", "Produit modifié avec succès.");
+        router.replace("/Product_Info/MyProducts");
       } else {
-        Alert.alert("Erreur", data.message || "Échec de l'ajoute de produit.");
+        Alert.alert(
+          "Erreur",
+          data.message || "Échec de la modification du produit."
+        );
       }
     } catch (error) {
       console.error("Erreur :", error);
-      Alert.alert("Erreur", "Un problème est survenu lors de l'inscription.");
+      Alert.alert(
+        "Erreur",
+        "Un problème est survenu lors de la modification du produit."
+      );
     } finally {
-      setIsSubmitting(false); // Réactiver le bouton après la soumission
+      setIsSubmitting(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // Retourner à la page précédente s'il y en a une
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          // Si aucune page précédente, redirigez selon l'état de connexion
+          if (user?.id) {
+            router.replace("/(tabs)"); // Rediriger vers Home si connecté
+          } else {
+            router.replace("/"); // Rediriger vers Welcome si déconnecté
+          }
+        }
+        return true; // Bloque le comportement par défaut du bouton retour
+      };
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [user?.id, router])
+  );
 
   return (
     <ScrollView
@@ -179,8 +215,6 @@ const addProduct = () => {
       }
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Ajouter un Produit</Text>
-
         <TextInput
           style={styles.input}
           placeholder="Nom du produit"
@@ -199,7 +233,7 @@ const addProduct = () => {
         <Text style={styles.label}>Condition :</Text>
         <Picker
           selectedValue={condition}
-          onValueChange={(itemValue) => setCondition(itemValue)}
+          onValueChange={setCondition}
           style={styles.picker}
         >
           <Picker.Item label="New" value="New" />
@@ -217,7 +251,7 @@ const addProduct = () => {
         <Text style={styles.label}>Catégorie :</Text>
         <Picker
           selectedValue={categoryId}
-          onValueChange={(itemValue) => setCategoryId(itemValue)}
+          onValueChange={setCategoryId}
           style={styles.picker}
         >
           <Picker.Item label="Sélectionner une catégorie" value="" />
@@ -233,7 +267,7 @@ const addProduct = () => {
         <Text style={styles.label}>Statut :</Text>
         <Picker
           selectedValue={status}
-          onValueChange={(itemValue) => setStatus(itemValue)}
+          onValueChange={setStatus}
           style={styles.picker}
         >
           <Picker.Item label="Published" value="Published" />
@@ -250,16 +284,18 @@ const addProduct = () => {
         <TouchableOpacity
           style={[styles.submitButton, isSubmitting && styles.disabledButton]}
           onPress={handleSubmit}
-          disabled={isSubmitting} // Désactiver le bouton si `isSubmitting` est true
+          disabled={isSubmitting}
         >
           <Text style={styles.submitButtonText}>
-            {isSubmitting ? "En cours..." : "Enregistrer"}
+            {isSubmitting ? "En cours..." : "Modifier"}
           </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
+
+export default EditProduct;
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -333,5 +369,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#95a5a6",
   },
 });
-
-export default addProduct;

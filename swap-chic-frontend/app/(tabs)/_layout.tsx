@@ -1,11 +1,33 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { FontAwesome, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { FontAwesome, FontAwesome6, AntDesign } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useUser } from "@clerk/clerk-react";
+import { TouchableOpacity, Text } from "react-native";
 
 const Layout = () => {
+  const router = useRouter();
+  const { isSignedIn } = useUser();
+
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        headerLeft: () => (
+          <BackButton
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else if (isSignedIn) {
+                router.replace("/(tabs)"); // Redirige vers la page d'accueil
+              } else {
+                router.replace("/"); // Redirige vers la page de bienvenue
+              }
+            }}
+          />
+        ),
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -20,7 +42,7 @@ const Layout = () => {
         options={{
           title: "Explore",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="travel-explore" size={28} color={color} />
+            <AntDesign name="search1" size={28} color={color} />
           ),
         }}
       />
@@ -46,5 +68,11 @@ const Layout = () => {
     </Tabs>
   );
 };
+
+const BackButton = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{ marginLeft: 10 }}>
+    <Text style={{ color: "blue" }}>Retour</Text>
+  </TouchableOpacity>
+);
 
 export default Layout;

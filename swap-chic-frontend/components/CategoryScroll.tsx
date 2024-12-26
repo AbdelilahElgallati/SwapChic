@@ -6,7 +6,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { getCategory } from "../app/(services)/api/api";
+import { getCategory } from "../Services/api";
 
 const CategoryScroll = () => {
   const [categories, setCategories] = useState([]);

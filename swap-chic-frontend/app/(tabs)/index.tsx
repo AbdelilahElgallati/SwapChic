@@ -14,6 +14,7 @@ import {
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { getProduct } from "../../Services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -52,8 +53,20 @@ const Dashboard = () => {
     }
   };
 
+  const goToProductDetail = async (productId) => {
+    const existingProductId = await AsyncStorage.getItem("productId");
+    if (existingProductId !== null) {
+      await AsyncStorage.removeItem("productId");
+    }
+    await AsyncStorage.setItem("productId", productId);
+    router.push(`/Product_Info/DetailProduct`); 
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.productContainer}>
+    <TouchableOpacity
+      style={styles.productContainer}
+      onPress={() => goToProductDetail(item._id)}
+    >
       <Image source={{ uri: item.photo }} style={styles.productImage} />
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{item.name}</Text>
@@ -61,7 +74,7 @@ const Dashboard = () => {
         <Text style={styles.productDescription}>{item.description}</Text>
         <Text style={styles.productPrice}>Prix: {item.price} DH</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -72,7 +85,6 @@ const Dashboard = () => {
       }
     >
       <View style={styles.mainContainer}>
-        {/* Header */}
         <View style={styles.headerContainer}>
           <Text style={styles.userName}>
             Bienvenue, {user?.firstName || "Utilisateur"}
@@ -135,7 +147,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#2C3E50",
     marginBottom: 15,
-    textAlign: "center"
+    textAlign: "center",
   },
   containerProductList: {
     paddingBottom: 20,

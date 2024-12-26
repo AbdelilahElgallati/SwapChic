@@ -24,7 +24,6 @@ const EditProduct = () => {
 
   const [productId, setProductId] = useState(null);
 
-  // Récupérer l'ID du produit depuis AsyncStorage et charger les données du produit
   const fetchProductId = async () => {
     const storedProductId = await AsyncStorage.getItem("productId");
     if (storedProductId) {
@@ -182,30 +181,6 @@ const EditProduct = () => {
       setIsSubmitting(false);
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        // Retourner à la page précédente s'il y en a une
-        if (router.canGoBack()) {
-          router.back();
-        } else {
-          // Si aucune page précédente, redirigez selon l'état de connexion
-          if (user?.id) {
-            router.replace("/(tabs)"); // Rediriger vers Home si connecté
-          } else {
-            router.replace("/"); // Rediriger vers Welcome si déconnecté
-          }
-        }
-        return true; // Bloque le comportement par défaut du bouton retour
-      };
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
-
-      return () => {
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
-      };
-    }, [user?.id, router])
-  );
 
   return (
     <ScrollView

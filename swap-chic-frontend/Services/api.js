@@ -16,16 +16,7 @@ export const loginUser = async (formData) => {
   }
 };
 
-export const getCategory = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/Category`);
-    // console.log("Server response:", response);  
-    return response.data; 
-  } catch (error) {
-    console.error( error);
-    throw error.response ? error.response.data : { message: "Erreur serveur." };
-  }
-};
+
 
 export const getProduct = async () => {
   try {
@@ -101,6 +92,18 @@ export const getOneProduct = async (id) => {
   }
 };
 
+export const deleteProduct = async (id) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/Product/remove/` + id);
+    return response.data; 
+  } catch (error) {
+    console.error( error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+};
+
+
+// gestion category
 export const getOneCategory = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/Category/` + id);
@@ -112,3 +115,13 @@ export const getOneCategory = async (id) => {
   }
 };
 
+export const getCategory = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/Category`);
+    // console.log("Server response:", response);  
+    return response.data; 
+  } catch (error) {
+    console.error( error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+};

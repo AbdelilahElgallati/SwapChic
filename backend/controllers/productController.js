@@ -170,8 +170,8 @@ const updateProduct = async (req, res) => {
 
 const removeProduct = async (req, res) => {
   try {
-    const Product = await Product.findByIdAndDelete(req.params.id);
-    res.status(201).json(Product);
+    const product = await Product.findByIdAndDelete(req.params.id);
+    res.status(201).json(product);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la suppression de produit");
   }

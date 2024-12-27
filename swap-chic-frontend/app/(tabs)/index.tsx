@@ -1,197 +1,322 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Image,
   TextInput,
   ScrollView,
-  RefreshControl,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { getProduct } from "../../Services/api";
+import {
+  getProduct,
+  getProductSearchName,
+  getCategory,
+  getProductByCategory,
+} from "../../Services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from "@expo/vector-icons";
+import SearchBar from "@/components/SearchBar";
+import { useNavigation } from "@react-navigation/native";
 
 const Dashboard = () => {
   const router = useRouter();
   const { user } = useUser();
+  const navigation = useNavigation();
   const { signOut } = useAuth();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handeleSignOut = async () => {
+    try {
+      await signOut();
+      // navigation.navigate('index')
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
       const data = await getProduct();
       setProducts(data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des produits", error);
+      console.error("Error fetching products", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategory();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories", error);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
+      fetchCategories();
     }, [])
   );
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchProducts();
+    await fetchCategories();
     setRefreshing(false);
   };
 
-  const handleSignOut = async () => {
+  const handleLike = (productId) => {
+    setLikedProducts((prevLikedProducts) =>
+      prevLikedProducts.includes(productId)
+        ? prevLikedProducts.filter((id) => id !== productId)
+        : [...prevLikedProducts, productId]
+    );
+  };
+
+  const handleSearchByCategory = async (id) => {
     try {
-      await signOut();
-      router.push("/");
+      const productSearch = await getProductByCategory(id);
+      setProducts(productSearch);
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
+      console.error("Erreur lors de la recherche des produits", error);
     }
   };
 
   const goToProductDetail = async (productId) => {
-    const existingProductId = await AsyncStorage.getItem("productId");
-    if (existingProductId !== null) {
-      await AsyncStorage.removeItem("productId");
+    try {
+      await AsyncStorage.setItem("productId", productId);
+      router.push(`/Product_Info/DetailProduct`);
+    } catch (error) {
+      console.error("Error navigating to product detail", error);
     }
-    await AsyncStorage.setItem("productId", productId);
-    router.push(`/Product_Info/DetailProduct`); 
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productContainer}
-      onPress={() => goToProductDetail(item._id)}
-    >
-      <Image source={{ uri: item.photo }} style={styles.productImage} />
-      <View style={styles.productDetails}>
+  const handleSearch = async (searchQuery: String) => {
+    try {
+      const productSearch = await getProductSearchName(searchQuery);
+      setProducts(productSearch);
+    } catch (error) {
+      console.error("Erreur lors de la recherche des produits", error);
+    }
+  };
+
+  const renderProduct = ({ item }) => (
+    <View style={styles.productCard}>
+      <TouchableOpacity onPress={() => goToProductDetail(item._id)}>
+        <Image source={{ uri: item.photo }} style={styles.productImage} />
+      </TouchableOpacity>
+      <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productCategory}>{item.categoryId.name}</Text>
-        <Text style={styles.productDescription}>{item.description}</Text>
-        <Text style={styles.productPrice}>Prix: {item.price} DH</Text>
+        <Text style={styles.productPrice}>${item.price}</Text>
       </View>
-    </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handleLike(item._id)}
+        style={styles.likeButton}
+      >
+        <FontAwesome
+          name={likedProducts.includes(item._id) ? "heart" : "heart-o"}
+          size={24}
+          color={likedProducts.includes(item._id) ? "red" : "gray"}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View>
+      <View style={styles.header}>
+        <Text style={styles.title}>SWAP-CHIC</Text>
+        <View style={styles.userInfo}>
+          <TouchableOpacity onPress={handeleSignOut}>
+            <Image
+              source={require("../../assets/images/logout.png")}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <Image source={{ uri: user?.imageUrl }} style={styles.profileImage} />
+        </View>
+      </View>
+
+      <SearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+      />
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.horizontalScroll}
+      >
+        <View style={styles.categoriesContainer}>
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category._id}
+              style={styles.categoryButton}
+              onPress={() => handleSearchByCategory(category._id)}
+            >
+              <Text style={styles.categoryText}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View style={styles.mainContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.userName}>
-            Bienvenue, {user?.firstName || "Utilisateur"}
-          </Text>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-            <Text style={styles.logoutButtonText}>Déconnexion</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.productsTitle}>Produits</Text>
-
-        <View style={styles.productList}>
-          <FlatList
-            data={products}
-            renderItem={renderItem}
-            keyExtractor={(item) => item._id.toString()}
-            contentContainerStyle={styles.containerProductList}
-          />
-        </View>
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <FlatList
+        data={products}
+        renderItem={renderProduct}
+        keyExtractor={(item) => item._id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        ListHeaderComponent={renderHeader}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    backgroundColor: "#F5F7FA",
-  },
-  mainContainer: {
+  container: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
-    padding: 20,
+    backgroundColor: "#f8f8f8",
   },
-  headerContainer: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: "#2C3E50",
-  },
-  logoutButton: {
-    backgroundColor: "#E74C3C",
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    padding: 16,
+    // backgroundColor: "#fff",
     elevation: 3,
   },
-  logoutButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  productsTitle: {
+  title: {
     fontSize: 24,
-    fontWeight: "600",
-    color: "#2C3E50",
-    marginBottom: 15,
-    textAlign: "center",
+    fontWeight: "bold",
+    color: "#333",
   },
-  containerProductList: {
-    paddingBottom: 20,
-  },
-  productContainer: {
+  userInfo: {
     flexDirection: "row",
-    marginBottom: 15,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
+    alignItems: "center",
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 16,
+    tintColor: "#333",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  searchBar: {
+    flexDirection: "row",
+    padding: 5,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    elevation: 4,
+    marginBottom: 10,
+    borderRadius: 15,
+    paddingHorizontal: 15,
+  },
+  searchInput: {
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    flex: 1,
+    fontSize: 16,
+    color: "#2C3E50",
+    paddingVertical: 12,
+  },
+  searchButton: {
+    marginLeft: 8,
     padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchIcon: {
+    width: 20,
+    height: 20,
+    tintColor: "#3498db",
+  },
+  horizontalScroll: {
+    marginTop: 8,
+    paddingHorizontal: 8,
+  },
+  categoriesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  categoryButton: {
+    backgroundColor: "#e0e0e0",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  contentContainer: {
+    padding: 16,
+  },
+  productCard: {
+    flex: 1,
+    margin: 8,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    elevation: 4,
+    overflow: "hidden",
+    alignItems: "center",
+    width: 200,
   },
   productImage: {
-    width: 100,
-    height: 100,
-    marginRight: 16,
-    borderRadius: 8,
-    backgroundColor: "#F0F0F0", // fallback for missing images
+    width: 200,
+    height: 180,
+    resizeMode: "cover",
   },
-  productDetails: {
-    flex: 1,
+  productInfo: {
+    padding: 8,
+    alignItems: "center",
   },
   productName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
-    color: "#2C3E50",
-  },
-  productCategory: {
-    color: "#888",
-    marginBottom: 5,
-  },
-  productDescription: {
-    color: "#666",
-    marginBottom: 5,
+    color: "#333",
+    textAlign: "center",
   },
   productPrice: {
-    fontWeight: "bold",
-    color: "#3498DB",
-    fontSize: 16,
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  likeButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 20,
+    padding: 4,
+  },
+  row: {
+    justifyContent: "space-between",
   },
 });
 

@@ -3,7 +3,8 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { SignedOut, SignedIn } from "@clerk/clerk-react";
-
+import { NavigationContainer } from "@react-navigation/native";
+import TabNavigation from "../Navigation/TabNavigation"
 
 export default function RootLayout() {
 
@@ -12,10 +13,10 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <StatusBar style="light" />
         <SignedIn>
-          <Stack.Screen name="(tabs)" />
-          {/* <NavigationContainer>
+          {/* <Stack.Screen name="(tabs)" /> */}
+          <NavigationContainer>
             <TabNavigation />
-          </NavigationContainer> */}
+          </NavigationContainer>
         </SignedIn>
         <SignedOut>
           <Stack.Screen name="index" />

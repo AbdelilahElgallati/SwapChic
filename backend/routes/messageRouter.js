@@ -3,6 +3,8 @@ const MessageRouter = express.Router();
 const MessageController = require("../controllers/messageController")
 
 MessageRouter.get( "/", MessageController.getAllmessages); 
+MessageRouter.get( "/:senderId/:receiverId", MessageController.getMessages); 
+
 MessageRouter.get( "/:id", MessageController.getOneMessage); 
 MessageRouter.get( "/receiver/:id", MessageController.getAllmessagesReceiver); 
 MessageRouter.get( "/sender/:id", MessageController.getAllmessagesSender); 

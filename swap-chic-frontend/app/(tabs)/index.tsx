@@ -17,6 +17,7 @@ import {
   getProductSearchName,
   getCategory,
   getProductByCategory,
+  fetchUsers,
 } from "../../Services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -33,6 +34,8 @@ const Dashboard = () => {
   const [likedProducts, setLikedProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  fetchUsers();
 
   const handeleSignOut = async () => {
     try {

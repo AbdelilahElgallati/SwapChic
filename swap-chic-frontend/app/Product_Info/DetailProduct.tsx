@@ -12,7 +12,7 @@ import {
   Linking,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getOneProduct } from "../../Services/api";
+import { getOneProduct, fetchUserById } from "../../Services/api";
 import { useFocusEffect } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -21,6 +21,7 @@ const DetailProduct = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showMoreDescription, setShowMoreDescription] = useState(false);
+  const [userProduct, setUserProduct] = useState(null);
 
   const fetchProductId = async () => {
     try {
@@ -31,7 +32,10 @@ const DetailProduct = () => {
         Alert.alert("Erreur", "Aucun ID de produit trouvé.");
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'ID du produit:", error);
+      console.error(
+        "Erreur lors de la récupération de l'ID du produit:",
+        error
+      );
     }
   };
 
@@ -40,9 +44,23 @@ const DetailProduct = () => {
       setLoading(true);
       const data = await getOneProduct(productId);
       setProduct(data);
+      fetchUserId(data.userId);
     } catch (error) {
       console.error("Erreur lors de la récupération du produit:", error);
       Alert.alert("Erreur", "Impossible de charger les détails du produit.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserId = async (userId) => {
+    try {
+      setLoading(true);
+      const data = await fetchUserById(userId);
+      setUserProduct(data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération d'utilisateur:", error);
+      Alert.alert("Erreur", "Impossible de charger les détails d'utilisateur.");
     } finally {
       setLoading(false);
     }
@@ -87,14 +105,18 @@ const DetailProduct = () => {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     >
       <View style={styles.productImageContainer}>
         {product.photo ? (
           <Image source={{ uri: product.photo }} style={styles.productImage} />
         ) : (
           <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderText}>Image non disponible</Text>
+            <Text style={styles.imagePlaceholderText}>
+              Image non disponible
+            </Text>
           </View>
         )}
       </View>
@@ -119,13 +141,15 @@ const DetailProduct = () => {
             Condition : {product.condition || "Non spécifiée"}
           </Text>
           <Text style={styles.productStatus}>
-            <FontAwesome name="info-circle" size={16} color="#e74c3c" />{" "}
-            Statut : {product.status || "Inconnu"}
+            <FontAwesome name="info-circle" size={16} color="#e74c3c" /> Statut
+            : {product.status || "Inconnu"}
           </Text>
         </View>
 
         <Text style={styles.productDescription}>
-          {showMoreDescription ? product.description : product.description.slice(0, 150) + "..."}
+          {showMoreDescription
+            ? product.description
+            : product.description.slice(0, 150) + "..."}
         </Text>
         {product.description && product.description.length > 150 && (
           <TouchableOpacity
@@ -138,16 +162,16 @@ const DetailProduct = () => {
           </TouchableOpacity>
         )}
 
-        {product.userId && (
+        {userProduct && (
           <Text style={styles.productUser}>
             <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
-            {product.userId}
+            {userProduct.first_name} {userProduct.last_name}
           </Text>
         )}
 
         <TouchableOpacity
           style={styles.chatButton}
-          onPress={() => startChat(product.userId)}
+          onPress={() => startChat(userProduct.id)}
         >
           <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
           <FontAwesome name="comment" size={18} color="#fff" />

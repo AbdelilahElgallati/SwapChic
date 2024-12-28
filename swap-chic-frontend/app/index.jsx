@@ -37,7 +37,6 @@ const WelcomeScreen = () => {
   useFocusEffect(
     useCallback(() => {
       if (isLoaded && user) {
-        // console.log("User exists. Redirecting to tabs...");
         router.push("/(tabs)");
       }
     }, [isLoaded, user, router]) 

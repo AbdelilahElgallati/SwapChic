@@ -1,4 +1,4 @@
-const Message = require("../models/messageModel")
+const Message = require("../models/messageModel");
 
 const addMessage = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ const addMessage = async (req, res) => {
   } catch (error) {
     res.status(500).send("Erreur serveur lors de l'ajout du message");
   }
-}
+};
 
 const getAllmessages = async (req, res) => {
   try {
@@ -22,7 +22,22 @@ const getAllmessages = async (req, res) => {
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des messages");
   }
-}
+};
+
+const getMessages = async (req, res) => {
+  try {
+    const { senderId, receiverId } = req.params;
+    const messages = await Message.find({
+      $or: [
+        { senderId, receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: 1 });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la recherche des messages");
+  }
+};
 
 const getAllmessagesReceiver = async (req, res) => {
   try {
@@ -31,7 +46,7 @@ const getAllmessagesReceiver = async (req, res) => {
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des messages");
   }
-}
+};
 
 const getAllmessagesSender = async (req, res) => {
   try {
@@ -40,20 +55,22 @@ const getAllmessagesSender = async (req, res) => {
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des messages");
   }
-}
+};
 
-const  getOneMessage = async (req, res) => {
+const getOneMessage = async (req, res) => {
   try {
-    const  message = await Message.findById(req.params.id);
+    const message = await Message.findById(req.params.id);
     res.status(201).json(message);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche de message");
   }
-}
+};
 
-const  updateMessage = async (req,res)=>{
+const updateMessage = async (req, res) => {
   try {
-    const  message = await Message.findByIdAndUpdate(req.params.id, req.body, {new: true});
+    const message = await Message.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.status(200).json({
       success: true,
       message,
@@ -61,15 +78,24 @@ const  updateMessage = async (req,res)=>{
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la mise à jour de message");
   }
-}
+};
 
-const  removeMessage = async (req, res) => {
+const removeMessage = async (req, res) => {
   try {
-    const  message = await Message.findByIdAndDelete(req.params.id);
+    const message = await Message.findByIdAndDelete(req.params.id);
     res.status(201).json(message);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la suppression de message");
   }
-}
+};
 
-module.exports = {addMessage,getAllmessages,getAllmessagesReceiver,getAllmessagesSender,getOneMessage,updateMessage,removeMessage};
+module.exports = {
+  addMessage,
+  getAllmessages,
+  getMessages,
+  getAllmessagesReceiver,
+  getAllmessagesSender,
+  getOneMessage,
+  updateMessage,
+  removeMessage,
+};

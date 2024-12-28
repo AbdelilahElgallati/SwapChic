@@ -9,6 +9,8 @@ const session = require("express-session");
 const url = process.env.DATABASE_URL;
 const bodyParser = require("body-parser");
 const app = express();
+const http = require("http");
+const { Server } = require("socket.io");
 const Port = 3001;
 
 const CategoryRouter = require("./routes/categoryRouter");
@@ -18,6 +20,14 @@ const ProductRouter = require("./routes/productRouter");
 const RevieweRouter = require("./routes/reviewRouter");
 const TransactionRouter = require("./routes/transactionRouter");
 const UserRouter = require("./routes/userRouter");
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Replace with your frontend's URL in production
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
@@ -54,6 +64,26 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+// Socket.io for Real-Time Chat
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  socket.on("sendMessage", async (data) => {
+    const { senderId, receiverId, content } = data;
+
+    // Save message to DB
+    const message = new Message({ senderId, receiverId, content });
+    await message.save();
+
+    // Emit message to the receiver
+    io.emit(`message:${receiverId}`, message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+  });
+});
 
 app.listen(Port, () => {
   console.log("the platform is running well");

@@ -3,27 +3,30 @@ const cloudinary = require("../utils/cloudinary");
 
 const addProduct = async (req, res) => {
   try {
-    const { userId, categoryId, name, description, condition, price, photos } =
+    const { userId, categoryId, name, description, condition, price } =
       req.body;
+    const photoFile = req.file;
+    console.log(photoFile);
 
-    if (!Array.isArray(photos) || photos.length === 0) {
+    if (
+      !userId ||
+      !categoryId ||
+      !name ||
+      !description ||
+      !condition ||
+      !price
+    ) {
+      console.log("Tous les champs doivent être remplis.");
+
       return res.status(400).json({
         success: false,
-        message: "Veuillez fournir au moins une photo.",
+        message: "Tous les champs doivent être remplis.",
       });
     }
 
-    const photosLinks = await Promise.all(
-      photos.map(async (photo) => {
-        const result = await cloudinary.uploader.upload(photo, {
-          folder: "Products",
-        });
-        return {
-          public_id: result.public_id,
-          url: result.secure_url,
-        };
-      })
-    );
+    const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
+      folder: "product",
+    });
 
     const product = new Product({
       userId,
@@ -32,7 +35,7 @@ const addProduct = async (req, res) => {
       description,
       condition,
       price,
-      photos: photosLinks,
+      photo: uploadResult.secure_url,
     });
 
     await product.save();
@@ -53,7 +56,7 @@ const addProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const Products = await Product.find();
+    const Products = await Product.find().populate("categoryId", "name");
     res.status(201).json(Products);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des produits");
@@ -62,8 +65,32 @@ const getAllProducts = async (req, res) => {
 
 const getAllProductsUser = async (req, res) => {
   try {
-    const Products = await Product.find({ userId: req.params.id });
+    const Products = await Product.find({ userId: req.params.id }).populate("categoryId", "name");
     res.status(201).json(Products);
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la recherche des produits");
+  }
+};
+
+const getProductSearchName = async (req, res) => {
+  try {
+    const query = req.params.name;
+    const products = await Product.find({ name: { $regex: query, $options: "i" } }).populate("categoryId", "name");
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la recherche des produits");
+  }
+};
+
+const getProductSearchUserName = async (req, res) => {
+  try {
+    const query = req.params.name;
+    const userId = req.params.id;
+    const products = await Product.find({
+      name: { $regex: query, $options: "i" },
+      userId: userId
+    }).populate("categoryId", "name");
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des produits");
   }
@@ -71,7 +98,16 @@ const getAllProductsUser = async (req, res) => {
 
 const getAllProductsCategory = async (req, res) => {
   try {
-    const Products = await Product.find({ categoryId: req.params.id });
+    const Products = await Product.find({ categoryId: req.params.id }).populate("categoryId", "name");
+    res.status(201).json(Products);
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la recherche des produits");
+  }
+};
+
+const getAllProductsCategoryUser = async (req, res) => {
+  try {
+    const Products = await Product.find({ categoryId: req.params.idCategory, userId: req.params.idUser }).populate("categoryId", "name");
     res.status(201).json(Products);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des produits");
@@ -80,98 +116,24 @@ const getAllProductsCategory = async (req, res) => {
 
 const getOneProduct = async (req, res) => {
   try {
-    const Product = await Product.findById(req.params.id);
-    res.status(201).json(Product);
+    // console.log("ID du produit recherché : ", req.params.id);
+    const product = await Product.findById(req.params.id).populate("categoryId", "name");
+    // console.log("Produit trouvé :", product);
+
+    if (!product) {
+      return res.status(404).send("Produit non trouvé.");
+    }
+
+    res.status(200).json(product); 
   } catch (error) {
+    console.error("Erreur serveur :", error); 
     res.status(500).send("Erreur serveur lors de la recherche de produit");
   }
 };
 
-// const updateProduct = async (req, res) => {
-//   try {
-//     const currentProduct = await Product.findById(req.params.id);
-//     if (!currentProduct) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Produit non trouvé.",
-//       });
-//     }
-
-//     const data = {
-//       userId: req.body.userId,
-//       categoryId: req.body.categoryId,
-//       name: req.body.name,
-//       description: req.body.description,
-//       condition: req.body.condition,
-//       price: req.body.price,
-//     };
-
-//     if (req.files && req.files.length > 0) {
-//       if (currentProduct.photos && currentProduct.photos.length > 0) {
-//         await Promise.all(
-//           currentProduct.photos.map(async (photo) =>
-//             cloudinary.uploader.destroy(photo.public_id)
-//           )
-//         );
-//       }
-
-//       const photosLinks = await Promise.all(
-//         req.files.map(async (file) => {
-//           const result = await cloudinary.uploader.upload(file.path, {
-//             folder: "Products",
-//           });
-//           return {
-//             public_id: result.public_id,
-//             url: result.secure_url,
-//           };
-//         })
-//       );
-
-//       data.photos = photosLinks;
-//     }
-
-//     const updatedProduct = await Product.findByIdAndUpdate(
-//       req.params.id,
-//       data,
-//       {
-//         new: true, 
-//       }
-//     );
-
-//     if (!updatedProduct) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Produit non trouvé après mise à jour.",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Produit mis à jour avec succès.",
-//       product: updatedProduct,
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de la mise à jour de produit :", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Erreur serveur lors de la mise à jour de produit.",
-//       error,
-//     });
-//   }
-// };
 
 const updateProduct = async (req, res) => {
   try {
-    // Récupérer le produit actuel
-    const currentProduct = await Product.findById(req.params.id);
-    if (!currentProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Produit non trouvé.",
-      });
-    }
-
-    // Préparer les données de mise à jour
     const data = {
       userId: req.body.userId,
       categoryId: req.body.categoryId,
@@ -181,74 +143,35 @@ const updateProduct = async (req, res) => {
       price: req.body.price,
     };
 
-    // Gestion des fichiers photos
-    if (req.files && req.files.length > 0) {
-      // Suppression des anciennes photos sur Cloudinary
-      if (currentProduct.photos && currentProduct.photos.length > 0) {
-        await Promise.all(
-          currentProduct.photos.map(async (photo) => {
-            try {
-              await cloudinary.uploader.destroy(photo.public_id);
-            } catch (error) {
-              console.error(`Erreur lors de la suppression de l'image : ${photo.public_id}`, error);
-            }
-          })
-        );
-      }
+    const photoFile = req.file;
 
-      // Téléchargement des nouvelles photos
-      const photosLinks = await Promise.all(
-        req.files.map(async (file) => {
-          try {
-            const result = await cloudinary.uploader.upload(file.path, {
-              folder: "Products",
-            });
-            return {
-              public_id: result.public_id,
-              url: result.secure_url,
-            };
-          } catch (error) {
-            console.error("Erreur lors du téléchargement de l'image :", error);
-            throw new Error("Erreur lors du téléchargement des images.");
-          }
-        })
-      );
-
-      data.photos = photosLinks;
-    }
-
-    // Mise à jour du produit dans la base de données
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, data, {
-      new: true, // Retourner le produit mis à jour
+    const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
+      folder: "product",
     });
 
-    if (!updatedProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Produit non trouvé après mise à jour.",
-      });
-    }
+    data.photo = uploadResult.secure_url;
 
-    // Envoi de la réponse
-    return res.status(200).json({
+    const product = await Product.findByIdAndUpdate(req.params.id, data, {
+      new: true,
+    });
+    res.status(200).json({
       success: true,
-      message: "Produit mis à jour avec succès.",
-      product: updatedProduct,
+      product,
     });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour de produit :", error);
-    return res.status(500).json({
+    console.log(error)
+    res.status(500).json({
       success: false,
-      message: "Erreur serveur lors de la mise à jour de produit.",
-      error: error.message,
+      message: "Erreur serveur lors de la mise à jour de produit",
+      error,
     });
   }
 };
 
 const removeProduct = async (req, res) => {
   try {
-    const Product = await Product.findByIdAndDelete(req.params.id);
-    res.status(201).json(Product);
+    const product = await Product.findByIdAndDelete(req.params.id);
+    res.status(201).json(product);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la suppression de produit");
   }
@@ -262,4 +185,7 @@ module.exports = {
   getOneProduct,
   updateProduct,
   removeProduct,
+  getProductSearchName,
+  getAllProductsCategoryUser,
+  getProductSearchUserName,
 };

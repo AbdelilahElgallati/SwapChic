@@ -3,14 +3,13 @@ const UserRouter = express.Router();
 const UserController = require("../controllers/userController");
 const Auth = require("../middlewares/auth");
 const multer = require("multer");
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ dest: 'uploads/' });
 
 UserRouter.get( "/", UserController.getAllUsers); 
+UserRouter.get( "/me", UserController.getUserData); 
 UserRouter.get( "/:id", UserController.getOneUser); 
 UserRouter.put('/changePassword/:id', UserController.changePassword);
-UserRouter.post('/register', UserController.addUser);
+UserRouter.post('/register', upload.single('photo'), UserController.addUser);
 UserRouter.put('/edit/:id', upload.single('photo'), UserController.updateUser);
 UserRouter.put('/editStatus/:id', UserController.updateStausUser);
 UserRouter.delete("/remove/:id", UserController.removeUser);

@@ -5,38 +5,58 @@ const User = require("../models/userModel");
 
 const addUser = async (req, res) => {
   try {
+    console.log("Request Body:");
     console.log(req.body)
-    const { name, email, password, phone, localisation, photo } = req.body;
-    
+
+    const { name, email, password, phone, localisation } = req.body;
+    const photoFile = req.file;
+
+    // Vérification des champs obligatoires
+    if (!name || !email || !password || !phone || !localisation) {
+      console.log("Tous les champs doivent être remplis.");
+      
+      return res.status(400).json({
+        success: false,
+        message: "Tous les champs doivent être remplis.",
+      });
+    }
+
     const existeUser = await User.findOne({ email: email });
-    if (!existeUser) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const result = await cloudinary.uploader.upload(photo, {
-        folder: "Users",
-      });
-      const User = new User({
-        name,
-        email,
-        password: hashedPassword,
-        phone,
-        localisation,
-        photo: {
-          public_id: result.public_id,
-          url: result.secure_url,
-        },
-      });
-      await User.save();
-    } else {
+    if (existeUser) {
+      console.log("L'utilisateur existe déjà");
+      
       return res
         .status(400)
-        .json({ success: false, message: "L'utilisateur existe déjà" });
+        .json({ success: false, message: "L'utilisateur existe déjà." });
     }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
+      folder: "users", 
+    });
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      localisation,
+      photo: uploadResult.secure_url,
+    });
+
+    await user.save();
+    console.log("Utilisateur ajouté avec succès");
+    
+    res
+      .status(201)
+      .json({ success: true, message: "Utilisateur ajouté avec succès", user });
   } catch (error) {
     console.error("Erreur lors de l'ajout d'utilisateur :", error);
     return res.status(500).json({
       success: false,
-      message: `Erreur serveur lors de l'ajout d'utilisateur : ${error}`,
-      error,
+      message: `Erreur serveur lors de l'ajout d'utilisateur : ${error.message}`,
     });
   }
 };
@@ -52,10 +72,19 @@ const getAllUsers = async (req, res) => {
 
 const getOneUser = async (req, res) => {
   try {
-    const User = await User.findById(req.params.id);
-    res.status(201).json(User);
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Utilisateur non trouvé" });
+    }
+
+    // Pour renvoyer l'image en tant que fichier binaire
+    res.set("Content-Type", "image/jpeg");
+    res.send(user.photo);
   } catch (error) {
-    res.status(500).send("Erreur serveur lors de la recherche d'utilisateur");
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 
@@ -94,13 +123,9 @@ const updateUser = async (req, res) => {
                 url: result.secure_url,
               };
 
-              const User = await User.findByIdAndUpdate(
-                req.params.id,
-                data,
-                {
-                  new: true,
-                }
-              );
+              const User = await User.findByIdAndUpdate(req.params.id, data, {
+                new: true,
+              });
               res.status(200).json({
                 success: true,
                 User,
@@ -110,13 +135,9 @@ const updateUser = async (req, res) => {
         )
         .end(req.file.buffer);
     } else {
-      const User = await User.findByIdAndUpdate(
-        req.params.id,
-        data,
-        {
-          new: true,
-        }
-      );
+      const User = await User.findByIdAndUpdate(req.params.id, data, {
+        new: true,
+      });
       res.status(200).json({
         success: true,
         User,
@@ -140,10 +161,13 @@ const updateStausUser = async (req, res) => {
     );
     res.status(200).json({
       success: true,
-      enterprise, 
+      enterprise,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Erreur lors de la mise à jour du statut de l'utilisateur" });
+    res.status(500).json({
+      success: false,
+      error: "Erreur lors de la mise à jour du statut de l'utilisateur",
+    });
   }
 };
 
@@ -158,12 +182,32 @@ const removeUser = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+
     const jsenwebtkn = req.token;
     const user = req.user;
-    res.json({ jsenwebtkn, user });
+    console.log("login success")
+    res.json({ token: jsenwebtkn, user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// const jwt = require("jsonwebtoken");
+// const User = require("../models/userModel");
+
+const getUserData = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, "AbdelilahElgallati1230");
+    const user = await User.findById(decoded.userId).select("-password"); // Exclut le mot de passe
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ error: "Non autorisé" });
   }
 };
 
@@ -198,4 +242,5 @@ module.exports = {
   login,
   changePassword,
   updateStausUser,
+  getUserData,
 };

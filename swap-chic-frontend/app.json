@@ -22,8 +22,12 @@
       "buildNumber": "1.0.0"
     },
     "android": {
+<<<<<<< HEAD
       "package": "com.swapchic.app",
       "versionCode": 1,
+=======
+      "jsEngine": "hermes",
+>>>>>>> master
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"

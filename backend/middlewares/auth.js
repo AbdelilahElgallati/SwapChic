@@ -7,11 +7,11 @@ const loginMiddleware = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
     if (!user) {
-      return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+      return res.status(401).json({ error: "Email incorrect" });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+      return res.status(401).json({ error: "Mot de passe incorrect" });
     }
 
     const jsenwebtkn = jwt.sign({ userId: user._id }, "AbdelilahElgallati1230");

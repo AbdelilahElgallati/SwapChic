@@ -29,7 +29,7 @@ const WelcomeScreen = () => {
 
   useEffect(() => {
     if (isLoaded && user) {
-      console.log("User exists. Redirecting to tabs...");
+      // console.log("User exists. Redirecting to tabs...");
       router.push("/(tabs)");
     }
   }, [isLoaded, user]);
@@ -37,8 +37,8 @@ const WelcomeScreen = () => {
   useFocusEffect(
     useCallback(() => {
       if (isLoaded && user) {
-        console.log("User exists. Redirecting to tabs...");
-        router.replace("/(tabs)"); 
+        // console.log("User exists. Redirecting to tabs...");
+        router.push("/(tabs)");
       }
     }, [isLoaded, user, router]) 
   );

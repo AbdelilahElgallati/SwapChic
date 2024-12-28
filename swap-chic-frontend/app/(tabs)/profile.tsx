@@ -11,7 +11,7 @@ export default function Profil() {
   const handleLogout = async () => {
     try {
       await signOut();
-      router.replace("/Redirect/redirect");
+      router.replace("/");
     } catch (error) {
       console.error("Failed to log out:", error);
     }
@@ -38,8 +38,7 @@ export default function Profil() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.box}
-          // onPress={() => router.push("/Product_Info/MyProducts")}
-          onPress={() => router.replace("/Product_Info/MyProducts")}
+          onPress={() => router.push("/Product_Info/MyProducts")}
         >
           <Text style={styles.boxIcon}>📤</Text>
           <Text style={styles.boxText}>Mes produits</Text>
@@ -51,10 +50,6 @@ export default function Profil() {
           <Text style={styles.boxIcon}>🛒</Text>
           <Text style={styles.boxText}>Discussion</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.box} onPress={() => router.push('/Profil_infos/Myproduct')}>
-          <Text style={styles.boxIcon}>📤</Text>
-          <Text style={styles.boxText}>Mes produits partagés</Text>
-        </TouchableOpacity> */}
         <TouchableOpacity
           style={styles.box}
           onPress={() => router.push("/Profil_infos/Connection")}

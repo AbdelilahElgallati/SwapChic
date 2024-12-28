@@ -18,10 +18,6 @@ const ProfilInfoLayout = () => {
         options={{ title: "Modifier mon profil" }}
       />
       <Stack.Screen name="Chat" options={{ title: "Chat" }} />
-      <Stack.Screen
-        name="MyProduct"
-        options={{ title: "Mes produits partagés" }}
-      />
       <Stack.Screen name="Connection" options={{ title: "Mes connections" }} />
     </Stack>
   );

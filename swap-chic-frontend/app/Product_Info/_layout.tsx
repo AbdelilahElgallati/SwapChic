@@ -14,6 +14,10 @@ const ProductInfoLayout = () => {
       }}
     >
       <Stack.Screen
+        name="MyProducts"
+        options={{ title: "Mes produits partagés" }}
+      />
+      <Stack.Screen
         name="DetailProduct"
         options={{ title: "Detail de produit" }}
       />
@@ -21,7 +25,6 @@ const ProductInfoLayout = () => {
         name="EditProduct"
         options={{ title: "Modification de produit" }}
       />
-      <Stack.Screen name="MyProducts" options={{ title: "Mes produits" }} />
     </Stack>
   );
 };

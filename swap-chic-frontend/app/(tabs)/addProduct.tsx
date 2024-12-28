@@ -129,14 +129,9 @@ const addProduct = () => {
       });
     }
 
-    // console.log("Contenu du FormData:");
-    // formData.forEach((value, key) => {
-    //   console.log(`${key}:`, value);
-    // });
-
     try {
       const response = await fetch(
-        "http://192.168.1.8:3001/product/add",
+        "http://192.168.10.178:3001/product/add",
         {
           method: "POST",
           headers: {

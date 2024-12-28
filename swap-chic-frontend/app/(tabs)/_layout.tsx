@@ -3,7 +3,6 @@ import { Tabs } from "expo-router";
 import { FontAwesome, FontAwesome6, AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@clerk/clerk-react";
-import { TouchableOpacity, Text } from "react-native";
 
 const Layout = () => {
   const router = useRouter();
@@ -13,19 +12,6 @@ const Layout = () => {
     <Tabs
       screenOptions={{
         headerShown: false,
-        headerLeft: () => (
-          <BackButton
-            onPress={() => {
-              if (router.canGoBack()) {
-                router.back();
-              } else if (isSignedIn) {
-                router.replace("/(tabs)"); // Redirige vers la page d'accueil
-              } else {
-                router.replace("/"); // Redirige vers la page de bienvenue
-              }
-            }}
-          />
-        ),
       }}
     >
       <Tabs.Screen
@@ -68,11 +54,5 @@ const Layout = () => {
     </Tabs>
   );
 };
-
-const BackButton = ({ onPress }) => (
-  <TouchableOpacity onPress={onPress} style={{ marginLeft: 10 }}>
-    <Text style={{ color: "blue" }}>Retour</Text>
-  </TouchableOpacity>
-);
 
 export default Layout;

@@ -7,8 +7,8 @@ const axios = require("axios");
 
 const addUser = async (req, res) => {
   try {
-    console.log("Request Body:");
-    console.log(req.body);
+    // console.log("Request Body:");
+    // console.log(req.body);
 
     const { name, email, password, phone, localisation } = req.body;
     const photoFile = req.file;
@@ -236,14 +236,14 @@ const changePassword = async (req, res) => {
 
 const getAllUsersClerck = async (req, res) => {
   try {
-    console.log("Fetching users from Clerk...");
+    // console.log("Fetching users from Clerk...");
     const clerck_key = process.env.CLERK_API_KEY;
     const response = await axios.get("https://api.clerk.dev/v1/users", {
       headers: {
         Authorization: `Bearer ${clerck_key}`,
       },
     });
-    console.log("Fetched users:", response.data);
+    // console.log("Fetched users:", response.data);
     res.status(200).json(response.data);
   } catch (error) {
     console.error(
@@ -264,7 +264,7 @@ const getUserById = async (req, res) => {
         Authorization: `Bearer ${clerck_key}`,
       },
     });
-    console.log("Fetched user:", response.data);
+    // console.log("Fetched user:", response.data);
     res.status(200).json(response.data); // Send the user data as the response
   } catch (error) {
     console.error("Error fetching user:", error.response?.data || error.message);

@@ -1,85 +1,272 @@
-import React, { useState, useCallback } from "react";
-import { StyleSheet, View } from "react-native";
-import { GiftedChat, Composer } from "react-native-gifted-chat";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { useUser } from '@clerk/clerk-expo';
+import io from 'socket.io-client';
+import axios from 'axios';
+
+const SOCKET_URL = 'http://192.168.1.5:3001';
+
+interface Message {
+  _id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+  productId: string;
+  createdAt: string;
+}
 
 const Chat = () => {
-  const [messages, setMessages] = useState([
-    {
-      _id: 1,
-      text: "Hello developer",
-      createdAt: new Date(),
-      user: {
-        _id: 2,
-        name: "React Native",
-      },
-    },
-  ]);
+  const { productId, clientId, productOwnerId } = useLocalSearchParams();
+  const { user } = useUser();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const socketRef = useRef<any>(null);
+  const flatListRef = useRef<any>(null);
 
-  const onSend = useCallback((newMessages = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
+  useEffect(() => {
+    socketRef.current = io(SOCKET_URL);
+
+    if (user?.id) {
+      socketRef.current.emit('registerUser', user.id);
+    }
+
+    const chatRoom = `chat_${productId}_${[clientId, productOwnerId].sort().join('_')}`;
+    socketRef.current.emit('joinRoom', chatRoom);
+
+    socketRef.current.on('newMessage', (message: Message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    fetchMessages();
+
+    return () => {
+      socketRef.current.emit('leaveRoom', chatRoom);
+      socketRef.current.disconnect();
+    };
+  }, [productId, clientId, productOwnerId]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await axios.get(`${SOCKET_URL}/message`, {
+        params: { productId, clientId, productOwnerId },
+      });
+      setMessages(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      setLoading(false);
+    }
+  };
+
+  const sendMessage = () => {
+    if (!newMessage.trim()) return;
+
+    const messageData = {
+      senderId: user?.id,
+      receiverId: user?.id === clientId ? productOwnerId : clientId,
+      text: newMessage.trim(),
+      productId,
+    };
+
+    socketRef.current.emit('sendMessage', messageData);
+    setNewMessage('');
+  };
+
+  const groupMessagesByDay = (messages: Message[]) => {
+    return messages.reduce((grouped: Record<string, Message[]>, message) => {
+      const date = new Date(message.createdAt).toLocaleDateString();
+      if (!grouped[date]) grouped[date] = [];
+      grouped[date].push(message);
+      return grouped;
+    }, {});
+  };
+
+  const renderMessage = ({ item }: { item: Message }) => {
+    const isOwnMessage = item.senderId === user?.id;
+
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          isOwnMessage ? styles.ownMessage : styles.otherMessage,
+        ]}
+      >
+        <Text
+          style={[
+            styles.messageText,
+            isOwnMessage ? styles.ownMessageText : styles.otherMessageText,
+          ]}
+        >
+          {item.text}
+        </Text>
+        <Text style={[styles.messageTime, isOwnMessage ? styles.ownMessageTime : styles.otherMessageTime]}>
+          {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+      </View>
     );
-  }, []);
+  };
+
+  const renderDateSeparator = (date: string) => (
+    <View style={styles.dateSeparator}>
+      <Text style={styles.dateText}>{date}</Text>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4A90E2" />
+      </View>
+    );
+  }
+
+  const groupedMessages = groupMessagesByDay(messages);
 
   return (
-    <View style={styles.container}>
-      <GiftedChat
-        messages={messages}
-        onSend={(messages) => onSend(messages)}
-        user={{
-          _id: 1,
-        }}
-        renderInputToolbar={(props) => (
-          <View style={styles.inputToolbar}>
-            {/* Input Text */}
-            <Composer {...props} textInputStyle={styles.textInput} />
-            {/* Send Button */}
-            <FontAwesome
-              name="send"
-              size={24}
-              style={styles.sendIcon}
-              onPress={() => props.onSend({ text: props.text }, true)}
-            />
-          </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={100}
+    >
+      <FlatList
+        ref={flatListRef}
+        data={Object.keys(groupedMessages)}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item: date }) => (
+          <>
+            {renderDateSeparator(date)}
+            {groupedMessages[date].map((message) => (
+              <View key={message._id}>{renderMessage({ item: message })}</View>
+            ))}
+          </>
         )}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+        onLayout={() => flatListRef.current?.scrollToEnd()}
+        style={styles.messagesList}
+        contentContainerStyle={styles.messagesContent}
       />
-    </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={newMessage}
+          onChangeText={setNewMessage}
+          placeholder="Écrivez votre message..."
+          placeholderTextColor="#999"
+          multiline
+        />
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={sendMessage}
+        >
+          <Text style={styles.sendButtonText}>Envoyer</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // Couleur bleu clair
+    backgroundColor: '#F9F9F9',
   },
-  inputToolbar: {
-    flexDirection: "row", // Input et bouton sur une seule ligne
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: "#E8E8E8",
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  messagesList: {
+    flex: 1,
+    paddingHorizontal: 10,
+    height: '100%',
+  },
+  messagesContent: {
+    paddingBottom: 20,
+  },
+  messageContainer: {
+    maxWidth: '80%',
+    marginVertical: 5,
     padding: 10,
-    backgroundColor: "#FFF", // Fond blanc de la barre
+    borderRadius: 10,
   },
-  textInput: {
-    flex: 1, // L'input occupe tout l'espace disponible
-    borderWidth: 1,
-    borderColor: "#E8E8E8",
-    borderRadius: 25, // Coins arrondis
+  ownMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#4A90E2',
+  },
+  otherMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#EDEDED',
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  ownMessageText: {
+    color: '#FFF',
+  },
+  otherMessageText: {
+    color: '#333',
+  },
+  messageTime: {
+    fontSize: 12,
+    marginTop: 5,
+    textAlign: 'right',
+  },
+  ownMessageTime: {
+    color: '#B0C4DE',
+  },
+  otherMessageTime: {
+    color: '#888888',
+  },
+  dateSeparator: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#666',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#DDD',
+    backgroundColor: '#FFF',
+  },
+  input: {
+    flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 10,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
     fontSize: 16,
-    backgroundColor: "#FFF", // Fond blanc
   },
-  sendIcon: {
-    marginLeft: 10, // Espacement entre le champ texte et le bouton
-    color: "#007AFF", // Couleur bleue pour l'icône
-    backgroundColor: "#FFF", // Fond blanc derrière l'icône
-    borderRadius: 20, // Icône arrondie
-    padding: 5,
+  sendButton: {
+    marginLeft: 10,
+    padding: 10,
+    backgroundColor: '#4A90E2',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendButtonText: {
+    color: '#FFF',
+    fontSize: 16,
   },
 });
 
 export default Chat;
-
 

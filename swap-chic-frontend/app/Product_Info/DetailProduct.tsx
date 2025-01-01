@@ -13,10 +13,13 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getOneProduct, fetchUserById } from "../../Services/api";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useUser } from "@clerk/clerk-expo";
 
 const DetailProduct = () => {
+  const router = useRouter();
+  const {user} = useUser();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -78,8 +81,17 @@ const DetailProduct = () => {
     }, [])
   );
 
-  const startChat = (userId) => {
-    console.log("Démarrer une discussion avec:", userId);
+  const startChat = (receiverId, productId) => {
+    const clientId = user?.id; 
+    const productOwnerId = receiverId;
+    if (!receiverId) {
+      Alert.alert(
+        "Erreur",
+        "Impossible de démarrer une discussion : utilisateur inconnu."
+      );
+      return;
+    }
+    router.push(`/Profil_infos/Chat?productId=${productId}&clientId=${clientId}&productOwnerId=${productOwnerId}`);
   };
 
   const handleShowMoreDescription = () => {
@@ -163,19 +175,20 @@ const DetailProduct = () => {
         )}
 
         {userProduct && (
-          <Text style={styles.productUser}>
-            <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
-            {userProduct.first_name} {userProduct.last_name}
-          </Text>
+          <>
+            <Text style={styles.productUser}>
+              <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
+              {userProduct.first_name} {userProduct.last_name}
+            </Text>
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={() => startChat(userProduct.id, product._id)}
+            >
+              <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
+              <FontAwesome name="comment" size={18} color="#fff" />
+            </TouchableOpacity>
+          </>
         )}
-
-        <TouchableOpacity
-          style={styles.chatButton}
-          onPress={() => startChat(userProduct.id)}
-        >
-          <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
-          <FontAwesome name="comment" size={18} color="#fff" />
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );

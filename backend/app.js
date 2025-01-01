@@ -10,8 +10,9 @@ const url = process.env.DATABASE_URL;
 const bodyParser = require("body-parser");
 const app = express();
 const http = require("http");
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
 const Port = 3001;
+const Message = require("./models/messageModel");
 
 const CategoryRouter = require("./routes/categoryRouter");
 const MessageRouter = require("./routes/messageRouter");
@@ -22,20 +23,27 @@ const TransactionRouter = require("./routes/transactionRouter");
 const UserRouter = require("./routes/userRouter");
 
 const server = http.createServer(app);
-const io = new Server(server, {
+
+const io = socketIo(server, {
   cors: {
-    origin: "*", // Replace with your frontend's URL in production
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
-app.use(helmet());
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
+// app.use(morgan("common"));
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-app.use(cors());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("Public"));
 app.use(
@@ -48,14 +56,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/category", CategoryRouter);
-app.use("/message", MessageRouter);
-app.use("/notification", NotificationRouter);
-app.use("/product", ProductRouter);
-app.use("/review", RevieweRouter);
-app.use("/transaction", TransactionRouter);
-app.use("/user", UserRouter);
-
 mongoose
   .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -65,26 +65,83 @@ mongoose
     console.log(err);
   });
 
-// Socket.io for Real-Time Chat
+const userConnections = new Map();
+
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("New client connected:", socket.id);
 
-  socket.on("sendMessage", async (data) => {
-    const { senderId, receiverId, content } = data;
+  socket.on("registerUser", (userId) => {
+    userConnections.set(userId, socket.id);
+    console.log(`User ${userId} registered with socket ${socket.id}`);
+  });
 
-    // Save message to DB
-    const message = new Message({ senderId, receiverId, content });
-    await message.save();
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    console.log(`User joined room: ${roomId}`);
+  });
 
-    // Emit message to the receiver
-    io.emit(`message:${receiverId}`, message);
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    console.log(`User left room: ${roomId}`);
+  });
+
+  socket.on("sendMessage", async (messageData) => {
+    try {
+      const { senderId, receiverId, text, productId } = messageData;
+      const roomId = `chat_${productId}_${[senderId, receiverId]
+        .sort()
+        .join("_")}`;
+
+      const newMessage = new Message({
+        senderId,
+        receiverId,
+        productId,
+        text: text,
+        status: "pending",
+      });
+
+      await newMessage.save();
+
+      io.to(roomId).emit("newMessage", {
+        _id: newMessage._id,
+        senderId,
+        receiverId,
+        text: newMessage.text,
+        productId,
+        createdAt: newMessage.createdAt,
+      });
+
+      if (userConnections.has(receiverId)) {
+        await Message.findByIdAndUpdate(newMessage._id, {
+          status: "delivered",
+        });
+        io.to(roomId).emit("messageDelivered", newMessage._id);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      socket.emit("messageError", { error: "Failed to send message" });
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
+    for (const [userId, socketId] of userConnections.entries()) {
+      if (socketId === socket.id) {
+        userConnections.delete(userId);
+        break;
+      }
+    }
+    console.log("Client disconnected:", socket.id);
   });
 });
 
-app.listen(Port, () => {
-  console.log("the platform is running well");
+app.use("/category", CategoryRouter);
+app.use("/message", MessageRouter);
+app.use("/notification", NotificationRouter);
+app.use("/product", ProductRouter);
+app.use("/review", RevieweRouter);
+app.use("/transaction", TransactionRouter);
+app.use("/user", UserRouter);
+
+server.listen(Port, () => {
+  console.log(`Server is running on ${Port}`);
 });

@@ -2,7 +2,7 @@ import axios from "axios";
 import React from 'react';
 
 // const BASE_URL = "https://swapchic-api.onrender.com";
-const BASE_URL = "http://100.103.100.2:3001";
+const BASE_URL = "http://192.168.227.82:3001";
 
 export const loginUser = async (formData) => {
   try {

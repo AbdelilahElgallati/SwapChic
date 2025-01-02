@@ -14,7 +14,7 @@ export default function Profil() {
   const handleLogout = async () => {
     try {
       await signOut();
-      router.replace("/");
+      router.replace("/index");
     } catch (error) {
       console.error("Failed to log out:", error);
     }

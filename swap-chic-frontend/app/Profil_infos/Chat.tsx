@@ -15,7 +15,7 @@ import { useUser } from '@clerk/clerk-expo';
 import io from 'socket.io-client';
 import axios from 'axios';
 
-const SOCKET_URL = 'http://192.168.1.5:3001';
+const SOCKET_URL = 'http://192.168.167.74:3001';
 
 interface Message {
   _id: string;
@@ -269,4 +269,3 @@ const styles = StyleSheet.create({
 });
 
 export default Chat;
-

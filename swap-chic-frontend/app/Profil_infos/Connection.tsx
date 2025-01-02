@@ -28,7 +28,7 @@ const Connection = () => {
           return;
         }
         const response = await axios.get(
-          `http://192.168.1.5:3001/message/receiver/${user.id}`
+          `http://192.168.167.74:3001/message/receiver/${user.id}`
         );
         setSenders(response.data);
       } catch (error) {

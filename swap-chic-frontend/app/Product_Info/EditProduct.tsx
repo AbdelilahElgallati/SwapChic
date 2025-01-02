@@ -151,7 +151,7 @@ const EditProduct = () => {
 
     try {
       const response = await fetch(
-        `http://192.168.10.178:3001/product/edit/${productId}`,
+        `http://100.103.100.2:3001/product/edit/${productId}`,
         {
           method: "PUT",
           headers: {

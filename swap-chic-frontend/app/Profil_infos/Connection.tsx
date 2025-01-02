@@ -1,71 +1,95 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
+import axios from "axios";
+import { useUser } from "@clerk/clerk-expo";
 import { useNavigation } from "@react-navigation/native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
-const exampleVendors = [
-  { id: 1, name: "Vendeur 1" },
-  { id: 2, name: "Vendeur 2" },
-  { id: 3, name: "Vendeur 3" },
-  { id: 4, name: "Vendeur 4" },
-  { id: 5, name: "Vendeur 5" },
-];
+import { useRouter } from "expo-router";
 
 const Connection = () => {
-  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const [senders, setSenders] = useState([]);
+  const [selectedSender, setSelectedSender] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useUser();
   const navigation = useNavigation();
 
-  const filteredVendors = exampleVendors.filter((vendor) =>
-    vendor.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchSenders = async () => {
+      try {
+        if (!user) {
+          console.error("User not authenticated");
+          return;
+        }
+        const response = await axios.get(
+          `http://192.168.167.74:3001/message/receiver/${user.id}`
+        );
+        setSenders(response.data);
+      } catch (error) {
+        console.error("Error fetching senders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleVendorSelect = (vendor) => {
-    navigation.navigate("Chat", { vendor });
-    // Fetch and display the latest messages for the selected vendor
-    // This is a placeholder for the actual implementation
+    fetchSenders();
+  }, [user]);
+
+  const handleProductPress = (product, clientId) => {
+    router.push(`/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`);
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200ee" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mes Connections</Text>
-
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          placeholder="Rechercher un vendeur"
-          value={search}
-          onChangeText={setSearch}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            /* Trigger search action */
-          }}
-          style={styles.icon}
-        >
-          <MaterialCommunityIcons
-            name="account-search"
-            size={35}
-            color="black"
-          />
-        </TouchableOpacity>
-      </View>
-
+      <Text style={styles.header}>Messages</Text>
+      <Text style={styles.subHeader}>Users who sent you messages:</Text>
       <FlatList
-        data={filteredVendors}
-        keyExtractor={(item) => item.id.toString()}
+        data={senders}
+        keyExtractor={(item) => item.senderId}
+        ListEmptyComponent={<Text style={styles.emptyListText}>No messages found.</Text>}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleVendorSelect(item)}>
-            <Text style={styles.vendorName}>{item.name}</Text>
+          <TouchableOpacity
+            style={styles.senderItem}
+            onPress={() => setSelectedSender(item)}
+          >
+            <Text style={styles.senderName}>{item.senderName}</Text>
           </TouchableOpacity>
         )}
       />
+      {selectedSender && (
+        <View style={styles.productsContainer}>
+          <Text style={styles.selectedHeader}>
+            Products discussed with {selectedSender.senderName}:
+          </Text>
+          <FlatList
+            data={selectedSender.products}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.productItem}
+                onPress={() => handleProductPress(item, selectedSender.senderId)}
+              >
+                <Text style={styles.productName}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -73,46 +97,70 @@ const Connection = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f0f8ff", // Light blue background color
+    padding: 16,
+    backgroundColor: "#f4f4f4",
   },
-  title: {
-    flexDirection: "row",
-    alignItems: "center",
+  header: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#4682b4", // Steel blue text color
+    color: "#6200ee",
+    marginBottom: 16,
   },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: "#4682b4", // Steel blue text color
-  },
-  vendorName: {
+  subHeader: {
     fontSize: 18,
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    color: "#2f4f4f", // Dark slate gray text color
+    color: "#555",
+    marginBottom: 8,
   },
-  input: {
-    height: 40,
-    width: "90%",
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    marginRight: 10,
-    backgroundColor: "#fff", // White background color for input
+  senderItem: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 8,
+    elevation: 1,
   },
-  icon: {
+  senderName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  productsContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    elevation: 2,
+  },
+  selectedHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#6200ee",
+    marginBottom: 8,
+  },
+  productItem: {
+    padding: 12,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+  productName: {
+    fontSize: 16,
+    color: "#333",
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-    right: 10,
-    top: 2,
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 16,
+    color: "#555",
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
+    marginTop: 16,
   },
 });
 

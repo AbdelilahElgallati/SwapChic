@@ -131,7 +131,8 @@ const addProduct = () => {
 
     try {
       const response = await fetch(
-        "http://192.168.227.82:3001/product/add",
+        "http://192.168.167.74:3001/product/add",
+
         {
           method: "POST",
           headers: {

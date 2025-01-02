@@ -2,7 +2,13 @@ import axios from "axios";
 import React from 'react';
 
 // const BASE_URL = "https://swapchic-api.onrender.com";
+<<<<<<< HEAD
 const BASE_URL = "http://192.168.227.82:3001";
+=======
+// const BASE_URL = "https://149a-105-73-98-31.ngrok-free.app";
+const BASE_URL = "http://192.168.167.74:3001";
+
+>>>>>>> 0a2daa7d47c6d3fbbf05a5397bf9ea24d77174b8
 
 export const loginUser = async (formData) => {
   try {
@@ -15,7 +21,6 @@ export const loginUser = async (formData) => {
     throw error.response ? error.response.data : { message: "Erreur serveur." };
   }
 };
-
 
 
 export const getProduct = async () => {
@@ -123,5 +128,26 @@ export const getCategory = async () => {
   } catch (error) {
     console.error( error);
     throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+};
+
+
+export const fetchUsers = async () => {
+  try {
+    // console.log("getting all users")
+    const response = await axios.get(`${BASE_URL}/user/all`);
+    return response.data; 
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
+
+export const fetchUserById = async (userId) => {
+  try {
+    // console.log("getting all users")
+    const response = await axios.get(`${BASE_URL}/user/clerk/${userId}`);
+    return response.data; 
+  } catch (error) {
+    console.error("Error fetching users:", error);
   }
 };

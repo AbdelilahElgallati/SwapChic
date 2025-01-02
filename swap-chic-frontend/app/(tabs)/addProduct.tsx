@@ -132,6 +132,7 @@ const addProduct = () => {
     try {
       const response = await fetch(
         "http://192.168.167.74:3001/product/add",
+
         {
           method: "POST",
           headers: {
@@ -174,7 +175,7 @@ const addProduct = () => {
       }
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Ajouter un Produit</Text>
+        <Text style={styles.title}>Add Product</Text>
 
         <TextInput
           style={styles.input}
@@ -262,19 +263,22 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#fff",
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    textShadowColor: "#da051d",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+    fontSize: 25,
     fontWeight: "700",
-    color: "#2C3E50",
-    marginBottom: 20,
+    color: "#fff",
+    marginBottom: 30,
   },
   input: {
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#000",
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
@@ -282,20 +286,24 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#2C3E50",
-    marginBottom: 5,
+    marginBottom: 8,
   },
   picker: {
-    backgroundColor: "#FFFFFF",
+    borderColor: "#000",
     borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 8,
+    color:"#000",
+    fontWeight: "bold",
+    backgroundColor: "#F5F5F5F5",
+    borderRadius: 10,
     marginBottom: 15,
   },
   photoButton: {
-    backgroundColor: "#3498DB",
+    // backgroundColor: "lightgray",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -303,7 +311,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   photoButtonText: {
-    color: "#FFFFFF",
+    color: "#000",
     fontSize: 16,
     fontWeight: "500",
   },
@@ -314,13 +322,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   submitButton: {
-    backgroundColor: "#27AE60",
+    backgroundColor: "#da051d",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   submitButtonText: {
-    color: "#FFFFFF",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },

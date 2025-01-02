@@ -10,6 +10,8 @@ import {
   FlatList,
   RefreshControl,
 } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
 import {
@@ -115,7 +117,7 @@ const Dashboard = () => {
 
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
-      <TouchableOpacity onPress={() => goToProductDetail(item._id)}>
+      <TouchableOpacity onPress={() => goToProductDetail(item._id)} >
         <Image source={{ uri: item.photo }} style={styles.productImage} />
       </TouchableOpacity>
       <View style={styles.productInfo}>
@@ -128,8 +130,8 @@ const Dashboard = () => {
       >
         <FontAwesome
           name={likedProducts.includes(item._id) ? "heart" : "heart-o"}
-          size={24}
-          color={likedProducts.includes(item._id) ? "red" : "gray"}
+          size={16}
+          color={likedProducts.includes(item._id) ? "#fff" : "gray"}
         />
       </TouchableOpacity>
     </View>
@@ -138,24 +140,29 @@ const Dashboard = () => {
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
-        <Text style={styles.title}>SWAP-CHIC</Text>
+         <Text style={styles.brandTitle}>
+                    <Text style={styles.letter}>Swap</Text>Chic
+                  </Text>
         <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handeleSignOut}>
-            <Image
-              source={require("../../assets/images/logout.png")}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity style={{ marginRight: 20,borderRadius: 20, padding: 8, backgroundColor: "#F5F5F5F5" }}>
+              <MaterialIcons name="notifications-none" size={22} color="black" />
+            </TouchableOpacity>
           <Image source={{ uri: user?.imageUrl }} style={styles.profileImage} />
         </View>
       </View>
 
-      <SearchBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSearch={handleSearch}
-      />
-
+      <View style={styles.searchBar}>
+      <TouchableOpacity onPress={() => handleSearch(searchQuery)} style={styles.searchButton}>
+      <AntDesign name="search1" size={24} color="black" />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="SearchProduct"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -198,30 +205,32 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    // backgroundColor: "#fff",
+   //backgroundColor: "#fff",
     elevation: 3,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    // color: "#333",
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
+    // backgroundColor: "#000",
+    // marginLeft: -10,
   },
   icon: {
     width: 24,
     height: 24,
     marginRight: 16,
-    tintColor: "#333",
+    tintColor: "#fff",
   },
   profileImage: {
     width: 40,
@@ -229,33 +238,40 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   searchBar: {
+    height: 50,
+    
     flexDirection: "row",
     padding: 5,
     alignItems: "center",
-    backgroundColor: "#fff",
-    elevation: 4,
+    //  color: "#FAFAFAFA",
+    backgroundColor: "#FAFAFAFA",
+    // elevation: 4,
     marginBottom: 10,
-    borderRadius: 15,
+    borderRadius: 40,
     paddingHorizontal: 15,
   },
   searchInput: {
     borderRadius: 8,
     paddingHorizontal: 16,
     flex: 1,
-    fontSize: 16,
-    color: "#2C3E50",
+    fontSize: 15,
+    // color: "red",
+    justifyContent:"center",
+    marginLeft:-10,
+    marginBottom:-4,
     paddingVertical: 12,
   },
   searchButton: {
-    marginLeft: 8,
+    marginLeft: 4,
     padding: 10,
     justifyContent: "center",
     alignItems: "center",
+    
   },
   searchIcon: {
     width: 20,
     height: 20,
-    tintColor: "#3498db",
+    tintColor: "red",
   },
   horizontalScroll: {
     marginTop: 8,
@@ -267,37 +283,50 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryButton: {
-    backgroundColor: "#e0e0e0",
-    paddingHorizontal: 12,
+    backgroundColor: "#FAFAFAFA",
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 20,
     marginHorizontal: 4,
+    height: 40,
+    color:"balck",
+    justifyContent: "center",
+    fontWeight:"bold",
+
   },
   categoryText: {
     fontSize: 14,
-    color: "#333",
+    color: "#000",
+    fontWeight: "ultralight",
   },
   contentContainer: {
-    padding: 16,
+    padding: 10,
+    // backgroundColor: "#FAFAFAFA",
   },
   productCard: {
     flex: 1,
     margin: 8,
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 20,
     elevation: 4,
     overflow: "hidden",
     alignItems: "center",
-    width: 200,
+    width: 300,
+    height: 300,
   },
   productImage: {
-    width: 200,
-    height: 180,
+    width: 190,
+    height: 210,
     resizeMode: "cover",
+    borderBottomLeftRadius: 30, // Bord inférieur gauche arrondi
+    borderBottomRightRadius: 30, // Bord inférieur droit arrondi
+    // overflow: "hidden", // Important pour appliquer le borderRadius sur l'image
   },
+  
   productInfo: {
     padding: 8,
     alignItems: "center",
+    marginTop: 10,
   },
   productName: {
     fontSize: 16,
@@ -307,19 +336,45 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: "#666",
+    color: "#4FBF26",
     marginTop: 4,
   },
   likeButton: {
     position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "#000",
     borderRadius: 20,
-    padding: 4,
+    padding: 6,
   },
   row: {
     justifyContent: "space-between",
+  },
+  letter: {
+    color: "#fff",
+
+    fontWeight: "bold",
+    fontSize:35,
+    textShadowColor: "#da051d",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+  brandTitle: {
+    fontSize: 30,
+    
+  fontWeight: "bold",
+  fontStyle: "normal",
+  
+    color: "#da051d",
+     marginLeft: -15,
+    marginTop:-10,
+    padding:5,
+    width:"70%",
+    // backgroundColor:"#000",
+    //  marginBottom: -10,
+    textShadowColor: "gray",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
   },
 });
 

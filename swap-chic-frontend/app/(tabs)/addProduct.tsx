@@ -15,7 +15,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getCategory } from "../../Services/api";
-// import {BASE_URL} from "@env";
+import { BASE_URL } from "../../Services/api";
 
 
 const addProduct = () => {
@@ -137,7 +137,7 @@ const addProduct = () => {
 
     try {
       const response = await fetch(
-        "http://192.168.227.82:3001/product/add",
+        `${BASE_URL}/product/add`,
 
 
         {

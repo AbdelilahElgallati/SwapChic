@@ -111,34 +111,6 @@ const Dashboard = () => {
     }
   };
 
-  // const renderProductRow = (productsChunk) => {
-  //   return (
-  //     <View style={styles.productRow}>
-  //       {productsChunk.map((product) => (
-  //         <View key={product._id} style={styles.productCard}>
-  //           <TouchableOpacity onPress={() => goToProductDetail(product._id)}>
-  //             <Image source={{ uri: product.photo }} style={styles.productImage} />
-  //           </TouchableOpacity>
-  //           <View style={styles.productInfo}>
-  //             <Text style={styles.productName}>{product.name}</Text>
-  //             <Text style={styles.productPrice}>${product.price}</Text>
-  //           </View>
-  //           <TouchableOpacity
-  //             onPress={() => handleLike(product._id)}
-  //             style={styles.likeButton}
-  //           >
-  //             <FontAwesome
-  //               name={likedProducts.includes(product._id) ? "heart" : "heart-o"}
-  //               size={16}
-  //               color={likedProducts.includes(product._id) ? "#fff" : "gray"}
-  //             />
-  //           </TouchableOpacity>
-  //         </View>
-  //       ))}
-  //     </View>
-  //   );
-  // };
-
   return (
     <ScrollView 
       style={styles.container}
@@ -203,7 +175,7 @@ const Dashboard = () => {
         </View>
       </ScrollView>
 
-      {/* Products Grid */}
+     
       <View style={styles.productsContainer}>
         {Array.from({ length: Math.ceil(products.length / 2) }, (_, i) => (
           <View key={`row-${i}`} style={styles.productRow}>
@@ -228,10 +200,6 @@ const Dashboard = () => {
                 </TouchableOpacity>
               </View>
             ))}
-            {/* Add empty placeholder if odd number of products */}
-            {/* {i * 2 + 1 >= products.length && (
-              <View style={[styles.productCard, styles.emptyCard]} />
-            )} */}
           </View>
         ))}
       </View>

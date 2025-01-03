@@ -15,9 +15,9 @@ import { useUser } from "@clerk/clerk-expo";
 import io from "socket.io-client";
 import axios from "axios";
 import { fetchUserById } from "@/Services/api";
-// import {BASE_URL} from "@env"
+import { BASE_URL } from "@/Services/api";
 
-const SOCKET_URL = `http://192.168.167.74:3001`;
+const SOCKET_URL = `${BASE_URL}`;
 
 interface Message {
   _id: string;
@@ -90,17 +90,6 @@ const Chat = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching messages:", error);
-      setLoading(false);
-    }
-  };
-
-  const getUserInfo = async () => {
-    try {
-      const response = await fetchUserById(clientId);
-      setClient(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
       setLoading(false);
     }
   };

@@ -17,7 +17,7 @@ import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getOneProduct, getCategory } from "../../Services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import {BASE_URL} from "@env"
+import { BASE_URL } from "../../Services/api";
 
 const EditProduct = () => {
   const router = useRouter();
@@ -155,7 +155,7 @@ const EditProduct = () => {
 
     try {
       const response = await fetch(
-        `http://192.168.227.82:3001/product/edit/${productId}`,
+        `${BASE_URL}/product/edit/${productId}`,
 
         {
           method: "PUT",

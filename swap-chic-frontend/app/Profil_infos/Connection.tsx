@@ -11,6 +11,7 @@ import axios from "axios";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { BASE_URL } from "@/Services/api";
 
 const Connection = () => {
   const router = useRouter();
@@ -29,8 +30,8 @@ const Connection = () => {
         }
 
         const [sendersResponse, ownersResponse] = await Promise.all([
-          axios.get(`http://192.168.167.74:3001/message/receiver/${user.id}`),
-          axios.get(`http://192.168.167.74:3001/message/client/${user.id}`),
+          axios.get(`${BASE_URL}/message/receiver/${user.id}`),
+          axios.get(`${BASE_URL}/message/client/${user.id}`),
         ]);
         setSenders(sendersResponse.data);
         setProductOwners(ownersResponse.data);
@@ -66,7 +67,7 @@ const Connection = () => {
       };
 
       const response = await axios.post(
-        "http://192.168.167.74:3001/transaction/add",
+        `${BASE_URL}/transaction/add`,
         transactionData
       );
       alert("Transaction successfully created!");

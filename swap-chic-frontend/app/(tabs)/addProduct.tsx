@@ -15,6 +15,8 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getCategory } from "../../Services/api";
+// import {BASE_URL} from "@env";
+
 
 const addProduct = () => {
   const router = useRouter();
@@ -24,6 +26,7 @@ const addProduct = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [condition, setCondition] = useState("New");
+  const [type, setType] = useState("Sale");
   const [price, setPrice] = useState("");
   const [photo, setPhoto] = useState(null);
   const [status, setStatus] = useState("Published");
@@ -53,6 +56,7 @@ const addProduct = () => {
       setCondition("New");
       setPrice("");
       setCategoryId("");
+      setType("Sale");
       setPhoto(null);
       setStatus("Published");
     }, [])
@@ -67,6 +71,7 @@ const addProduct = () => {
     setPrice("");
     setCategoryId("");
     setPhoto(null);
+    setType("Sale");
     setStatus("Published");
     setRefreshing(false);
   };
@@ -118,6 +123,7 @@ const addProduct = () => {
     formData.append("description", description);
     formData.append("condition", condition);
     formData.append("price", price);
+    formData.append("type", type);
 
     if (photo) {
       const filename = photo.split("/").pop();
@@ -131,7 +137,7 @@ const addProduct = () => {
 
     try {
       const response = await fetch(
-        "http://192.168.167.74:3001/product/add",
+        `http://192.168.167.74:3001/product/add`,
 
         {
           method: "POST",
@@ -154,6 +160,7 @@ const addProduct = () => {
         setPrice("");
         setCategoryId("");
         setPhoto(null);
+        setType("Sale");
         setStatus("Published");
         router.replace("/(tabs)");
       } else {
@@ -226,6 +233,17 @@ const addProduct = () => {
           ))}
         </Picker>
 
+        <Text style={styles.label}>Type :</Text>
+        <Picker
+          selectedValue={type}
+          onValueChange={(itemValue) => setType(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Gift" value="Gift" />
+          <Picker.Item label="Sale" value="Sale" />
+          <Picker.Item label="Exchange" value="Exchange" />
+        </Picker>
+
         <Text style={styles.label}>Statut :</Text>
         <Picker
           selectedValue={status}
@@ -260,11 +278,14 @@ const addProduct = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
+    
   },
   container: {
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+    marginBottom: 90,
+    
   },
   title: {
     textShadowColor: "#da051d",

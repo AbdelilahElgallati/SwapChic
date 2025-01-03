@@ -3,12 +3,19 @@ const Schema = mongoose.Schema;
 
 const TransactionSchema = new Schema(
   {
-    senderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    receiverId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    transactionType: { type: String, enum: ["", "", ""], default: "" },
+    senderId: { type: String, required: true },
+    receiverId: { type: String, required: true },
     startdate: { type: Date, default: Date.now },
-    endDate: { type: Date, required: true },
-    status: { type: String, enum: ["", "", ""], default: "" },
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "completed", "cancelled"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

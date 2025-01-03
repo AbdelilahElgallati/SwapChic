@@ -17,6 +17,7 @@ import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getOneProduct, getCategory } from "../../Services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+// import {BASE_URL} from "@env"
 
 const EditProduct = () => {
   const router = useRouter();
@@ -35,8 +36,8 @@ const EditProduct = () => {
   };
 
   useEffect(() => {
-    fetchProductId(); // Appeler la fonction pour récupérer l'ID du produit au chargement initial
-    fetchCategories(); // Charger les catégories au démarrage
+    fetchProductId(); 
+    fetchCategories(); 
   }, []);
 
   const [categoryId, setCategoryId] = useState("");
@@ -46,6 +47,7 @@ const EditProduct = () => {
   const [price, setPrice] = useState("");
   const [photo, setPhoto] = useState(null);
   const [status, setStatus] = useState("Published");
+  const [type, setType] = useState("Sale");
   const [categories, setCategories] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +77,7 @@ const EditProduct = () => {
       setPrice(data.price.toString());
       setCategoryId(data.categoryId._id);
       setPhoto(data.photo);
+      setType(data.type || "Sale");
       setStatus(data.status || "Published");
     } catch (error) {
       console.error("Erreur lors de la récupération du produit", error);
@@ -138,6 +141,7 @@ const EditProduct = () => {
     formData.append("description", description);
     formData.append("condition", condition);
     formData.append("price", price);
+    formData.append("type", type);
 
     if (photo) {
       const filename = photo.split("/").pop();
@@ -239,6 +243,17 @@ const EditProduct = () => {
           ))}
         </Picker>
 
+        <Text style={styles.label}>Type :</Text>
+        <Picker
+          selectedValue={type}
+          onValueChange={setType}
+          style={styles.picker}
+        >
+          <Picker.Item label="Gift" value="Gift" />
+          <Picker.Item label="Sale" value="Sale" />
+          <Picker.Item label="Exchange" value="Exchange" />
+        </Picker>
+
         <Text style={styles.label}>Statut :</Text>
         <Picker
           selectedValue={status}
@@ -280,6 +295,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
     padding: 20,
+    marginBottom: 90,
   },
   title: {
     fontSize: 24,

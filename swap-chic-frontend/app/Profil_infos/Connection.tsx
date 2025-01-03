@@ -32,6 +32,7 @@ const Connection = () => {
         const [sendersResponse, ownersResponse] = await Promise.all([
           axios.get(`${BASE_URL}/message/receiver/${user.id}`),
           axios.get(`${BASE_URL}/message/client/${user.id}`),
+
         ]);
         setSenders(sendersResponse.data);
         setProductOwners(ownersResponse.data);

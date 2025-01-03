@@ -16,7 +16,6 @@ import { getOneProduct, fetchUserById } from "../../Services/api";
 import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
-import { BASE_URL } from "../../Services/api";
 
 const DetailProduct = () => {
   const router = useRouter();
@@ -30,7 +29,6 @@ const DetailProduct = () => {
 
   const fetchProductId = async () => {
     try {
-      // const storedProductId = await AsyncStorage.getItem("productId");
       if (productId) {
         await fetchProduct(productId);
       } else {

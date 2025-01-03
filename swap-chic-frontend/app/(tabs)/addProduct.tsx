@@ -45,9 +45,6 @@ const addProduct = () => {
     }
   };
 
-  //   fetchCategories();
-  // }, []);
-
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
@@ -265,7 +262,7 @@ const addProduct = () => {
         <TouchableOpacity
           style={[styles.submitButton, isSubmitting && styles.disabledButton]}
           onPress={handleSubmit}
-          disabled={isSubmitting} // Désactiver le bouton si `isSubmitting` est true
+          disabled={isSubmitting} 
         >
           <Text style={styles.submitButtonText}>
             {isSubmitting ? "En cours..." : "Enregistrer"}
@@ -288,14 +285,24 @@ const styles = StyleSheet.create({
     marginBottom: 90,
     
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    elevation: 3,
+  },
   title: {
-    textShadowColor: "#da051d",
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#da051d",
+    marginLeft: -15,
+    marginTop: -10,
+    padding: 5,
+    width: "70%",
+    textShadowColor: "gray",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 5,
-    fontSize: 25,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 30,
   },
   input: {
     backgroundColor: "#FFFFFF",

@@ -13,7 +13,7 @@ export default function RootLayout() {
   return (
     <ClerkProvider publishableKey="pk_test_YWJsZS1kb25rZXktMjMuY2xlcmsuYWNjb3VudHMuZGV2JA">
       <Stack screenOptions={{ headerShown: false }}>
-        <StatusBar style="light" />
+        <StatusBar style="auto" />
         <SignedIn>
           {/* <Stack.Screen name="(tabs)" /> */}
           <NavigationContainer>

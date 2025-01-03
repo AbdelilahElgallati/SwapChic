@@ -6,7 +6,7 @@ export const BASE_URL = "http://192.168.1.5:3001";
 export const loginUser = async (formData) => {
   try {
     // console.log("start")
-    const response = await axios.post(`${URL_BACKEND}/user/login`, userData);
+    const response = await axios.post(`${BASE_URL}/user/login`, userData);
     // console.log("Server response:", response);
     return response.data;
   } catch (error) {
@@ -18,7 +18,7 @@ export const loginUser = async (formData) => {
 export const getProduct = async () => {
   try {
     // console.log("start")
-    const response = await axios.get(`${URL_BACKEND}/Product`);
+    const response = await axios.get(`${BASE_URL}/Product`);
     // console.log("Server response:", response);
     return response.data;
   } catch (error) {
@@ -30,7 +30,7 @@ export const getProduct = async () => {
 export const getProductByCategory = async (categoryId) => {
   try {
     const response = await axios.get(
-      `${URL_BACKEND}/Product/category/` + categoryId
+      `${BASE_URL}/Product/category/` + categoryId
     );
     return response.data;
   } catch (error) {
@@ -41,7 +41,7 @@ export const getProductByCategory = async (categoryId) => {
 
 export const getProductSearchName = async (query) => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Product/Search/${query}`);
+    const response = await axios.get(`${BASE_URL}/Product/Search/${query}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -52,7 +52,7 @@ export const getProductSearchName = async (query) => {
 export const getProductByCategoryUser = async (categoryId, userId) => {
   try {
     const response = await axios.get(
-      `${URL_BACKEND}/Product/category/${categoryId}/${userId}`
+      `${BASE_URL}/Product/category/${categoryId}/${userId}`
     );
     return response.data;
   } catch (error) {
@@ -64,7 +64,7 @@ export const getProductByCategoryUser = async (categoryId, userId) => {
 export const getProductSearchNameUser = async (query, userId) => {
   try {
     const response = await axios.get(
-      `${URL_BACKEND}/Product/Search/${query}/${userId}`
+      `${BASE_URL}/Product/Search/${query}/${userId}`
     );
     return response.data;
   } catch (error) {
@@ -76,7 +76,7 @@ export const getProductSearchNameUser = async (query, userId) => {
 export const getMyProduct = async (id) => {
   try {
     // console.log("start");
-    const response = await axios.get(`${URL_BACKEND}/Product/user/` + id);
+    const response = await axios.get(`${BASE_URL}/Product/user/` + id);
     // console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
@@ -87,7 +87,7 @@ export const getMyProduct = async (id) => {
 
 export const getOneProduct = async (id) => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Product/` + id);
+    const response = await axios.get(`${BASE_URL}/Product/` + id);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -97,7 +97,7 @@ export const getOneProduct = async (id) => {
 
 export const deleteProduct = async (id) => {
   try {
-    const response = await axios.delete(`${URL_BACKEND}/Product/remove/` + id);
+    const response = await axios.delete(`${BASE_URL}/Product/remove/` + id);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -108,7 +108,7 @@ export const deleteProduct = async (id) => {
 // gestion category
 export const getOneCategory = async (id) => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Category/` + id);
+    const response = await axios.get(`${BASE_URL}/Category/` + id);
     // console.log("Server response:", response);
     return response.data;
   } catch (error) {
@@ -119,7 +119,7 @@ export const getOneCategory = async (id) => {
 
 export const getCategory = async () => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Category`);
+    const response = await axios.get(`${BASE_URL}/Category`);
     // console.log("Server response:", response);
     return response.data;
   } catch (error) {
@@ -130,7 +130,7 @@ export const getCategory = async () => {
 
 export const getCategoriesWithProductCount = async () => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Category/product-count`);
+    const response = await axios.get(`${BASE_URL}/Category/product-count`);
     // console.log("Server response:", response);
     return response.data;
   } catch (error) {
@@ -142,7 +142,7 @@ export const getCategoriesWithProductCount = async () => {
 export const fetchUsers = async () => {
   try {
     // console.log("getting all users")
-    const response = await axios.get(`${URL_BACKEND}/user/all`);
+    const response = await axios.get(`${BASE_URL}/user/all`);
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -151,9 +151,8 @@ export const fetchUsers = async () => {
 
 export const fetchUserById = async (userId) => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/user/clerk/${userId}`);
+    const response = await axios.get(`${BASE_URL}/user/clerk/${userId}`);
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching users:", error);
   }
@@ -161,7 +160,7 @@ export const fetchUserById = async (userId) => {
 
 export const getCategorySearchName = async (query) => {
   try {
-    const response = await axios.get(`${URL_BACKEND}/Category/Search/${query}`);
+    const response = await axios.get(`${BASE_URL}/Category/Search/${query}`);
     return response.data;
   } catch (error) {
     console.error(error);

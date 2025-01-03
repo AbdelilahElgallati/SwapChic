@@ -29,7 +29,7 @@ const EditProduct = () => {
     const storedProductId = await AsyncStorage.getItem("productId");
     if (storedProductId) {
       setProductId(storedProductId);
-      fetchProducts(storedProductId); // Charger les produits avec l'ID récupéré
+      fetchProducts(storedProductId); 
     } else {
       console.error("productId non trouvé dans AsyncStorage");
     }
@@ -87,7 +87,7 @@ const EditProduct = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchCategories();
-    await fetchProductId(); // Récupérer l'ID du produit au rafraîchissement
+    await fetchProductId(); 
     setRefreshing(false);
   };
 

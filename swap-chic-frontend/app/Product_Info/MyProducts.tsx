@@ -180,6 +180,7 @@ const MyProducts = () => {
 };
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     backgroundColor: "#f8f8f8",
@@ -254,6 +255,58 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 5,
   },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    elevation: 3,
+  },
+  searchContainer: {
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FAFAFAFA",
+    borderRadius: 25,
+    paddingLeft: 15,
+    height: 50,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    height: 50,
+    paddingVertical: 10,
+  },
+  searchButton: {
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: "#FAFAFAFA",
+  },
+  notificationButton: {
+    marginRight: 20,
+    borderRadius: 20,
+    padding: 8,
+    backgroundColor: "#F5F5F5F5",
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+ 
 });
 
 export default MyProducts;

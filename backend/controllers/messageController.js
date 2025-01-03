@@ -4,28 +4,21 @@ const axios = require('axios');
 
 const getSendersWithProducts = async (req, res) => {
   const { receiverId } = req.params;
-  console.log(req.params);
 
   try {
-    const allMessages = await Message.find();
-    console.log("all messages : ");
-    console.log(allMessages);
-
-    // Récupérer les messages uniquement pour le receiverId spécifié
     const messages = await Message.find({ receiverId: receiverId });
 
-    // Extraire les utilisateurs uniques et leurs produits associés
     const senders = [];
     const senderProductMap = {};
 
     messages.forEach((messageDoc) => {
-      if (messageDoc.receiverId === receiverId) { // Vérifier que le message est bien pour le receiverId
+      if (messageDoc.receiverId === receiverId) { 
         if (!senders.includes(messageDoc.senderId)) {
           senders.push(messageDoc.senderId);
         }
 
         if (!senderProductMap[messageDoc.senderId]) {
-          senderProductMap[messageDoc.senderId] = new Set(); // Utilisation d'un Set pour éviter les doublons
+          senderProductMap[messageDoc.senderId] = new Set(); 
         }
 
         senderProductMap[messageDoc.senderId].add(messageDoc.productId.toString()); // Ajout du produit
@@ -45,7 +38,8 @@ const getSendersWithProducts = async (req, res) => {
           .get(`https://api.clerk.dev/v1/users/${senderId}`, {
             headers: { Authorization: `Bearer ${clerck_key}` },
           })
-          .then((res) => ({ id: senderId, name: res.data.first_name }))
+          .then((res) => ({ id: senderId, name: res.data.first_name, email: res.data.email_addresses[0].email_address }))
+
           .catch((err) => ({ id: senderId, name: "Unknown" }))
       )
     );
@@ -60,18 +54,84 @@ const getSendersWithProducts = async (req, res) => {
     const response = senders.map((senderId) => ({
       senderId,
       senderName: userDetails.find((user) => user.id === senderId)?.name || "Unknown",
+      senderEmail: userDetails.find((user) => user.id === senderId)?.email || "Unknown",
       products: senderProductMap[senderId].map((productId) =>
         productDetails.find((prod) => prod._id.toString() === productId)
       ),
     }));
 
-    console.log(response);
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching senders and products:", error);
     res.status(500).send("Error fetching senders and products");
   }
 };
+
+const getProductOwnersWithProducts = async (req, res) => {
+  const { senderId } = req.params;
+
+  try {
+    const messages = await Message.find({ senderId });
+
+    const receivers = [];
+    const receiverProductMap = {};
+
+    messages.forEach((messageDoc) => {
+      if (messageDoc.senderId === senderId) {
+        if (!receivers.includes(messageDoc.receiverId)) {
+          receivers.push(messageDoc.receiverId);
+        }
+
+        if (!receiverProductMap[messageDoc.receiverId]) {
+          receiverProductMap[messageDoc.receiverId] = new Set();
+        }
+
+        receiverProductMap[messageDoc.receiverId].add(messageDoc.productId.toString());
+      }
+    });
+
+    Object.keys(receiverProductMap).forEach((key) => {
+      receiverProductMap[key] = Array.from(receiverProductMap[key]);
+    });
+
+    // Récupérer les détails des utilisateurs (product owners)
+    const clerck_key = process.env.CLERK_API_KEY;
+    const userDetails = await Promise.all(
+      receivers.map((receiverId) =>
+        axios
+          .get(`https://api.clerk.dev/v1/users/${receiverId}`, {
+            headers: { Authorization: `Bearer ${clerck_key}` },
+          })
+          .then((res) => ({ id: receiverId, name: res.data.first_name, email: res.data.email_addresses[0].email_address }))
+          // .then((res) => (console.log(res.data.email_addresses[0].email_address)))
+          .catch(() => ({ id: receiverId, name: "Unknown", email: "Unknown" }))
+      )
+      // 
+    );
+
+    // Récupérer les détails des produits
+    const productIds = [...new Set(Object.values(receiverProductMap).flat())];
+    const productDetails = await Product.find({
+      _id: { $in: productIds },
+    });
+
+    const response = receivers.map((receiverId) => ({
+      receiverId,
+      receiverName: userDetails.find((user) => user.id === receiverId)?.name || "Unknown",
+      receiverEmail: userDetails.find((user) => user.id === receiverId)?.email || "Unknown",
+      products: receiverProductMap[receiverId].map((productId) =>
+        productDetails.find((prod) => prod._id.toString() === productId)
+      ),
+    }));
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching product owners and products:", error);
+    res.status(500).send("Error fetching product owners and products");
+  }
+};
+
+
 
 const getOneMessage = async (req, res) => {
   try {
@@ -82,19 +142,6 @@ const getOneMessage = async (req, res) => {
   }
 };
 
-// const updateMessage = async (req, res) => {
-//   try {
-//     const message = await Message.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true,
-//     });
-//     res.status(200).json({
-//       success: true,
-//       message,
-//     });
-//   } catch (error) {
-//     res.status(500).send("Erreur serveur lors de la mise à jour de message");
-//   }
-// };
 
 const removeMessage = async (req, res) => {
   try {
@@ -179,4 +226,5 @@ module.exports = {
   getSendersWithProducts,
   getUserConnections,
   markMessagesAsDelivered,
+  getProductOwnersWithProducts,
 };

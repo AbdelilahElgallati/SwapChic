@@ -11,7 +11,7 @@ import {
   RefreshControl,
   Linking,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLocalSearchParams } from 'expo-router';
 import { getOneProduct, fetchUserById } from "../../Services/api";
 import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
@@ -20,6 +20,7 @@ import { useUser } from "@clerk/clerk-expo";
 const DetailProduct = () => {
   const router = useRouter();
   const {user} = useUser();
+  const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,9 +29,9 @@ const DetailProduct = () => {
 
   const fetchProductId = async () => {
     try {
-      const storedProductId = await AsyncStorage.getItem("productId");
-      if (storedProductId) {
-        await fetchProduct(storedProductId);
+      // const storedProductId = await AsyncStorage.getItem("productId");
+      if (productId) {
+        await fetchProduct(productId);
       } else {
         Alert.alert("Erreur", "Aucun ID de produit trouvé.");
       }
@@ -199,6 +200,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f8f8",
     padding: 16,
+    marginBottom: 60,
   },
   loadingContainer: {
     flex: 1,

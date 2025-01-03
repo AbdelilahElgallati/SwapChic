@@ -3,10 +3,10 @@ const cloudinary = require("../utils/cloudinary");
 
 const addProduct = async (req, res) => {
   try {
-    const { userId, categoryId, name, description, condition, price } =
+    const { userId, categoryId, name, description, condition, price, type } =
       req.body;
     const photoFile = req.file;
-    console.log(photoFile);
+    // console.log(photoFile);
 
     if (
       !userId ||
@@ -14,7 +14,8 @@ const addProduct = async (req, res) => {
       !name ||
       !description ||
       !condition ||
-      !price
+      !price ||
+      !type
     ) {
       console.log("Tous les champs doivent être remplis.");
 
@@ -35,6 +36,7 @@ const addProduct = async (req, res) => {
       description,
       condition,
       price,
+      type,
       photo: uploadResult.secure_url,
     });
 
@@ -116,9 +118,7 @@ const getAllProductsCategoryUser = async (req, res) => {
 
 const getOneProduct = async (req, res) => {
   try {
-    // console.log("ID du produit recherché : ", req.params.id);
     const product = await Product.findById(req.params.id).populate("categoryId", "name");
-    // console.log("Produit trouvé :", product);
 
     if (!product) {
       return res.status(404).send("Produit non trouvé.");
@@ -141,6 +141,7 @@ const updateProduct = async (req, res) => {
       description: req.body.description,
       condition: req.body.condition,
       price: req.body.price,
+      type: req.body.type,
     };
 
     const photoFile = req.file;

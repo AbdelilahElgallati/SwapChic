@@ -1,18 +1,18 @@
 import React from "react";
 import axios from "axios";
 
-<<<<<<< HEAD
+
 // const BASE_URL = "https://swapchic-api.onrender.com";
 
 const BASE_URL = "http://192.168.227.82:3001";
 
 
 
-=======
-// import { BASE_URL } from "@env";
-const URL_BACKEND = "http://192.168.167.74:3001"
 
->>>>>>> b6bd4ef35ce02b77f4d08c780aaf2de8f1810b2b
+// import { BASE_URL } from "@env";
+const URL_BACKEND = "http://192.168.227.82:3001"
+
+
 
 export const loginUser = async (formData) => {
   try {

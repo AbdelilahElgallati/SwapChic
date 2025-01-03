@@ -29,8 +29,8 @@ const Connection = () => {
         }
 
         const [sendersResponse, ownersResponse] = await Promise.all([
-          axios.get(`http://192.168.167.74:3001/message/receiver/${user.id}`),
-          axios.get(`http://192.168.167.74:3001/message/client/${user.id}`),
+          axios.get(`http://192.168.227.82:3001/message/receiver/${user.id}`),
+          axios.get(`http://192.168.227.82:3001/message/client/${user.id}`),
         ]);
         setSenders(sendersResponse.data);
         setProductOwners(ownersResponse.data);
@@ -66,7 +66,7 @@ const Connection = () => {
       };
 
       const response = await axios.post(
-        "http://192.168.167.74:3001/transaction/add",
+        "http://192.168.227.82:3001/transaction/add",
         transactionData
       );
       alert("Transaction successfully created!");

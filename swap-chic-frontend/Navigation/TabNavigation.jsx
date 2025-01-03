@@ -30,9 +30,9 @@ export default function TabNavigation() {
       </NavigationContainer>
     
   );
-<<<<<<< HEAD
-}
-=======
+
 }
 
->>>>>>> main
+
+
+

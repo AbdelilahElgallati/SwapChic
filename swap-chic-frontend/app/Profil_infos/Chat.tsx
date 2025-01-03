@@ -9,15 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ImageBackground,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
 import io from "socket.io-client";
 import axios from "axios";
 import { fetchUserById } from "@/Services/api";
+import { Ionicons } from "@expo/vector-icons";
+import img from "@/assets/images/img.jpg";
 // import {BASE_URL} from "@env"
 
-const SOCKET_URL = `http://192.168.167.74:3001`;
+const SOCKET_URL = `http://192.168.227.82:3001`;
 
 interface Message {
   _id: string;
@@ -31,13 +34,14 @@ interface Message {
 const Chat = () => {
   const { productId, clientId, productOwnerId } = useLocalSearchParams();
   const { user } = useUser();
-  console.log(user);
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [receiver, setReveiver] = useState([]);
   const [loading, setLoading] = useState(true);
   const socketRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL);
@@ -189,8 +193,15 @@ const Chat = () => {
     >
 
       <View style={styles.header}>
-        <Text style={styles.headerText}>{receiver.first_name}</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.btn}>
+      <Ionicons name="arrow-back-outline" size={24} color="black" />
+    </TouchableOpacity>
+        <Text style={styles.headerText}>{receiver.first_name} {receiver.last_name}</Text>
       </View>
+      <ImageBackground
+      source={img} // or require for local images
+      style={styles.container}
+    >
       <FlatList
         ref={flatListRef}
         data={Object.keys(groupedMessages)}
@@ -220,25 +231,34 @@ const Chat = () => {
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
           <Text style={styles.sendButtonText}>Envoyer</Text>
         </TouchableOpacity>
+        
       </View>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#f5f5f5",
-    alignItems: "center",
+    backgroundColor: "#fff",
+    // alignItems: "flex-start",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+    height: 60,
+    elevation: 5,
   },
   headerText: {
     fontSize: 18,
     fontWeight: "bold",
+    textAlign: "left",
+    color: "#333",
+    // marginTop: 20,
+    left: 55,
+    top: 20,
   },
   container: {
     flex: 1,
-    backgroundColor: "#F9F9F9",
+    
   },
   loadingContainer: {
     flex: 1,
@@ -257,15 +277,19 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
     marginVertical: 5,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 16,
+    borderTopRightRadius: 3,
   },
   ownMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#4A90E2",
+    top: 30,
   },
   otherMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#EDEDED",
+    top: 30,
+    
   },
   messageText: {
     fontSize: 16,
@@ -295,6 +319,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: "#666",
+    borderColor: "#666",
+    borderRadius: 20,
+    width: 100,
+    height: 30,
+    top: 20,
+    justifyContent: "center",
+    textAlign: "center",
+    padding: 4,
+    backgroundColor: "#ddd",
   },
   inputContainer: {
     flexDirection: "row",
@@ -324,6 +357,11 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 16,
   },
+  btn:{
+    position: 'absolute',
+    top: 20,
+    left:20,
+  }
 });
 
 export default Chat;

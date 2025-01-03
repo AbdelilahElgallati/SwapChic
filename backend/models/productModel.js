@@ -14,6 +14,7 @@ const ProductSchema = new Schema(
     condition: { type: String },
     price: { type: Number, required: true },
     photo: { type: String, required: true},
+    type: {type: String, enum: ['Gift', 'Sale', 'Exchange'], default: 'Sale'},
     status: { type: String, enum: ['Published', 'Sold'], default: 'Published' },
   },
   { timestamps: true }

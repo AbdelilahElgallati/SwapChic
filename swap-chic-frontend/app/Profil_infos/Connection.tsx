@@ -1,96 +1,394 @@
+// import React, { useEffect, useState } from "react";
+// import {
+//   View,
+//   Text,
+//   FlatList,
+//   TouchableOpacity,
+//   StyleSheet,
+//   ActivityIndicator,
+//   ScrollView,
+// } from "react-native";
+// import axios from "axios";
+// import { useUser } from "@clerk/clerk-expo";
+// import { useRouter } from "expo-router";
+// import Icon from "react-native-vector-icons/MaterialIcons";
+
+// const Connection = () => {
+//   const router = useRouter();
+//   const { user } = useUser();
+
+//   const [senders, setSenders] = useState([]);
+//   const [productOwners, setProductOwners] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         if (!user) {
+//           console.error("User not authenticated");
+//           return;
+//         }
+
+//         const [sendersResponse, ownersResponse] = await Promise.all([
+//           axios.get(`http://192.168.1.5:3001/message/receiver/${user.id}`),
+//           axios.get(`http://192.168.1.5:3001/message/client/${user.id}`),
+//         ]);
+
+//         setSenders(sendersResponse.data);
+//         setProductOwners(ownersResponse.data);
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [user]);
+
+//   const handleProductPressAsProductOwner = (product, clientId) => {
+//     router.push(
+//       `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`
+//     );
+//   };
+
+//   const handleProductPressAsClient = (product, productOwnerId) => {
+//     router.push(
+//       `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${product.userId}&clientId=${user?.id}`
+//     );
+//   };
+
+//   const handleCreateTransaction = async (product, clientId) => {
+//     try {
+//       const transactionData = {
+//         senderId: clientId,
+//         receiverId: user?.id,
+//         transactionType: "purchase",
+//         status: "pending",
+//       };
+
+//       const response = await axios.post(
+//         "http://192.168.1.5:3001/transaction/add",
+//         transactionData
+//       );
+//       alert("Transaction successfully created!");
+//     } catch (error) {
+//       console.error("Error creating transaction:", error);
+//       alert("Failed to create transaction.");
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <ActivityIndicator size="large" color="#e63946" />
+//         <Text style={styles.loadingText}>Please wait, loading data...</Text>
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <ScrollView style={styles.container}>
+//       <View style={styles.sectionContainer}>
+//         <Text style={styles.header}>The Clients</Text>
+//         <FlatList
+//           data={senders}
+//           keyExtractor={(item) => item.senderId}
+//           ListEmptyComponent={
+//             <Text style={styles.emptyListText}>You have no messages yet.</Text>
+//           }
+//           renderItem={({ item }) => (
+//             <View style={styles.itemContainer}>
+//               <Text style={styles.itemText}>{item.senderName}</Text>
+//               <FlatList
+//                 data={item.products}
+//                 keyExtractor={(product) => product._id}
+//                 renderItem={({ item: product }) => (
+//                   <View style={styles.productRow}>
+//                     <Icon
+//                       name="shopping-cart"
+//                       size={24}
+//                       color="#e63946"
+//                       style={styles.icon}
+//                     />
+//                     <TouchableOpacity
+//                       onPress={() => handleProductPressAsProductOwner(product, item.senderId)}
+//                     >
+//                       <Text style={styles.productName}>{product.name}</Text>
+//                     </TouchableOpacity>
+//                     {/* <Text style={styles.productName}>{product.name}</Text> */}
+//                     <TouchableOpacity
+//                       style={styles.transactionButton}
+//                       onPress={() =>
+//                         handleCreateTransaction(product, item.senderId)
+//                       }
+//                     >
+//                       <Text style={styles.buttonText}>Create Transaction</Text>
+//                     </TouchableOpacity>
+//                   </View>
+//                 )}
+//               />
+//             </View>
+//           )}
+//         />
+//       </View>
+
+//       <View style={styles.sectionContainer}>
+//         <Text style={styles.header}>The Product Owners</Text>
+//         <FlatList
+//           data={productOwners}
+//           keyExtractor={(item) => item.receiverId}
+//           ListEmptyComponent={
+//             <Text style={styles.emptyListText}>No product owners found.</Text>
+//           }
+//           renderItem={({ item }) => (
+//             <View style={styles.itemContainer}>
+//               <Text style={styles.itemText}>{item.receiverName}</Text>
+//               <FlatList
+//                 data={item.products}
+//                 keyExtractor={(product) => product._id}
+//                 renderItem={({ item: product }) => (
+//                   <View style={styles.productRow}>
+//                     <Icon
+//                       name="shopping-cart"
+//                       size={24}
+//                       color="#e63946"
+//                       style={styles.icon}
+//                     />
+//                     <TouchableOpacity
+//                       onPress={() => handleProductPressAsClient(product, item.senderId)}
+//                     >
+//                       <Text style={styles.productName}>{product.name}</Text>
+//                     </TouchableOpacity>
+//                     {/* <Text style={styles.productName}>{product.name}</Text> */}
+//                   </View>
+//                 )}
+//               />
+//             </View>
+//           )}
+//         />
+//       </View>
+//     </ScrollView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 16,
+//     backgroundColor: "#ffffff",
+//   },
+//   sectionContainer: {
+//     marginBottom: 16,
+//     padding: 16,
+//     backgroundColor: "#f8f8f8",
+//     borderRadius: 8,
+//     borderColor: "#e63946",
+//     borderWidth: 1,
+//   },
+//   header: {
+//     fontSize: 24,
+//     fontWeight: "bold",
+//     color: "#e63946",
+//     marginBottom: 8,
+//   },
+//   itemContainer: {
+//     padding: 16,
+//     backgroundColor: "#ffffff",
+//     borderRadius: 8,
+//     marginBottom: 8,
+//     borderColor: "#e63946",
+//     borderWidth: 1,
+//   },
+//   itemText: {
+//     fontSize: 16,
+//     fontWeight: "600",
+//     color: "#333333",
+//   },
+//   productRow: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     padding: 12,
+//     backgroundColor: "#ffffff",
+//     borderRadius: 8,
+//     marginVertical: 4,
+//     borderColor: "#e63946",
+//     borderWidth: 1,
+//   },
+//   productName: {
+//     fontSize: 16,
+//     color: "#333333",
+//   },
+//   loadingContainer: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   loadingText: {
+//     marginTop: 8,
+//     fontSize: 16,
+//     color: "#333333",
+//   },
+//   emptyListText: {
+//     fontSize: 16,
+//     color: "#999999",
+//     textAlign: "center",
+//     marginTop: 16,
+//   },
+//   icon: {
+//     marginRight: 8,
+//   },
+//   transactionButton: {
+//     marginLeft: "auto",
+//     backgroundColor: "#e63946",
+//     paddingVertical: 6,
+//     paddingHorizontal: 12,
+//     borderRadius: 6,
+//   },
+//   buttonText: {
+//     color: "#ffffff",
+//     fontSize: 14,
+//     fontWeight: "bold",
+//   },
+// });
+
+// export default Connection;
+
+
 import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import { useUser } from "@clerk/clerk-expo";
-import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const Connection = () => {
   const router = useRouter();
-  const [senders, setSenders] = useState([]);
-  const [selectedSender, setSelectedSender] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { user } = useUser();
-  const navigation = useNavigation();
+
+  const [senders, setSenders] = useState([]);
+  const [productOwners, setProductOwners] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSenders = async () => {
+    const fetchData = async () => {
       try {
         if (!user) {
           console.error("User not authenticated");
           return;
         }
-        const response = await axios.get(
-          `http://192.168.167.74:3001/message/receiver/${user.id}`
-        );
-        setSenders(response.data);
+
+        const [sendersResponse, ownersResponse] = await Promise.all([
+          axios.get(`http://192.168.167.74:3001/message/receiver/${user.id}`),
+          axios.get(`http://192.168.167.74:3001/message/client/${user.id}`),
+        ]);
+        setSenders(sendersResponse.data);
+        setProductOwners(ownersResponse.data);
       } catch (error) {
-        console.error("Error fetching senders:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSenders();
+    fetchData();
   }, [user]);
 
-  const handleProductPress = (product, clientId) => {
-    router.push(`/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`);
+  const handleProductPressAsProductOwner = (product, clientId) => {
+    router.push(
+      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`
+    );
+  };
+
+  const handleProductPressAsClient = (product, productOwnerId) => {
+    router.push(
+      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${product.userId}&clientId=${user?.id}`
+    );
+  };
+
+  const handleCreateTransaction = async (product, clientId) => {
+    try {
+      const transactionData = {
+        senderId: clientId,
+        receiverId: user?.id,
+        productId: product._id,
+        status: "pending",
+      };
+
+      const response = await axios.post(
+        "http://192.168.167.74:3001/transaction/add",
+        transactionData
+      );
+      alert("Transaction successfully created!");
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("Failed to create transaction.");
+    }
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <ActivityIndicator size="large" color="#e63946" />
+        <Text style={styles.loadingText}>Please wait, loading data...</Text>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Messages</Text>
-      <Text style={styles.subHeader}>Users who sent you messages:</Text>
-      <FlatList
-        data={senders}
-        keyExtractor={(item) => item.senderId}
-        ListEmptyComponent={<Text style={styles.emptyListText}>No messages found.</Text>}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.senderItem}
-            onPress={() => setSelectedSender(item)}
-          >
-            <Text style={styles.senderName}>{item.senderName}</Text>
-          </TouchableOpacity>
-        )}
-      />
-      {selectedSender && (
-        <View style={styles.productsContainer}>
-          <Text style={styles.selectedHeader}>
-            Products discussed with {selectedSender.senderName}:
-          </Text>
-          <FlatList
-            data={selectedSender.products}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.productItem}
-                onPress={() => handleProductPress(item, selectedSender.senderId)}
-              >
-                <Text style={styles.productName}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+  const renderSection = (title, data, renderFunction) => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.header}>{title}</Text>
+      {data.length === 0 ? (
+        <Text style={styles.emptyListText}>No data available.</Text>
+      ) : (
+        data.map((item, index) => (
+          <View key={index} style={styles.itemContainer}>
+            <Text style={styles.itemText}>{item.senderName || item.receiverName}</Text>
+            <Text style={styles.itemText}>{item.senderEmail || item.receiverEmail}</Text>
+            {item.products.map((product) => renderFunction(product, item))}
+          </View>
+        ))
       )}
     </View>
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      {renderSection("The Clients", senders, (product, item) => (
+        <View key={product._id} style={styles.productRow}>
+          <Icon name="shopping-cart" size={24} color="#e63946" style={styles.icon} />
+          <TouchableOpacity
+            onPress={() => handleProductPressAsProductOwner(product, item.senderId)}
+          >
+            <Text style={styles.productName}>{product.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.transactionButton}
+            onPress={() => handleCreateTransaction(product, item.senderId)}
+          >
+            <Text style={styles.buttonText}>Create Transaction</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      {renderSection("The Product Owners", productOwners, (product, item) => (
+        <View key={product._id} style={styles.productRow}>
+          <Icon name="shopping-cart" size={24} color="#e63946" style={styles.icon} />
+          <TouchableOpacity
+            onPress={() => handleProductPressAsClient(product, item.senderId)}
+          >
+            <Text style={styles.productName}>{product.name}</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
@@ -98,53 +396,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#ffffff",
+  },
+  sectionContainer: {
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: "#f8f8f8",
+    borderRadius: 8,
+    borderColor: "#e63946",
+    borderWidth: 1,
   },
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#6200ee",
-    marginBottom: 16,
-  },
-  subHeader: {
-    fontSize: 18,
-    color: "#555",
+    color: "#e63946",
     marginBottom: 8,
   },
-  senderItem: {
+  itemContainer: {
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderRadius: 8,
     marginBottom: 8,
-    elevation: 1,
+    borderColor: "#e63946",
+    borderWidth: 1,
   },
-  senderName: {
+  itemText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#333333",
   },
-  productsContainer: {
-    marginTop: 16,
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    elevation: 2,
-  },
-  selectedHeader: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#6200ee",
-    marginBottom: 8,
-  },
-  productItem: {
+  productRow: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#ffffff",
     borderRadius: 8,
     marginVertical: 4,
+    borderColor: "#e63946",
+    borderWidth: 1,
   },
   productName: {
     fontSize: 16,
-    color: "#333",
+    color: "#333333",
   },
   loadingContainer: {
     flex: 1,
@@ -154,13 +447,28 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 8,
     fontSize: 16,
-    color: "#555",
+    color: "#333333",
   },
   emptyListText: {
     fontSize: 16,
-    color: "#999",
+    color: "#999999",
     textAlign: "center",
     marginTop: 16,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  transactionButton: {
+    marginLeft: "auto",
+    backgroundColor: "#e63946",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
 

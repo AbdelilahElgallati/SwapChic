@@ -265,7 +265,7 @@ const getUserById = async (req, res) => {
       },
     });
     // console.log("Fetched user:", response.data);
-    res.status(200).json(response.data); // Send the user data as the response
+    res.status(200).json(response.data); 
   } catch (error) {
     console.error("Error fetching user:", error.response?.data || error.message);
     res.status(error.response?.status || 500).send("Error fetching user");

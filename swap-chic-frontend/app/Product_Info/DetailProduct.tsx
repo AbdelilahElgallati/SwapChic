@@ -11,27 +11,35 @@ import {
   RefreshControl,
   Linking,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getOneProduct } from "../../Services/api";
-import { useFocusEffect } from "expo-router";
+import { useLocalSearchParams } from 'expo-router';
+import { getOneProduct, fetchUserById } from "../../Services/api";
+import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useUser } from "@clerk/clerk-expo";
 
 const DetailProduct = () => {
+  const router = useRouter();
+  const {user} = useUser();
+  const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showMoreDescription, setShowMoreDescription] = useState(false);
+  const [userProduct, setUserProduct] = useState(null);
 
   const fetchProductId = async () => {
     try {
-      const storedProductId = await AsyncStorage.getItem("productId");
-      if (storedProductId) {
-        await fetchProduct(storedProductId);
+      // const storedProductId = await AsyncStorage.getItem("productId");
+      if (productId) {
+        await fetchProduct(productId);
       } else {
         Alert.alert("Erreur", "Aucun ID de produit trouvé.");
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération de l'ID du produit:", error);
+      console.error(
+        "Erreur lors de la récupération de l'ID du produit:",
+        error
+      );
     }
   };
 
@@ -40,9 +48,23 @@ const DetailProduct = () => {
       setLoading(true);
       const data = await getOneProduct(productId);
       setProduct(data);
+      fetchUserId(data.userId);
     } catch (error) {
       console.error("Erreur lors de la récupération du produit:", error);
       Alert.alert("Erreur", "Impossible de charger les détails du produit.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserId = async (userId) => {
+    try {
+      setLoading(true);
+      const data = await fetchUserById(userId);
+      setUserProduct(data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération d'utilisateur:", error);
+      Alert.alert("Erreur", "Impossible de charger les détails d'utilisateur.");
     } finally {
       setLoading(false);
     }
@@ -60,8 +82,17 @@ const DetailProduct = () => {
     }, [])
   );
 
-  const startChat = (userId) => {
-    console.log("Démarrer une discussion avec:", userId);
+  const startChat = (receiverId, productId) => {
+    const clientId = user?.id; 
+    const productOwnerId = receiverId;
+    if (!receiverId) {
+      Alert.alert(
+        "Erreur",
+        "Impossible de démarrer une discussion : utilisateur inconnu."
+      );
+      return;
+    }
+    router.push(`/Profil_infos/Chat?productId=${productId}&clientId=${clientId}&productOwnerId=${productOwnerId}`);
   };
 
   const handleShowMoreDescription = () => {
@@ -87,14 +118,18 @@ const DetailProduct = () => {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     >
       <View style={styles.productImageContainer}>
         {product.photo ? (
           <Image source={{ uri: product.photo }} style={styles.productImage} />
         ) : (
           <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderText}>Image non disponible</Text>
+            <Text style={styles.imagePlaceholderText}>
+              Image non disponible
+            </Text>
           </View>
         )}
       </View>
@@ -119,13 +154,15 @@ const DetailProduct = () => {
             Condition : {product.condition || "Non spécifiée"}
           </Text>
           <Text style={styles.productStatus}>
-            <FontAwesome name="info-circle" size={16} color="#e74c3c" />{" "}
-            Statut : {product.status || "Inconnu"}
+            <FontAwesome name="info-circle" size={16} color="#e74c3c" /> Statut
+            : {product.status || "Inconnu"}
           </Text>
         </View>
 
         <Text style={styles.productDescription}>
-          {showMoreDescription ? product.description : product.description.slice(0, 150) + "..."}
+          {showMoreDescription
+            ? product.description
+            : product.description.slice(0, 150) + "..."}
         </Text>
         {product.description && product.description.length > 150 && (
           <TouchableOpacity
@@ -138,20 +175,21 @@ const DetailProduct = () => {
           </TouchableOpacity>
         )}
 
-        {product.userId && (
-          <Text style={styles.productUser}>
-            <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
-            {product.userId}
-          </Text>
+        {userProduct && (
+          <>
+            <Text style={styles.productUser}>
+              <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
+              {userProduct.first_name} {userProduct.last_name}
+            </Text>
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={() => startChat(userProduct.id, product._id)}
+            >
+              <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
+              <FontAwesome name="comment" size={18} color="#fff" />
+            </TouchableOpacity>
+          </>
         )}
-
-        <TouchableOpacity
-          style={styles.chatButton}
-          onPress={() => startChat(product.userId)}
-        >
-          <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
-          <FontAwesome name="comment" size={18} color="#fff" />
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -162,6 +200,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f8f8",
     padding: 16,
+    marginBottom: 60,
   },
   loadingContainer: {
     flex: 1,

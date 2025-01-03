@@ -1,118 +1,217 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
+  ScrollView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
-const exampleVendors = [
-  { id: 1, name: "Vendeur 1" },
-  { id: 2, name: "Vendeur 2" },
-  { id: 3, name: "Vendeur 3" },
-  { id: 4, name: "Vendeur 4" },
-  { id: 5, name: "Vendeur 5" },
-];
+import axios from "axios";
+import { useUser } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const Connection = () => {
-  const [search, setSearch] = useState("");
-  const navigation = useNavigation();
+  const router = useRouter();
+  const { user } = useUser();
 
-  const filteredVendors = exampleVendors.filter((vendor) =>
-    vendor.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const [senders, setSenders] = useState([]);
+  const [productOwners, setProductOwners] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleVendorSelect = (vendor) => {
-    navigation.navigate("Chat", { vendor });
-    // Fetch and display the latest messages for the selected vendor
-    // This is a placeholder for the actual implementation
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!user) {
+          console.error("User not authenticated");
+          return;
+        }
+
+        const [sendersResponse, ownersResponse] = await Promise.all([
+          axios.get(`http://192.168.167.74:3001/message/receiver/${user.id}`),
+          axios.get(`http://192.168.167.74:3001/message/client/${user.id}`),
+        ]);
+        setSenders(sendersResponse.data);
+        setProductOwners(ownersResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const handleProductPressAsProductOwner = (product, clientId) => {
+    router.push(
+      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`
+    );
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mes Connections</Text>
+  const handleProductPressAsClient = (product, productOwnerId) => {
+    router.push(
+      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${product.userId}&clientId=${user?.id}`
+    );
+  };
 
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          placeholder="Rechercher un vendeur"
-          value={search}
-          onChangeText={setSearch}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            /* Trigger search action */
-          }}
-          style={styles.icon}
-        >
-          <MaterialCommunityIcons
-            name="account-search"
-            size={35}
-            color="black"
-          />
-        </TouchableOpacity>
+  const handleCreateTransaction = async (product, clientId) => {
+    try {
+      const transactionData = {
+        senderId: clientId,
+        receiverId: user?.id,
+        productId: product._id,
+        status: "pending",
+      };
+
+      const response = await axios.post(
+        "http://192.168.167.74:3001/transaction/add",
+        transactionData
+      );
+      alert("Transaction successfully created!");
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("Failed to create transaction.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#e63946" />
+        <Text style={styles.loadingText}>Please wait, loading data...</Text>
       </View>
+    );
+  }
 
-      <FlatList
-        data={filteredVendors}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleVendorSelect(item)}>
-            <Text style={styles.vendorName}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
+  const renderSection = (title, data, renderFunction) => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.header}>{title}</Text>
+      {data.length === 0 ? (
+        <Text style={styles.emptyListText}>No data available.</Text>
+      ) : (
+        data.map((item, index) => (
+          <View key={index} style={styles.itemContainer}>
+            <Text style={styles.itemText}>{item.senderName || item.receiverName}</Text>
+            <Text style={styles.itemText}>{item.senderEmail || item.receiverEmail}</Text>
+            {item.products.map((product) => renderFunction(product, item))}
+          </View>
+        ))
+      )}
     </View>
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      {renderSection("The Clients", senders, (product, item) => (
+        <View key={product._id} style={styles.productRow}>
+          <Icon name="shopping-cart" size={24} color="#e63946" style={styles.icon} />
+          <TouchableOpacity
+            onPress={() => handleProductPressAsProductOwner(product, item.senderId)}
+          >
+            <Text style={styles.productName}>{product.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.transactionButton}
+            onPress={() => handleCreateTransaction(product, item.senderId)}
+          >
+            <Text style={styles.buttonText}>Create Transaction</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      {renderSection("The Product Owners", productOwners, (product, item) => (
+        <View key={product._id} style={styles.productRow}>
+          <Icon name="shopping-cart" size={24} color="#e63946" style={styles.icon} />
+          <TouchableOpacity
+            onPress={() => handleProductPressAsClient(product, item.senderId)}
+          >
+            <Text style={styles.productName}>{product.name}</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f0f8ff", // Light blue background color
+    padding: 16,
+    backgroundColor: "#ffffff",
   },
-  title: {
-    flexDirection: "row",
-    alignItems: "center",
+  sectionContainer: {
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: "#f8f8f8",
+    borderRadius: 8,
+    borderColor: "#e63946",
+    borderWidth: 1,
+  },
+  header: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#4682b4", // Steel blue text color
+    color: "#e63946",
+    marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: "#4682b4", // Steel blue text color
-  },
-  vendorName: {
-    fontSize: 18,
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    color: "#2f4f4f", // Dark slate gray text color
-  },
-  input: {
-    height: 40,
-    width: "90%",
-    borderColor: "#ccc",
+  itemContainer: {
+    padding: 16,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    marginBottom: 8,
+    borderColor: "#e63946",
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    marginRight: 10,
-    backgroundColor: "#fff", // White background color for input
   },
-  icon: {
+  itemText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333333",
+  },
+  productRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    marginVertical: 4,
+    borderColor: "#e63946",
+    borderWidth: 1,
+  },
+  productName: {
+    fontSize: 16,
+    color: "#333333",
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-    right: 10,
-    top: 2,
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 16,
+    color: "#333333",
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: "#999999",
+    textAlign: "center",
+    marginTop: 16,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  transactionButton: {
+    marginLeft: "auto",
+    backgroundColor: "#e63946",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
 

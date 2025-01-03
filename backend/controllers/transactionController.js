@@ -2,14 +2,17 @@ const Transaction = require("../models/transactionModel")
 
 const addTransaction = async (req, res) => {
   try {
-    const TransactionData = req.body.transaction;
-    const Transaction = new Transaction(TransactionData);
-    await Transaction.save();
+    const {senderId, receiverId, productId, status} = req.body;
+    const transaction = new Transaction({
+      senderId, receiverId, productId, status
+    });
+    await transaction.save();
     res.status(200).json({
       success: true,
-      Transaction,
+      transaction,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).send("Erreur serveur lors de l'ajout du transaction");
   }
 }

@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
-import imgbg from "@/assets/images/bg.jpg";
+import imgbg from "@/assets/images/swapchic.jpg";
 import { useWarmUpBrowser } from "@/hooks/warmUpBrowser";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -37,7 +37,6 @@ const WelcomeScreen = () => {
   useFocusEffect(
     useCallback(() => {
       if (isLoaded && user) {
-        // console.log("User exists. Redirecting to tabs...");
         router.push("/(tabs)");
       }
     }, [isLoaded, user, router]) 
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   overlay: {
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.4)",
     paddingVertical: 210,
     alignItems: "center",
   },
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     marginBottom: 5,
-    textShadowColor: "#1466b8",
+    textShadowColor: "#da051d",
     textShadowOffset: { width: 2, height: 3 },
     textShadowRadius: 5,
   },
@@ -123,7 +122,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "300",
     textShadowColor: "#000",
-    textShadowOffset: { width: 2, height: 3 },
+    textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 5,
   },
   whiteSection: {
@@ -165,11 +164,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   letter: {
-    color: "#1466b8",
+    color: "#da051d",
     fontWeight: "bold",
     fontSize: 50,
     textShadowColor: "#fff",
-    textShadowOffset: { width: 2, height: 3 },
+    textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 5,
   },
 });

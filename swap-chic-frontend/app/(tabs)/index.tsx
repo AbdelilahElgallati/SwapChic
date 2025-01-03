@@ -7,9 +7,11 @@ import {
   Image,
   TextInput,
   ScrollView,
-  FlatList,
   RefreshControl,
+  Keyboard,
 } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
 import {
@@ -17,16 +19,13 @@ import {
   getProductSearchName,
   getCategory,
   getProductByCategory,
+  fetchUsers,
 } from "../../Services/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
-import SearchBar from "@/components/SearchBar";
-import { useNavigation } from "@react-navigation/native";
 
 const Dashboard = () => {
   const router = useRouter();
   const { user } = useUser();
-  const navigation = useNavigation();
   const { signOut } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -34,10 +33,11 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handeleSignOut = async () => {
+  fetchUsers();
+
+  const handleSignOut = async () => {
     try {
       await signOut();
-      // navigation.navigate('index')
     } catch (error) {
       console.error("Failed to log out:", error);
     }
@@ -94,65 +94,97 @@ const Dashboard = () => {
 
   const goToProductDetail = async (productId) => {
     try {
-      await AsyncStorage.setItem("productId", productId);
-      router.push(`/Product_Info/DetailProduct`);
+      router.push(`/Product_Info/DetailProduct?productId=${productId}`);
     } catch (error) {
       console.error("Error navigating to product detail", error);
     }
   };
 
-  const handleSearch = async (searchQuery: String) => {
-    try {
-      const productSearch = await getProductSearchName(searchQuery);
-      setProducts(productSearch);
-    } catch (error) {
-      console.error("Erreur lors de la recherche des produits", error);
+  const handleSearch = async () => {
+    if (searchQuery.trim()) {
+      try {
+        const productSearch = await getProductSearchName(searchQuery);
+        setProducts(productSearch);
+      } catch (error) {
+        console.error("Error searching products", error);
+      }
     }
   };
 
-  const renderProduct = ({ item }) => (
-    <View style={styles.productCard}>
-      <TouchableOpacity onPress={() => goToProductDetail(item._id)}>
-        <Image source={{ uri: item.photo }} style={styles.productImage} />
-      </TouchableOpacity>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>${item.price}</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => handleLike(item._id)}
-        style={styles.likeButton}
-      >
-        <FontAwesome
-          name={likedProducts.includes(item._id) ? "heart" : "heart-o"}
-          size={24}
-          color={likedProducts.includes(item._id) ? "red" : "gray"}
-        />
-      </TouchableOpacity>
-    </View>
-  );
+  // const renderProductRow = (productsChunk) => {
+  //   return (
+  //     <View style={styles.productRow}>
+  //       {productsChunk.map((product) => (
+  //         <View key={product._id} style={styles.productCard}>
+  //           <TouchableOpacity onPress={() => goToProductDetail(product._id)}>
+  //             <Image source={{ uri: product.photo }} style={styles.productImage} />
+  //           </TouchableOpacity>
+  //           <View style={styles.productInfo}>
+  //             <Text style={styles.productName}>{product.name}</Text>
+  //             <Text style={styles.productPrice}>${product.price}</Text>
+  //           </View>
+  //           <TouchableOpacity
+  //             onPress={() => handleLike(product._id)}
+  //             style={styles.likeButton}
+  //           >
+  //             <FontAwesome
+  //               name={likedProducts.includes(product._id) ? "heart" : "heart-o"}
+  //               size={16}
+  //               color={likedProducts.includes(product._id) ? "#fff" : "gray"}
+  //             />
+  //           </TouchableOpacity>
+  //         </View>
+  //       ))}
+  //     </View>
+  //   );
+  // };
 
-  const renderHeader = () => (
-    <View>
+  return (
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>SWAP-CHIC</Text>
+        <Text style={styles.brandTitle}>
+          <Text style={styles.letter}>Swap</Text>Chic
+        </Text>
         <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handeleSignOut}>
-            <Image
-              source={require("../../assets/images/logout.png")}
-              style={styles.icon}
-            />
+          <TouchableOpacity style={styles.notificationButton}>
+            <MaterialIcons name="notifications-none" size={22} color="black" />
           </TouchableOpacity>
           <Image source={{ uri: user?.imageUrl }} style={styles.profileImage} />
         </View>
       </View>
 
-      <SearchBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSearch={handleSearch}
-      />
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              handleSearch();
+              Keyboard.dismiss();
+            }}
+            style={styles.searchButton}
+          >
+            <AntDesign name="search1" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
+      {/* Categories */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -170,89 +202,104 @@ const Dashboard = () => {
           ))}
         </View>
       </ScrollView>
-    </View>
-  );
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item._id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        ListHeaderComponent={renderHeader}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      />
-    </View>
+      {/* Products Grid */}
+      <View style={styles.productsContainer}>
+        {Array.from({ length: Math.ceil(products.length / 2) }, (_, i) => (
+          <View key={`row-${i}`} style={styles.productRow}>
+            {products.slice(i * 2, (i + 1) * 2).map((product) => (
+              <View key={product._id} style={styles.productCard}>
+                <TouchableOpacity onPress={() => goToProductDetail(product._id)}>
+                  <Image source={{ uri: product.photo }} style={styles.productImage} />
+                </TouchableOpacity>
+                <View style={styles.productInfo}>
+                  <Text style={styles.productName}>{product.name}</Text>
+                  <Text style={styles.productPrice}>${product.price}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleLike(product._id)}
+                  style={styles.likeButton}
+                >
+                  <FontAwesome
+                    name={likedProducts.includes(product._id) ? "heart" : "heart-o"}
+                    size={16}
+                    color={likedProducts.includes(product._id) ? "#fff" : "gray"}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {/* Add empty placeholder if odd number of products */}
+            {/* {i * 2 + 1 >= products.length && (
+              <View style={[styles.productCard, styles.emptyCard]} />
+            )} */}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#fff",
+    
+  },
+  productsContainer: {
+    padding: 8,
+    paddingBottom: 90,
+    
+  },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    // backgroundColor: "#fff",
     elevation: 3,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  searchContainer: {
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FAFAFAFA",
+    borderRadius: 25,
+    paddingLeft: 15,
+    height: 50,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
     color: "#333",
+    height: 50,
+    paddingVertical: 10,
+  },
+  searchButton: {
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: "#FAFAFAFA",
+  },
+  notificationButton: {
+    marginRight: 20,
+    borderRadius: 20,
+    padding: 8,
+    backgroundColor: "#F5F5F5F5",
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
-  icon: {
-    width: 24,
-    height: 24,
-    marginRight: 16,
-    tintColor: "#333",
-  },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-  },
-  searchBar: {
-    flexDirection: "row",
-    padding: 5,
-    alignItems: "center",
-    backgroundColor: "#fff",
-    elevation: 4,
-    marginBottom: 10,
-    borderRadius: 15,
-    paddingHorizontal: 15,
-  },
-  searchInput: {
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    flex: 1,
-    fontSize: 16,
-    color: "#2C3E50",
-    paddingVertical: 12,
-  },
-  searchButton: {
-    marginLeft: 8,
-    padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
-    tintColor: "#3498db",
   },
   horizontalScroll: {
     marginTop: 8,
@@ -264,37 +311,40 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryButton: {
-    backgroundColor: "#e0e0e0",
-    paddingHorizontal: 12,
+    backgroundColor: "#FAFAFAFA",
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 20,
     marginHorizontal: 4,
+    height: 40,
+    justifyContent: "center",
   },
   categoryText: {
     fontSize: 14,
-    color: "#333",
-  },
-  contentContainer: {
-    padding: 16,
+    color: "#000",
+    fontWeight: "400",
   },
   productCard: {
     flex: 1,
     margin: 8,
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 20,
     elevation: 4,
     overflow: "hidden",
     alignItems: "center",
-    width: 200,
+    maxWidth: "48%",
   },
   productImage: {
-    width: 200,
+    width: 180,
     height: 180,
     resizeMode: "cover",
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   productInfo: {
     padding: 8,
     alignItems: "center",
+    marginTop: 10,
   },
   productName: {
     fontSize: 16,
@@ -304,19 +354,41 @@ const styles = StyleSheet.create({
   },
   productPrice: {
     fontSize: 14,
-    color: "#666",
+    color: "#4FBF26",
     marginTop: 4,
   },
   likeButton: {
     position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "#000",
     borderRadius: 20,
-    padding: 4,
+    padding: 6,
   },
-  row: {
-    justifyContent: "space-between",
+  letter: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 35,
+    textShadowColor: "#da051d",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+  brandTitle: {
+    fontSize: 30,
+    fontWeight: "bold",
+    fontStyle: "normal",
+    color: "#da051d",
+    marginLeft: -15,
+    marginTop: -10,
+    padding: 5,
+    width: "70%",
+    textShadowColor: "gray",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+  emptyCard: {
+    backgroundColor: 'transparent',
+    elevation: 0,
   },
 });
 

@@ -6,6 +6,8 @@ const multer = require("multer");
 const upload = multer({ dest: 'uploads/' });
 
 UserRouter.get( "/", UserController.getAllUsers); 
+UserRouter.get( "/all", UserController.getAllUsersClerck); 
+UserRouter.get( "/clerk/:userId", UserController.getUserById); 
 UserRouter.get( "/me", UserController.getUserData); 
 UserRouter.get( "/:id", UserController.getOneUser); 
 UserRouter.put('/changePassword/:id', UserController.changePassword);

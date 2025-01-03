@@ -18,6 +18,10 @@
 =======
     "expo-env.d.ts",
     "app/index.jsx"
+<<<<<<< HEAD
   ],
 >>>>>>> master
+=======
+, "app/(tabs)/_layout.tsx", "app/(tabs)/profile.tsx"  ],
+>>>>>>> main
 }

@@ -15,6 +15,8 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getCategory } from "../../Services/api";
+// import {BASE_URL} from "@env";
+
 
 const addProduct = () => {
   const router = useRouter();
@@ -24,6 +26,7 @@ const addProduct = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [condition, setCondition] = useState("New");
+  const [type, setType] = useState("Sale");
   const [price, setPrice] = useState("");
   const [photo, setPhoto] = useState(null);
   const [status, setStatus] = useState("Published");
@@ -53,6 +56,7 @@ const addProduct = () => {
       setCondition("New");
       setPrice("");
       setCategoryId("");
+      setType("Sale");
       setPhoto(null);
       setStatus("Published");
     }, [])
@@ -67,6 +71,7 @@ const addProduct = () => {
     setPrice("");
     setCategoryId("");
     setPhoto(null);
+    setType("Sale");
     setStatus("Published");
     setRefreshing(false);
   };
@@ -118,6 +123,7 @@ const addProduct = () => {
     formData.append("description", description);
     formData.append("condition", condition);
     formData.append("price", price);
+    formData.append("type", type);
 
     if (photo) {
       const filename = photo.split("/").pop();
@@ -131,7 +137,9 @@ const addProduct = () => {
 
     try {
       const response = await fetch(
-        "http://192.168.10.178:3001/product/add",
+        "http://192.168.227.82:3001/product/add",
+
+
         {
           method: "POST",
           headers: {
@@ -153,6 +161,7 @@ const addProduct = () => {
         setPrice("");
         setCategoryId("");
         setPhoto(null);
+        setType("Sale");
         setStatus("Published");
         router.replace("/(tabs)");
       } else {
@@ -174,7 +183,7 @@ const addProduct = () => {
       }
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Ajouter un Produit</Text>
+        <Text style={styles.title}>Add Product</Text>
 
         <TextInput
           style={styles.input}
@@ -225,6 +234,17 @@ const addProduct = () => {
           ))}
         </Picker>
 
+        <Text style={styles.label}>Type :</Text>
+        <Picker
+          selectedValue={type}
+          onValueChange={(itemValue) => setType(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Gift" value="Gift" />
+          <Picker.Item label="Sale" value="Sale" />
+          <Picker.Item label="Exchange" value="Exchange" />
+        </Picker>
+
         <Text style={styles.label}>Statut :</Text>
         <Picker
           selectedValue={status}
@@ -259,22 +279,28 @@ const addProduct = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
+    
   },
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#fff",
     padding: 20,
+    marginBottom: 90,
+    
   },
   title: {
-    fontSize: 24,
+    textShadowColor: "#da051d",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+    fontSize: 25,
     fontWeight: "700",
-    color: "#2C3E50",
-    marginBottom: 20,
+    color: "#fff",
+    marginBottom: 30,
   },
   input: {
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#000",
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
@@ -282,20 +308,24 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#2C3E50",
-    marginBottom: 5,
+    marginBottom: 8,
   },
   picker: {
-    backgroundColor: "#FFFFFF",
+    borderColor: "#000",
     borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 8,
+    color:"#000",
+    fontWeight: "bold",
+    backgroundColor: "#F5F5F5F5",
+    borderRadius: 10,
     marginBottom: 15,
   },
   photoButton: {
-    backgroundColor: "#3498DB",
+    // backgroundColor: "lightgray",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -303,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   photoButtonText: {
-    color: "#FFFFFF",
+    color: "#000",
     fontSize: 16,
     fontWeight: "500",
   },
@@ -314,13 +344,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   submitButton: {
-    backgroundColor: "#27AE60",
+    backgroundColor: "#da051d",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   submitButtonText: {
-    color: "#FFFFFF",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },

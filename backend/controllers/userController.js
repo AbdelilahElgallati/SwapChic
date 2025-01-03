@@ -2,11 +2,13 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cloudinary = require("../utils/cloudinary");
 const User = require("../models/userModel");
+require("dotenv").config();
+const axios = require("axios");
 
 const addUser = async (req, res) => {
   try {
-    console.log("Request Body:");
-    console.log(req.body)
+    // console.log("Request Body:");
+    // console.log(req.body);
 
     const { name, email, password, phone, localisation } = req.body;
     const photoFile = req.file;
@@ -14,7 +16,7 @@ const addUser = async (req, res) => {
     // Vérification des champs obligatoires
     if (!name || !email || !password || !phone || !localisation) {
       console.log("Tous les champs doivent être remplis.");
-      
+
       return res.status(400).json({
         success: false,
         message: "Tous les champs doivent être remplis.",
@@ -24,7 +26,7 @@ const addUser = async (req, res) => {
     const existeUser = await User.findOne({ email: email });
     if (existeUser) {
       console.log("L'utilisateur existe déjà");
-      
+
       return res
         .status(400)
         .json({ success: false, message: "L'utilisateur existe déjà." });
@@ -34,7 +36,7 @@ const addUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const uploadResult = await cloudinary.uploader.upload(photoFile.path, {
-      folder: "users", 
+      folder: "users",
     });
 
     const user = new User({
@@ -48,7 +50,7 @@ const addUser = async (req, res) => {
 
     await user.save();
     console.log("Utilisateur ajouté avec succès");
-    
+
     res
       .status(201)
       .json({ success: true, message: "Utilisateur ajouté avec succès", user });
@@ -182,10 +184,9 @@ const removeUser = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-
     const jsenwebtkn = req.token;
     const user = req.user;
-    console.log("login success")
+    console.log("login success");
     res.json({ token: jsenwebtkn, user });
   } catch (error) {
     console.error(error);
@@ -233,6 +234,44 @@ const changePassword = async (req, res) => {
   }
 };
 
+const getAllUsersClerck = async (req, res) => {
+  try {
+    // console.log("Fetching users from Clerk...");
+    const clerck_key = process.env.CLERK_API_KEY;
+    const response = await axios.get("https://api.clerk.dev/v1/users", {
+      headers: {
+        Authorization: `Bearer ${clerck_key}`,
+      },
+    });
+    // console.log("Fetched users:", response.data);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error(
+      "Error fetching users:",
+      error.response?.data || error.message
+    );
+    res.status(error.response?.status || 500).send("Error fetching users");
+  }
+};
+
+const getUserById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const clerck_key = process.env.CLERK_API_KEY;
+    const response = await axios.get(`https://api.clerk.dev/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${clerck_key}`,
+      },
+    });
+    // console.log("Fetched user:", response.data);
+    res.status(200).json(response.data); 
+  } catch (error) {
+    console.error("Error fetching user:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).send("Error fetching user");
+  }
+};
+
 module.exports = {
   addUser,
   getAllUsers,
@@ -243,4 +282,6 @@ module.exports = {
   changePassword,
   updateStausUser,
   getUserData,
+  getAllUsersClerck,
+  getUserById,
 };

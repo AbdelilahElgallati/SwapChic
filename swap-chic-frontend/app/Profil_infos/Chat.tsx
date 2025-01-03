@@ -14,8 +14,9 @@ import { useLocalSearchParams } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { fetchUserById } from '@/Services/api';
 
-const SOCKET_URL = 'http://192.168.167.74:3001';
+const SOCKET_URL = 'http://192.168.227.82:3001';
 
 interface Message {
   _id: string;
@@ -29,8 +30,10 @@ interface Message {
 const Chat = () => {
   const { productId, clientId, productOwnerId } = useLocalSearchParams();
   const { user } = useUser();
+  console.log(user);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [client, setClient] = useState([]);
   const [loading, setLoading] = useState(true);
   const socketRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
@@ -50,6 +53,7 @@ const Chat = () => {
     });
 
     fetchMessages();
+    getUserInfo();
 
     return () => {
       socketRef.current.emit('leaveRoom', chatRoom);
@@ -63,6 +67,17 @@ const Chat = () => {
         params: { productId, clientId, productOwnerId },
       });
       setMessages(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      setLoading(false);
+    }
+  };
+
+  const getUserInfo = async () => {
+    try {
+      const response = await fetchUserById(clientId);
+      setClient(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -97,12 +112,14 @@ const Chat = () => {
     const isOwnMessage = item.senderId === user?.id;
 
     return (
+      
       <View
         style={[
           styles.messageContainer,
           isOwnMessage ? styles.ownMessage : styles.otherMessage,
         ]}
       >
+      
         <Text
           style={[
             styles.messageText,
@@ -119,7 +136,9 @@ const Chat = () => {
   };
 
   const renderDateSeparator = (date: string) => (
+    
     <View style={styles.dateSeparator}>
+      
       <Text style={styles.dateText}>{date}</Text>
     </View>
   );
@@ -140,6 +159,9 @@ const Chat = () => {
       style={styles.container}
       keyboardVerticalOffset={100}
     >
+        <View style={styles.header}>
+      <Text style={styles.headerText}></Text>
+    </View>
       <FlatList
         ref={flatListRef}
         data={Object.keys(groupedMessages)}
@@ -178,6 +200,17 @@ const Chat = () => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F9F9F9',

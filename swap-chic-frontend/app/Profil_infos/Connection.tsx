@@ -84,20 +84,20 @@ const Connection = () => {
         </View>
       </View>
       <View style={styles.productsContainer}>
-              {item.products.map((product) => (
-                <View key={product._id} style={styles.productItem}>
-                  <View style={styles.productInfo}>
-                    <Icon name="shopping-bag" size={20} color={COLORS.primary} />
-                    <TouchableOpacity 
-                      onPress={() => handleProductPress(product, item.receiverId)}
-                      style={styles.productNameContainer}
-                    >
-                      <Text style={styles.productName}>{product.name}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
+        {item.products.map((product) => (
+          <View key={product._id} style={styles.productItem}>
+            <View style={styles.productInfo}>
+              <Icon name="shopping-bag" size={20} color={COLORS.primary} />
+              <TouchableOpacity
+                onPress={() => handleProductPress(product, item.receiverId)}
+                style={styles.productNameContainer}
+              >
+                <Text style={styles.productName}>{product.name}</Text>
+              </TouchableOpacity>
             </View>
+          </View>
+        ))}
+      </View>
     </View>
   );
 
@@ -128,7 +128,7 @@ const Connection = () => {
 
         <View style={styles.headerTitleContainer}>
           <Icon name="chat" size={28} color={COLORS.primary} />
-          <Text style={styles.headerTitle}>My Conversations</Text>
+          <Text style={styles.headerTitle}>Mes Conversations</Text>
         </View>
       </View>
 
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
@@ -173,12 +173,12 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: COLORS.secondary,
     marginLeft: 10,
   },
@@ -196,8 +196,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.lightGray,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.lightGray,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.secondary,
   },
   userEmail: {
@@ -221,17 +221,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   productItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 12,
     backgroundColor: COLORS.lightGray,
     borderRadius: 8,
     marginBottom: 8,
   },
   productInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   productNameContainer: {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     color: COLORS.secondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   transactionButton: {
     backgroundColor: COLORS.primary,
@@ -253,12 +253,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.white,
   },
   loadingText: {
@@ -267,14 +267,14 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
   },
   emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 40,
     marginTop: 40,
   },
   emptyStateText: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     color: COLORS.secondary,
     marginTop: 16,
   },
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.darkGray,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

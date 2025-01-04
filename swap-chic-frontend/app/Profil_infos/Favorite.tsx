@@ -1,115 +1,682 @@
-import React, { useState } from "react";
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { AntDesign, Feather } from "@expo/vector-icons";
-import img from "@/assets/images/chic.png";
-import bg from "@/assets/images/bg.jpg";
+// import React, { useState, useCallback } from "react";
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TouchableOpacity,
+//   Image,
+//   TextInput,
+//   ScrollView,
+//   RefreshControl,
+// } from "react-native";
+// import AntDesign from "@expo/vector-icons/AntDesign";
+// import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+// import { useUser } from "@clerk/clerk-react";
+// import { useRouter, useFocusEffect } from "expo-router";
+// import {
+//   addLike,
+//   getAllLikeUserId,
+//   getOneLikeByProductIdAndUserId,
+//   getProductSearchName,
+//   removeLike,
+// } from "../../Services/api";
+// import { useLocalSearchParams } from "expo-router";
+// import { FontAwesome } from "@expo/vector-icons";
+// import Icon from "react-native-vector-icons/MaterialIcons";
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: any; 
-}
+// // Palette de couleurs
+// const COLORS = {
+//   primary: "#E63946", // Rouge vif
+//   secondary: "#1A1A1A", // Noir profond
+//   white: "#FFFFFF", // Blanc
+//   lightGray: "#F8F8F8", // Gris très clair
+//   darkGray: "#333333", // Gris foncé
+//   border: "#DDDDDD", // Couleur de bordure
+// };
 
-export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState<Product[]>([
-    { id: 1, name: "Montre élégante", price: 199.99, image: img },
-    { id: 2, name: "Sac à main en cuir", price: 149.99, image: bg },
-    { id: 3, name: "Chaussures de sport", price: 89.99, image: img },
-  ]);
+// const Favorite = () => {
+//   const router = useRouter();
+//   const { idCategory } = useLocalSearchParams();
+//   const { user } = useUser();
+//   const [products, setProducts] = useState([]);
+//   const [likedProducts, setLikedProducts] = useState([]);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
 
-  const removeFavorite = (id: number) => {
-    setFavorites(favorites.filter((product) => product.id !== id));
-  };
+//   const fetchUserLikes = async () => {
+//     try {
+//       const likes = await getAllLikeUserId(user?.id);
+//       console.log(likes)
+//       setLikedProducts(likes);
+//     } catch (error) {
+//       console.error("Error fetching user likes", error);
+//     }
+//   };
+
+//   useFocusEffect(
+//     useCallback(() => {
+//       fetchUserLikes();
+//     }, [user?.id, idCategory])
+//   );
+
+//   const onRefresh = async () => {
+//     setRefreshing(true);
+//     await fetchUserLikes();
+//     setRefreshing(false);
+//   };
+
+//   // const handleLike = async (productId) => {
+//   //   try {
+//   //     const existingLike = await getOneLikeByProductIdAndUserId(productId, user?.id);
+
+//   //     if (existingLike && existingLike.like && existingLike.like._id) {
+//   //       await removeLike(existingLike.like._id);
+//   //       setLikedProducts(prevLikedProducts => prevLikedProducts.filter(id => id !== productId));
+//   //     } else {
+//   //       const like = { userId: user?.id, productId };
+//   //       const response = await addLike(like);
+
+//   //       if (response.data.success) {
+//   //         setLikedProducts(prevLikedProducts => [...prevLikedProducts, productId]);
+//   //       }
+//   //     }
+//   //   } catch (error) {
+//   //     console.error("Error handling like", error.response ? error.response.data : error);
+//   //   }
+//   // };
+
+//   const handleLike = async (productId) => {
+//     try {
+//       const existingLike = await getOneLikeByProductIdAndUserId(
+//         productId,
+//         user?.id
+//       );
+
+//       if (existingLike?.like?._id) {
+//         await removeLike(existingLike.like._id);
+//         setLikedProducts((prevLikedProducts) =>
+//           prevLikedProducts.filter((id) => id !== productId)
+//         );
+//       } else {
+//         const like = { userId: user?.id, productId };
+//         const response = await addLike(like);
+
+//         if (response?.data?.success) {
+//           setLikedProducts((prevLikedProducts) => [
+//             ...prevLikedProducts,
+//             productId,
+//           ]);
+//         }
+//       }
+//     } catch (error) {
+//       console.error("Error handling like", error?.response?.data || error);
+//     }
+//   };
+
+//   const goToProductDetail = async (productId) => {
+//     try {
+//       router.push(`/Product_Info/DetailProduct?productId=${productId}`);
+//     } catch (error) {
+//       console.error("Error navigating to product detail", error);
+//     }
+//   };
+
+//   const handleSearch = async (searchQuery) => {
+//     try {
+//       // Si la recherche est vide, afficher un message ou laisser la liste vide
+//       if (searchQuery.trim() === "") {
+//         setProducts([]); // Ou vous pouvez afficher un message comme "Veuillez entrer un terme de recherche"
+//         return;
+//       }
+  
+//       // Appel de l'API pour rechercher les produits
+//       const productSearch = await getProductSearchName(searchQuery);
+      
+//       // Si des produits sont trouvés, mettez à jour l'état des produits
+//       if (productSearch.length > 0) {
+//         setProducts(productSearch);
+//       } else {
+//         // Si aucun produit n'est trouvé, vous pouvez afficher un message comme "Aucun produit trouvé"
+//         setProducts([]);
+//       }
+//     } catch (error) {
+//       console.error("Erreur lors de la recherche des produits", error);
+//       setProducts([]); // Ou afficher un message d'erreur à l'utilisateur
+//     }
+//   };
+  
+
+//   return (
+//     <View style={styles.container}>
+//       {/* Improved Header */}
+//       {/* <View style={styles.header}>
+//         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+//           <Icon name="arrow-back" size={24} color={COLORS.primary} />
+//         </TouchableOpacity>
+//         <View style={styles.logoContainer}>
+//           <Text style={styles.brandName}>
+//             <AntDesign name="heart" size={28} color="red" />
+//             <Text style={styles.brandAccent}>Mes produits favoris</Text>
+//           </Text>
+//         </View>
+//       </View> */}
+//       <View style={styles.header}>
+//         <TouchableOpacity
+//           onPress={() => router.back()}
+//           style={styles.backButton}
+//         >
+//           <Icon name="arrow-back" size={24} color={COLORS.primary} />
+//         </TouchableOpacity>
+
+//         <View style={styles.headerTitleContainer}>
+//           <AntDesign name="heart" size={28} color={COLORS.primary} />
+//           <Text style={styles.headerTitle}>Mes produits favoris</Text>
+//         </View>
+//       </View>
+
+//       <ScrollView
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+//         }
+//       >
+//         {/* Enhanced Search Bar */}
+//         <View style={styles.searchWrapper}>
+//           <View style={styles.searchBar}>
+//             <AntDesign name="search1" size={20} color="#666" />
+//             <TextInput
+//               style={styles.searchInput}
+//               placeholder="Search products..."
+//               placeholderTextColor="#666"
+//               value={searchQuery}
+//               onChangeText={setSearchQuery}
+//               returnKeyType="search"
+//               onSubmitEditing={() => handleSearch(searchQuery)}
+//             />
+//           </View>
+//         </View>
+
+//         {/* Enhanced Products Grid */}
+//         {/* <View style={styles.productsGrid}>
+//           {products.length === 0 ? (
+//             <View style={styles.emptyState}>
+//               <MaterialIcons
+//                 name="inventory"
+//                 size={64}
+//                 color={COLORS.darkGray}
+//               />
+//               <Text style={styles.emptyStateText}>Aucun produit trouvé</Text>
+//               <Text style={styles.emptyStateSubtext}>
+//                 Commencez à liker vos produits préférer
+//               </Text>
+//             </View>
+//           ) : (
+//             products.map((product) => (
+//               <TouchableOpacity
+//                 key={product._id}
+//                 style={styles.productCard}
+//                 onPress={() => goToProductDetail(product._id)}
+//               >
+//                 <Image
+//                   source={{ uri: product.photo }}
+//                   style={styles.productImage}
+//                 />
+//                 <TouchableOpacity
+//                   style={styles.likeBtn}
+//                   onPress={() => handleLike(product._id)}
+//                 >
+//                   <FontAwesome
+//                     name={
+//                       likedProducts.includes(product._id) ? "heart" : "heart-o"
+//                     }
+//                     size={18}
+//                     color={
+//                       likedProducts.includes(product._id) ? "#E53E3E" : "#fff"
+//                     }
+//                   />
+//                 </TouchableOpacity>
+//                 <View style={styles.productDetails}>
+//                   <Text style={styles.productName} numberOfLines={1}>
+//                     {product.name}
+//                   </Text>
+//                   <Text style={styles.productType}>{product.type}</Text>
+//                   {product.type !== "exchange" && product.type !== "gift" && (
+//                     <Text style={styles.productPrice}>{product.price} DH</Text>
+//                   )}
+//                 </View>
+//               </TouchableOpacity>
+//             ))
+//           )}
+//         </View> */}
+//         <View style={styles.productsGrid}>
+//           {likedProducts.length === 0 ? (
+//             <View style={styles.emptyState}>
+//               <MaterialIcons
+//                 name="inventory"
+//                 size={64}
+//                 color={COLORS.darkGray}
+//               />
+//               <Text style={styles.emptyStateText}>Aucun produit trouvé</Text>
+//               <Text style={styles.emptyStateSubtext}>
+//                 Commencez à liker vos produits préférés
+//               </Text>
+//             </View>
+//           ) : (
+//             likedProducts.map((product) => (
+//               <TouchableOpacity
+//                 key={product._id}
+//                 style={styles.productCard}
+//                 onPress={() => goToProductDetail(product._id)}
+//               >
+//                 <Image
+//                   source={{ uri: product.photo }}
+//                   style={styles.productImage}
+//                 />
+//                 <TouchableOpacity
+//                   style={styles.likeBtn}
+//                   onPress={() => handleLike(product._id)}
+//                 >
+//                   <FontAwesome
+//                     name={
+//                       likedProducts.includes(product._id) ? "heart" : "heart-o"
+//                     }
+//                     size={18}
+//                     color={
+//                       likedProducts.includes(product._id) ? "#E53E3E" : "#fff"
+//                     }
+//                   />
+//                 </TouchableOpacity>
+//                 <View style={styles.productDetails}>
+//                   <Text style={styles.productName} numberOfLines={1}>
+//                     {product.name}
+//                   </Text>
+//                   <Text style={styles.productType}>{product.type}</Text>
+//                   {product.type !== "exchange" && product.type !== "gift" && (
+//                     <Text style={styles.productPrice}>{product.price} DH</Text>
+//                   )}
+//                 </View>
+//               </TouchableOpacity>
+//             ))
+//           )}
+//         </View>
+//       </ScrollView>
+//     </View>
+//   );
+// };
+
+import React, { useState, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useUser } from "@clerk/clerk-react";
+import { useRouter, useFocusEffect } from "expo-router";
+import {
+  addLike,
+  getAllLikeUserId,
+  getOneLikeByProductIdAndUserId,
+  getProductSearchName,
+  removeLike,
+} from "../../Services/api";
+import { useLocalSearchParams } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
+import Icon from "react-native-vector-icons/MaterialIcons";
+
+// Color palette
+const COLORS = {
+  primary: "#E63946",
+  secondary: "#1A1A1A",
+  white: "#FFFFFF",
+  lightGray: "#F8F8F8",
+  darkGray: "#333333",
+  border: "#DDDDDD",
+};
+
+const Favorite = () => {
+  const router = useRouter();
+  const { idCategory } = useLocalSearchParams();
+  const { user } = useUser();
+  const [products, setProducts] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchUserLikes = useCallback(async () => {
+    if (!user?.id) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const likes = await getAllLikeUserId(user.id);
+      setLikedProducts(likes || []);
+    } catch (error) {
+      setError("Erreur lors du chargement des favoris");
+      console.error("Error fetching user likes:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserLikes();
+    }, [fetchUserLikes])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchUserLikes();
+    setRefreshing(false);
+  }, [fetchUserLikes]);
+
+  const handleLike = useCallback(async (productId) => {
+    if (!user?.id) {
+      // Handle not logged in state
+      return;
+    }
+
+    try {
+      const existingLike = await getOneLikeByProductIdAndUserId(productId, user.id);
+
+      if (existingLike?.like?._id) {
+        await removeLike(existingLike.like._id);
+        setLikedProducts(prev => prev.filter(product => product._id !== productId));
+      } else {
+        const response = await addLike({ userId: user.id, productId });
+        if (response?.data?.success) {
+          const updatedLikes = await getAllLikeUserId(user.id);
+          setLikedProducts(updatedLikes || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error handling like:", error?.response?.data || error);
+    }
+  }, [user?.id]);
+
+  const handleSearch = useCallback(async (query) => {
+    if (!query.trim()) {
+      setProducts([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const results = await getProductSearchName(query);
+      setProducts(results || []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const goToProductDetail = useCallback((productId) => {
+    router.push(`/Product_Info/DetailProduct?productId=${productId}`);
+  }, [router]);
+
+  const renderEmptyState = useMemo(() => (
+    <View style={styles.emptyState}>
+      <MaterialIcons name="inventory" size={64} color={COLORS.darkGray} />
+      <Text style={styles.emptyStateText}>Aucun produit trouvé</Text>
+      <Text style={styles.emptyStateSubtext}>
+        Commencez à liker vos produits préférés
+      </Text>
+    </View>
+  ), []);
+
+  const renderProduct = useCallback(({ item: product }) => (
+    <TouchableOpacity
+      key={product._id}
+      style={styles.productCard}
+      onPress={() => goToProductDetail(product._id)}
+    >
+      <Image
+        source={{ uri: product.photo }}
+        style={styles.productImage}
+      />
+      <TouchableOpacity
+        style={styles.likeBtn}
+        onPress={() => handleLike(product._id)}
+      >
+        <FontAwesome
+          name={likedProducts.some(p => p._id === product._id) ? "heart" : "heart-o"}
+          size={18}
+          color={likedProducts.some(p => p._id === product._id) ? "#E53E3E" : "#fff"}
+        />
+      </TouchableOpacity>
+      <View style={styles.productDetails}>
+        <Text style={styles.productName} numberOfLines={1}>
+          {product.name}
+        </Text>
+        <Text style={styles.productType}>{product.type}</Text>
+        {product.type !== "exchange" && product.type !== "gift" && (
+          <Text style={styles.productPrice}>{product.price} DH</Text>
+        )}
+      </View>
+    </TouchableOpacity>
+  ), [goToProductDetail, handleLike, likedProducts]);
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchUserLikes}>
+          <Text style={styles.retryButtonText}>Réessayer</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {favorites.length === 0 ? (
-        <Text style={styles.emptyText}>Vous n'avez pas encore de produits favoris.</Text>
-      ) : (
-        <FlatList
-          data={favorites}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Image source={item.image} style={styles.image} />
-              <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>{item.price.toFixed(2)} DHs</Text>
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => removeFavorite(item.id)}
-              >
-                <Feather name="trash-2" size={16} color="#fff" />
-                <Text style={styles.removeButtonText}>Retirer des favoris</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        />
-      )}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Icon name="arrow-back" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+
+        <View style={styles.headerTitleContainer}>
+          <AntDesign name="heart" size={28} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>Mes produits favoris</Text>
+        </View>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View style={styles.searchWrapper}>
+          <View style={styles.searchBar}>
+            <AntDesign name="search1" size={20} color="#666" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Rechercher des produits..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              onSubmitEditing={() => handleSearch(searchQuery)}
+            />
+          </View>
+        </View>
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color={COLORS.primary} style={styles.loader} />
+        ) : (
+          <View style={styles.productsGrid}>
+            {(searchQuery ? products : likedProducts).length === 0 
+              ? renderEmptyState
+              : (searchQuery ? products : likedProducts).map(product => renderProduct({ item: product }))}
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-    color: "#333",
-  },
-  emptyText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#888",
-  },
-  card: {
-    marginTop: 16,
-    borderWidth:1.2,
-    borderColor: "#000",
-    backgroundColor: "#fff",
-    borderRadius: 8,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+    elevation: 2,
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  }
-,  
-  image: {
+    shadowRadius: 2,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: COLORS.secondary,
+    marginLeft: 10,
+  },
+  searchWrapper: {
+    padding: 20,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#000",
+  },
+  productsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+    paddingBottom: 80,
+    marginBottom: 80,
+  },
+  productCard: {
+    width: "47%",
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: "hidden",
+  },
+  productImage: {
     width: "100%",
-    height: 150,
-    borderRadius: 8,
-    marginBottom: 8,
+    height: 180,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+  },
+  likeBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    padding: 8,
+    borderRadius: 20,
+  },
+  productDetails: {
+    padding: 12,
   },
   productName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#000",
     marginBottom: 4,
+  },
+  productType: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+    textTransform: "capitalize",
   },
   productPrice: {
     fontSize: 16,
-    color: "#333",
-    marginBottom: 8,
+    fontWeight: "600",
+    color: "#E53E3E",
   },
-  removeButton: {
-    flexDirection: "row",
+  emptyState: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#da051d",
-    padding: 10,
-    borderRadius: 8,
+    paddingVertical: 40,
+    width: "100%",
   },
-  removeButtonText: {
-    color: "#fff",
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: COLORS.darkGray,
+    marginTop: 16,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: COLORS.darkGray,
+    marginTop: 8,
+    textAlign: "center",
+  },
+  loader: {
+    marginTop: 20,
+  },
+  errorText: {
+    textAlign: 'center',
+    color: COLORS.primary,
     fontSize: 16,
-    marginLeft: 8,
-    fontWeight: "bold",
+    marginTop: 20,
+  },
+  retryButton: {
+    backgroundColor: COLORS.primary,
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  retryButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
   },
 });
+
+export default Favorite;

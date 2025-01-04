@@ -18,6 +18,18 @@ import { Picker } from "@react-native-picker/picker";
 import { getOneProduct, getCategory } from "../../Services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "../../Services/api";
+import { MaterialIcons } from "@expo/vector-icons";
+import Icon from "react-native-vector-icons/MaterialIcons";
+
+
+const COLORS = {
+  primary: "#E63946", // Rouge vif
+  secondary: "#1A1A1A", // Noir profond
+  white: "#FFFFFF", // Blanc
+  lightGray: "#F8F8F8", // Gris très clair
+  darkGray: "#333333", // Gris foncé
+  border: "#DDDDDD", // Couleur de bordure
+};
 
 const EditProduct = () => {
   const router = useRouter();
@@ -29,15 +41,15 @@ const EditProduct = () => {
     const storedProductId = await AsyncStorage.getItem("productId");
     if (storedProductId) {
       setProductId(storedProductId);
-      fetchProducts(storedProductId); 
+      fetchProducts(storedProductId);
     } else {
       console.error("productId non trouvé dans AsyncStorage");
     }
   };
 
   useEffect(() => {
-    fetchProductId(); 
-    fetchCategories(); 
+    fetchProductId();
+    fetchCategories();
   }, []);
 
   const [categoryId, setCategoryId] = useState("");
@@ -87,7 +99,7 @@ const EditProduct = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchCategories();
-    await fetchProductId(); 
+    await fetchProductId();
     setRefreshing(false);
   };
 
@@ -188,115 +200,161 @@ const EditProduct = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nom du produit"
-          value={name}
-          onChangeText={setName}
-        />
+    <View style={styles.container}>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-
-        <Text style={styles.label}>Condition :</Text>
-        <Picker
-          selectedValue={condition}
-          onValueChange={setCondition}
-          style={styles.picker}
-        >
-          <Picker.Item label="New" value="New" />
-          <Picker.Item label="Used" value="Used" />
-        </Picker>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Prix"
-          value={price}
-          onChangeText={setPrice}
-          keyboardType="numeric"
-        />
-
-        <Text style={styles.label}>Catégorie :</Text>
-        <Picker
-          selectedValue={categoryId}
-          onValueChange={setCategoryId}
-          style={styles.picker}
-        >
-          <Picker.Item label="Sélectionner une catégorie" value="" />
-          {categories.map((category) => (
-            <Picker.Item
-              key={category._id}
-              label={category.name}
-              value={category._id}
-            />
-          ))}
-        </Picker>
-
-        <Text style={styles.label}>Type :</Text>
-        <Picker
-          selectedValue={type}
-          onValueChange={setType}
-          style={styles.picker}
-        >
-          <Picker.Item label="Gift" value="Gift" />
-          <Picker.Item label="Sale" value="Sale" />
-          <Picker.Item label="Exchange" value="Exchange" />
-        </Picker>
-
-        <Text style={styles.label}>Statut :</Text>
-        <Picker
-          selectedValue={status}
-          onValueChange={setStatus}
-          style={styles.picker}
-        >
-          <Picker.Item label="Published" value="Published" />
-          <Picker.Item label="Sold" value="Sold" />
-        </Picker>
-
-        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-          <Text style={styles.photoButtonText}>
-            {photo ? "Changer de photo" : "Ajouter une photo"}
-          </Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Icon name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
-        {photo && <Image source={{ uri: photo }} style={styles.imagePreview} />}
 
-        <TouchableOpacity
-          style={[styles.submitButton, isSubmitting && styles.disabledButton]}
-          onPress={handleSubmit}
-          disabled={isSubmitting}
-        >
-          <Text style={styles.submitButtonText}>
-            {isSubmitting ? "En cours..." : "Modifier"}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Icon name="refresh" size={28} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>Modification de produit</Text>
+        </View>
       </View>
-    </ScrollView>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View style={styles.containerForum}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nom du produit"
+            value={name}
+            onChangeText={setName}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Description"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
+
+          <Text style={styles.label}>Condition :</Text>
+          <Picker
+            selectedValue={condition}
+            onValueChange={setCondition}
+            style={styles.picker}
+          >
+            <Picker.Item label="New" value="New" />
+            <Picker.Item label="Used" value="Used" />
+          </Picker>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Prix"
+            value={price}
+            onChangeText={setPrice}
+            keyboardType="numeric"
+          />
+
+          <Text style={styles.label}>Catégorie :</Text>
+          <Picker
+            selectedValue={categoryId}
+            onValueChange={setCategoryId}
+            style={styles.picker}
+          >
+            <Picker.Item label="Sélectionner une catégorie" value="" />
+            {categories.map((category) => (
+              <Picker.Item
+                key={category._id}
+                label={category.name}
+                value={category._id}
+              />
+            ))}
+          </Picker>
+
+          <Text style={styles.label}>Type :</Text>
+          <Picker
+            selectedValue={type}
+            onValueChange={setType}
+            style={styles.picker}
+          >
+            <Picker.Item label="Gift" value="Gift" />
+            <Picker.Item label="Sale" value="Sale" />
+            <Picker.Item label="Exchange" value="Exchange" />
+          </Picker>
+
+          <Text style={styles.label}>Statut :</Text>
+          <Picker
+            selectedValue={status}
+            onValueChange={setStatus}
+            style={styles.picker}
+          >
+            <Picker.Item label="Published" value="Published" />
+            <Picker.Item label="Sold" value="Sold" />
+          </Picker>
+
+          <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+            <Text style={styles.photoButtonText}>
+              {photo ? "Changer de photo" : "Ajouter une photo"}
+            </Text>
+          </TouchableOpacity>
+          {photo && (
+            <Image source={{ uri: photo }} style={styles.imagePreview} />
+          )}
+
+          <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.disabledButton]}
+            onPress={handleSubmit}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.submitButtonText}>
+              {isSubmitting ? "En cours..." : "Modifier"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 export default EditProduct;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+    elevation: 2,
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.secondary,
+    marginLeft: 10,
+  },
   scrollContainer: {
     flexGrow: 1,
   },
-  container: {
+  containerForum: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#fff",
     padding: 20,
-    marginBottom: 90,
   },
   title: {
     fontSize: 24,
@@ -347,7 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   submitButton: {
-    backgroundColor: "#27AE60",
+    backgroundColor: "#da051d",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

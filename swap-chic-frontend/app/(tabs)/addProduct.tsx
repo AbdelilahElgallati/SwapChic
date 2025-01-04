@@ -16,7 +16,16 @@ import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getCategory } from "../../Services/api";
 import { BASE_URL } from "../../Services/api";
+import { MaterialIcons } from "@expo/vector-icons";
 
+const COLORS = {
+  primary: '#E63946',     // Rouge vif
+  secondary: '#1A1A1A',   // Noir profond
+  white: '#FFFFFF',       // Blanc
+  lightGray: '#F8F8F8',   // Gris très clair
+  darkGray: '#333333',    // Gris foncé
+  border: '#DDDDDD',      // Couleur de bordure
+};
 
 const addProduct = () => {
   const router = useRouter();
@@ -136,7 +145,6 @@ const addProduct = () => {
       const response = await fetch(
         `${BASE_URL}/product/add`,
 
-
         {
           method: "POST",
           headers: {
@@ -172,124 +180,148 @@ const addProduct = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>Add Product</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Nom du produit"
-          value={name}
-          onChangeText={setName}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-
-        <Text style={styles.label}>Condition :</Text>
-        <Picker
-          selectedValue={condition}
-          onValueChange={(itemValue) => setCondition(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="New" value="New" />
-          <Picker.Item label="Used" value="Used" />
-        </Picker>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Prix"
-          value={price}
-          onChangeText={setPrice}
-          keyboardType="numeric"
-        />
-
-        <Text style={styles.label}>Catégorie :</Text>
-        <Picker
-          selectedValue={categoryId}
-          onValueChange={(itemValue) => setCategoryId(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Sélectionner une catégorie" value="" />
-          {categories.map((category) => (
-            <Picker.Item
-              key={category._id}
-              label={category.name}
-              value={category._id}
-            />
-          ))}
-        </Picker>
-
-        <Text style={styles.label}>Type :</Text>
-        <Picker
-          selectedValue={type}
-          onValueChange={(itemValue) => setType(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Gift" value="Gift" />
-          <Picker.Item label="Sale" value="Sale" />
-          <Picker.Item label="Exchange" value="Exchange" />
-        </Picker>
-
-        <Text style={styles.label}>Statut :</Text>
-        <Picker
-          selectedValue={status}
-          onValueChange={(itemValue) => setStatus(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Published" value="Published" />
-          <Picker.Item label="Sold" value="Sold" />
-        </Picker>
-
-        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-          <Text style={styles.photoButtonText}>
-            {photo ? "Changer de photo" : "Ajouter une photo"}
-          </Text>
-        </TouchableOpacity>
-        {photo && <Image source={{ uri: photo }} style={styles.imagePreview} />}
-
-        <TouchableOpacity
-          style={[styles.submitButton, isSubmitting && styles.disabledButton]}
-          onPress={handleSubmit}
-          disabled={isSubmitting} 
-        >
-          <Text style={styles.submitButtonText}>
-            {isSubmitting ? "En cours..." : "Enregistrer"}
-          </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Improved Header */}
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <MaterialIcons name="add" size={28} color={COLORS.primary} style={styles.logoIcon} />
+          <Text style={styles.headerTitle}>Ajoute de produit</Text>
+        </View>
       </View>
-    </ScrollView>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View style={styles.containerForum}>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Nom du produit"
+            value={name}
+            onChangeText={setName}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Description"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
+
+          <Text style={styles.label}>Condition :</Text>
+          <Picker
+            selectedValue={condition}
+            onValueChange={(itemValue) => setCondition(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="New" value="New" />
+            <Picker.Item label="Used" value="Used" />
+          </Picker>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Prix"
+            value={price}
+            onChangeText={setPrice}
+            keyboardType="numeric"
+          />
+
+          <Text style={styles.label}>Catégorie :</Text>
+          <Picker
+            selectedValue={categoryId}
+            onValueChange={(itemValue) => setCategoryId(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Sélectionner une catégorie" value="" />
+            {categories.map((category) => (
+              <Picker.Item
+                key={category._id}
+                label={category.name}
+                value={category._id}
+              />
+            ))}
+          </Picker>
+
+          <Text style={styles.label}>Type :</Text>
+          <Picker
+            selectedValue={type}
+            onValueChange={(itemValue) => setType(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Gift" value="Gift" />
+            <Picker.Item label="Sale" value="Sale" />
+            <Picker.Item label="Exchange" value="Exchange" />
+          </Picker>
+
+          <Text style={styles.label}>Statut :</Text>
+          <Picker
+            selectedValue={status}
+            onValueChange={(itemValue) => setStatus(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Published" value="Published" />
+            <Picker.Item label="Sold" value="Sold" />
+          </Picker>
+
+          <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+            <Text style={styles.photoButtonText}>
+              {photo ? "Changer de photo" : "Ajouter une photo"}
+            </Text>
+          </TouchableOpacity>
+          {photo && (
+            <Image source={{ uri: photo }} style={styles.imagePreview} />
+          )}
+
+          <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.disabledButton]}
+            onPress={handleSubmit}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.submitButtonText}>
+              {isSubmitting ? "En cours..." : "Enregistrer"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    elevation: 2,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: COLORS.secondary,
+  },
   scrollContainer: {
     flexGrow: 1,
-    
   },
-  container: {
+  containerForum: {
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
     marginBottom: 90,
-    
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    elevation: 3,
   },
   title: {
     fontSize: 30,
@@ -322,7 +354,7 @@ const styles = StyleSheet.create({
   picker: {
     borderColor: "#000",
     borderWidth: 1,
-    color:"#000",
+    color: "#000",
     fontWeight: "bold",
     backgroundColor: "#F5F5F5F5",
     borderRadius: 10,

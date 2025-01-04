@@ -18,7 +18,7 @@ const CategoryRouter = require("./routes/categoryRouter");
 const MessageRouter = require("./routes/messageRouter");
 const NotificationRouter = require("./routes/notificationRouter");
 const ProductRouter = require("./routes/productRouter");
-const RevieweRouter = require("./routes/reviewRouter");
+const LikeRouter = require("./routes/likeRouter");
 const TransactionRouter = require("./routes/transactionRouter");
 const UserRouter = require("./routes/userRouter");
 
@@ -138,7 +138,7 @@ app.use("/category", CategoryRouter);
 app.use("/message", MessageRouter);
 app.use("/notification", NotificationRouter);
 app.use("/product", ProductRouter);
-app.use("/review", RevieweRouter);
+app.use("/like", LikeRouter);
 app.use("/transaction", TransactionRouter);
 app.use("/user", UserRouter);
 

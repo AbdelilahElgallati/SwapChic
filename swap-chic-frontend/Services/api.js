@@ -1,13 +1,14 @@
 import React from "react";
 import axios from "axios";
 
-export const BASE_URL = "http://192.168.1.5:3001";
+export const BASE_URL = "http://192.168.0.192:3001";
+
+
+// User function
 
 export const loginUser = async (formData) => {
   try {
-    // console.log("start")
     const response = await axios.post(`${BASE_URL}/user/login`, userData);
-    // console.log("Server response:", response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -15,11 +16,31 @@ export const loginUser = async (formData) => {
   }
 };
 
+export const fetchUsers = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/user/all`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
+
+export const fetchUserById = async (userId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/user/clerk/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
+
+
+
+// Product function
+
 export const getProduct = async () => {
   try {
-    // console.log("start")
     const response = await axios.get(`${BASE_URL}/Product`);
-    // console.log("Server response:", response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -75,9 +96,7 @@ export const getProductSearchNameUser = async (query, userId) => {
 
 export const getMyProduct = async (id) => {
   try {
-    // console.log("start");
     const response = await axios.get(`${BASE_URL}/Product/user/` + id);
-    // console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -105,11 +124,13 @@ export const deleteProduct = async (id) => {
   }
 };
 
-// gestion category
+
+
+// Category function
+
 export const getOneCategory = async (id) => {
   try {
     const response = await axios.get(`${BASE_URL}/Category/` + id);
-    // console.log("Server response:", response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -120,7 +141,6 @@ export const getOneCategory = async (id) => {
 export const getCategory = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/Category`);
-    // console.log("Server response:", response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -139,25 +159,6 @@ export const getCategoriesWithProductCount = async () => {
   }
 };
 
-export const fetchUsers = async () => {
-  try {
-    // console.log("getting all users")
-    const response = await axios.get(`${BASE_URL}/user/all`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-  }
-};
-
-export const fetchUserById = async (userId) => {
-  try {
-    const response = await axios.get(`${BASE_URL}/user/clerk/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-  }
-};
-
 export const getCategorySearchName = async (query) => {
   try {
     const response = await axios.get(`${BASE_URL}/Category/Search/${query}`);
@@ -167,3 +168,60 @@ export const getCategorySearchName = async (query) => {
     throw error.response ? error.response.data : { message: "Erreur serveur." };
   }
 };
+
+
+
+// LIke function
+
+export const addLike = async (likeData) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/like/add`, likeData);
+    return response;
+  } catch (error) {
+    console.error(error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+}
+
+export const getAllLikeUser = async (userId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/like/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+}
+
+export const getAllLikeUserId = async (userId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/like/favories/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+}
+
+export const getOneLikeByProductIdAndUserId = async (productId, userId)  => {
+  try {
+    const response = await axios.get(`${BASE_URL}/like/${userId}/${productId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      return null; 
+    }
+    console.error("Erreur API:", error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+};
+
+export const removeLike = async (likeId) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/like/remove/${likeId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error.response ? error.response.data : { message: "Erreur serveur." };
+  }
+}

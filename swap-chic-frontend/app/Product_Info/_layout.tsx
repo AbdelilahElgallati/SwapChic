@@ -27,7 +27,7 @@ const ProductInfoLayout = () => {
       />
       <Stack.Screen
         name="EditProduct"
-        options={{ title: "Modification de produit" }}
+        options={{ headerShown: false }}
       />
     </Stack>
   );

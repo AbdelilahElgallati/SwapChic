@@ -10,36 +10,49 @@ import {
   RefreshControl,
   Keyboard,
 } from "react-native";
-import AntDesign from '@expo/vector-icons/AntDesign';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useUser, useAuth } from "@clerk/clerk-react";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useUser } from "@clerk/clerk-react";
 import { useRouter, useFocusEffect } from "expo-router";
 import {
   getProduct,
   getProductSearchName,
   getCategory,
   getProductByCategory,
-  fetchUsers,
+  addLike,
+  removeLike,
+  getOneLikeByProductIdAndUserId,
+  getAllLikeUser,
 } from "../../Services/api";
 import { FontAwesome } from "@expo/vector-icons";
+
+// Palette de couleurs
+const COLORS = {
+  primary: "#E63946", // Rouge vif
+  secondary: "#1A1A1A", // Noir profond
+  white: "#FFFFFF", // Blanc
+  lightGray: "#F8F8F8", // Gris très clair
+  darkGray: "#333333", // Gris foncé
+  border: "#DDDDDD", // Couleur de bordure
+};
 
 const Dashboard = () => {
   const router = useRouter();
   const { user } = useUser();
-  const { signOut } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [likedProducts, setLikedProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  fetchUsers();
-
-  const handleSignOut = async () => {
+  const fetchUserLikes = async () => {
     try {
-      await signOut();
+      const likes = await getAllLikeUser(user?.id);
+      setLikedProducts(likes.map((like) => like.productId));
     } catch (error) {
-      console.error("Failed to log out:", error);
+      console.error("Error fetching user likes", error);
     }
   };
 
@@ -61,34 +74,57 @@ const Dashboard = () => {
     }
   };
 
+  
+
   useFocusEffect(
     useCallback(() => {
-      fetchProducts();
-      fetchCategories();
+      const fetchData = async () => {
+        setLoading(true);
+        await fetchUserLikes();
+        await fetchCategories();
+        await fetchProducts();
+        setLoading(false);
+      };
+      fetchData();
     }, [])
   );
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchProducts();
+    await fetchUserLikes();
     await fetchCategories();
+    await fetchProducts();
     setRefreshing(false);
   };
 
-  const handleLike = (productId) => {
-    setLikedProducts((prevLikedProducts) =>
-      prevLikedProducts.includes(productId)
-        ? prevLikedProducts.filter((id) => id !== productId)
-        : [...prevLikedProducts, productId]
-    );
-  };
-
-  const handleSearchByCategory = async (id) => {
+  const handleLike = async (productId) => {
     try {
-      const productSearch = await getProductByCategory(id);
-      setProducts(productSearch);
+      const existingLike = await getOneLikeByProductIdAndUserId(
+        productId,
+        user?.id
+      );
+
+      if (existingLike && existingLike.like && existingLike.like._id) {
+        await removeLike(existingLike.like._id);
+        setLikedProducts((prevLikedProducts) =>
+          prevLikedProducts.filter((id) => id !== productId)
+        );
+      } else {
+        const like = { userId: user?.id, productId };
+        const response = await addLike(like);
+
+        if (response.data.success) {
+          setLikedProducts((prevLikedProducts) => [
+            ...prevLikedProducts,
+            productId,
+          ]);
+        }
+      }
     } catch (error) {
-      console.error("Erreur lors de la recherche des produits", error);
+      console.error(
+        "Error handling like",
+        error.response ? error.response.data : error
+      );
     }
   };
 
@@ -111,99 +147,184 @@ const Dashboard = () => {
     }
   };
 
+  const handleSearchByCategory = async (id) => {
+    try {
+      setSelectedCategory(id);
+      const productSearch = await getProductByCategory(id);
+      setProducts(productSearch);
+    } catch (error) {
+      console.error("Error searching products by category", error);
+    }
+  };
+
   return (
-    <ScrollView 
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
+    <View style={styles.container}>
+      {/* Improved Header */}
       <View style={styles.header}>
-        <Text style={styles.brandTitle}>
-          <Text style={styles.letter}>Swap</Text>Chic
-        </Text>
-        <View style={styles.userInfo}>
-          <TouchableOpacity style={styles.notificationButton}>
-            <MaterialIcons name="notifications-none" size={22} color="black" />
+        <View style={styles.logoContainer}>
+          {/* <FontAwesome
+            name="exchange"
+            size={24}
+            color="#E53E3E"
+            style={styles.logoIcon}
+          /> */}
+          <Text style={styles.brandName}>
+            <Text style={styles.brandAccent}>Swap</Text>Chic
+          </Text>
+        </View>
+        <View style={styles.userActions}>
+          <TouchableOpacity style={styles.notificationBtn}>
+            <MaterialIcons
+              name="notifications-none"
+              size={24}
+              color="#E53E3E"
+            />
+            <View style={styles.notificationBadge}>
+              <Text style={styles.badgeText}>2</Text>
+            </View>
           </TouchableOpacity>
-          <Image source={{ uri: user?.imageUrl }} style={styles.profileImage} />
+          <Image source={{ uri: user?.imageUrl }} style={styles.userAvatar} />
         </View>
       </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search products..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              handleSearch();
-              Keyboard.dismiss();
-            }}
-            style={styles.searchButton}
-          >
-            <AntDesign name="search1" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Categories */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.horizontalScroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        <View style={styles.categoriesContainer}>
+        {/* Enhanced Search Bar */}
+        <View style={styles.searchWrapper}>
+          <View style={styles.searchBar}>
+            <AntDesign name="search1" size={20} color="#666" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search products..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                handleSearch();
+                Keyboard.dismiss();
+              }}
+            />
+          </View>
+        </View>
+
+        {/* Improved Categories */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesScroll}
+        >
           {categories.map((category) => (
             <TouchableOpacity
               key={category._id}
-              style={styles.categoryButton}
+              style={[
+                styles.categoryBtn,
+                selectedCategory === category._id && styles.categoryBtnActive,
+              ]}
               onPress={() => handleSearchByCategory(category._id)}
             >
-              <Text style={styles.categoryText}>{category.name}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category._id &&
+                    styles.categoryTextActive,
+                ]}
+              >
+                {category.name}
+              </Text>
             </TouchableOpacity>
           ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
 
-     
-      <View style={styles.productsContainer}>
-        {Array.from({ length: Math.ceil(products.length / 2) }, (_, i) => (
-          <View key={`row-${i}`} style={styles.productRow}>
-            {products.slice(i * 2, (i + 1) * 2).map((product) => (
-              <View key={product._id} style={styles.productCard}>
-                <TouchableOpacity onPress={() => goToProductDetail(product._id)}>
-                  <Image source={{ uri: product.photo }} style={styles.productImage} />
-                </TouchableOpacity>
-                <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{product.name}</Text>
+        {/* Enhanced Products Grid */}
+        <View style={styles.productsGrid}>
+          {/* {products.map((product) => (
+            <TouchableOpacity
+              key={product._id}
+              style={styles.productCard}
+              onPress={() => goToProductDetail(product._id)}
+            >
+              <Image
+                source={{ uri: product.photo }}
+                style={styles.productImage}
+              />
+              <TouchableOpacity
+                style={styles.likeBtn}
+                onPress={() => handleLike(product._id)}
+              >
+                <FontAwesome
+                  name={
+                    likedProducts.includes(product._id) ? "heart" : "heart-o"
+                  }
+                  size={18}
+                  color={
+                    likedProducts.includes(product._id) ? "#E53E3E" : "#fff"
+                  }
+                />
+              </TouchableOpacity>
+              <View style={styles.productDetails}>
+                <Text style={styles.productName} numberOfLines={1}>
+                  {product.name}
+                </Text>
+                <Text style={styles.productType}>{product.type}</Text>
+                {product.type !== "exchange" && product.type !== "gift" && (
                   <Text style={styles.productPrice}>{product.price} DH</Text>
-                </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))} */}
+          {products.length === 0 ? (
+            <View style={styles.emptyState}>
+              <MaterialIcons
+                name="inventory"
+                size={64}
+                color={COLORS.darkGray}
+              />
+              <Text style={styles.emptyStateText}>Aucun produit trouvé</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Commencez à ajouter vos produits
+              </Text>
+            </View>
+          ) : (
+            products.map((product) => (
+              <TouchableOpacity
+                key={product._id}
+                style={styles.productCard}
+                onPress={() => goToProductDetail(product._id)}
+              >
+                <Image
+                  source={{ uri: product.photo }}
+                  style={styles.productImage}
+                />
                 <TouchableOpacity
+                  style={styles.likeBtn}
                   onPress={() => handleLike(product._id)}
-                  style={styles.likeButton}
                 >
                   <FontAwesome
                     name={likedProducts.includes(product._id) ? "heart" : "heart-o"}
-                    size={16}
-                    color={likedProducts.includes(product._id) ? "#fff" : "gray"}
+                    size={18}
+                    color={likedProducts.includes(product._id) ? "#E53E3E" : "#fff"}
                   />
                 </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+                <View style={styles.productDetails}>
+                  <Text style={styles.productName} numberOfLines={1}>
+                    {product.name}
+                  </Text>
+                  <Text style={styles.productType}>{product.type}</Text>
+                  {product.type !== "exchange" && product.type !== "gift" && (
+                    <Text style={styles.productPrice}>{product.price} DH</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -211,152 +332,175 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    
-  },
-  productsContainer: {
-    padding: 8,
-    paddingBottom: 90,
-    
-  },
-  productRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    elevation: 3,
-  },
-  searchContainer: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
     backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoIcon: {
+    marginRight: 8,
+  },
+  brandName: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  brandAccent: {
+    color: "#E53E3E",
+  },
+  userActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  notificationBtn: {
+    position: "relative",
+    marginRight: 16,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "#E53E3E",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#E53E3E",
+  },
+  searchWrapper: {
+    padding: 20,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FAFAFAFA",
-    borderRadius: 25,
-    paddingLeft: 15,
-    height: 50,
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 12,
   },
   searchInput: {
     flex: 1,
+    marginLeft: 10,
     fontSize: 16,
-    color: "#333",
-    height: 50,
+    color: "#000",
+  },
+  categoriesScroll: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  categoryBtn: {
+    paddingHorizontal: 20,
     paddingVertical: 10,
-  },
-  searchButton: {
-    padding: 12,
-    borderRadius: 25,
-    backgroundColor: "#FAFAFAFA",
-  },
-  notificationButton: {
-    marginRight: 20,
+    marginRight: 10,
     borderRadius: 20,
-    padding: 8,
-    backgroundColor: "#F5F5F5F5",
+    backgroundColor: "#f5f5f5",
   },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  horizontalScroll: {
-    marginTop: 8,
-    paddingHorizontal: 8,
-  },
-  categoriesContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  categoryButton: {
-    backgroundColor: "#FAFAFAFA",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginHorizontal: 4,
-    height: 40,
-    justifyContent: "center",
+  categoryBtnActive: {
+    backgroundColor: "#E53E3E",
   },
   categoryText: {
     fontSize: 14,
-    color: "#000",
-    fontWeight: "400",
+    fontWeight: "500",
+    color: "#666",
+  },
+  categoryTextActive: {
+    color: "#fff",
+  },
+  productsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+    marginBottom: 80,
   },
   productCard: {
-    flex: 1,
-    margin: 8,
+    width: "47%",
     backgroundColor: "#fff",
-    borderRadius: 20,
-    elevation: 4,
-    overflow: "hidden",
-    alignItems: "center",
-    maxWidth: "48%",
+    borderRadius: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   productImage: {
-    width: 180,
+    width: "100%",
     height: 180,
-    resizeMode: "cover",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
-  productInfo: {
+  likeBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.3)",
     padding: 8,
-    alignItems: "center",
-    marginTop: 10,
+    borderRadius: 20,
+  },
+  productDetails: {
+    padding: 12,
   },
   productName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
+    color: "#000",
+    marginBottom: 4,
+  },
+  productType: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+    textTransform: "capitalize",
   },
   productPrice: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#E53E3E",
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    width: "100%",
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: COLORS.darkGray,
+    marginTop: 16,
+  },
+  emptyStateSubtext: {
     fontSize: 14,
-    color: "#4FBF26",
-    marginTop: 4,
-  },
-  likeButton: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "#000",
-    borderRadius: 20,
-    padding: 6,
-  },
-  letter: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 35,
-    textShadowColor: "#da051d",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-  },
-  brandTitle: {
-    fontSize: 30,
-    fontWeight: "bold",
-    fontStyle: "normal",
-    color: "#da051d",
-    marginLeft: -15,
-    marginTop: -10,
-    padding: 5,
-    width: "70%",
-    textShadowColor: "gray",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-  },
-  emptyCard: {
-    backgroundColor: 'transparent',
-    elevation: 0,
+    color: COLORS.darkGray,
+    marginTop: 8,
+    textAlign: "center",
   },
 });
 

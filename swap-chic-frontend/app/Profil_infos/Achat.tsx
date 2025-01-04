@@ -69,8 +69,7 @@ const Achat = () => {
 
       const transactionsWithUsers = await Promise.all(
         response.data.map(async (transaction) => {
-          // Fetch sender user data
-          const senderResponse = await fetchUserById(transaction.senderId);
+          const senderResponse = await fetchUserById(transaction.receiverId);
           return {
             ...transaction,
             sender: senderResponse,

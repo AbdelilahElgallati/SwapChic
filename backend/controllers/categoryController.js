@@ -89,8 +89,8 @@ const getCategoryById = async (req, res) => {
 
 const getOneCategory = async (req, res) => {
   try {
-    const Category = await Category.findById(req.params.id);
-    res.status(201).json(Category);
+    const category = await Category.findById(req.params.id);
+    res.status(201).json(category);
   } catch (error) {
     res.status(201).json({ success: false, error });
   }

@@ -6,31 +6,42 @@ const getSendersWithProducts = async (req, res) => {
   const { receiverId } = req.params;
 
   try {
-    const messages = await Message.find({ receiverId: receiverId });
+    // Récupérer les produits appartenant à l'utilisateur connecté
+    const userProducts = await Product.find({ userId: receiverId });
+
+    // Extraire les IDs des produits de l'utilisateur
+    const userProductIds = new Set(userProducts.map((product) => product._id.toString()));
+
+    // Récupérer les messages où l'utilisateur est le receiver et qui concernent ses produits
+    const messages = await Message.find({ 
+      receiverId, 
+      productId: { $in: [...userProductIds] } 
+    });
 
     const senders = [];
     const senderProductMap = {};
 
     messages.forEach((messageDoc) => {
-      if (messageDoc.receiverId === receiverId) { 
-        if (!senders.includes(messageDoc.senderId)) {
-          senders.push(messageDoc.senderId);
-        }
+      const senderId = messageDoc.senderId;
+      const productId = messageDoc.productId.toString();
 
-        if (!senderProductMap[messageDoc.senderId]) {
-          senderProductMap[messageDoc.senderId] = new Set(); 
-        }
-
-        senderProductMap[messageDoc.senderId].add(messageDoc.productId.toString()); // Ajout du produit
+      if (!senders.includes(senderId)) {
+        senders.push(senderId);
       }
+
+      if (!senderProductMap[senderId]) {
+        senderProductMap[senderId] = new Set();
+      }
+
+      senderProductMap[senderId].add(productId);
     });
 
-    // Conversion de tous les Sets en tableaux avant les opérations MongoDB
+    // Convertir les sets en tableaux
     Object.keys(senderProductMap).forEach((key) => {
       senderProductMap[key] = Array.from(senderProductMap[key]);
     });
 
-    // Récupérer les détails des utilisateurs
+    // Récupérer les détails des utilisateurs (clients qui ont envoyé un message)
     const clerck_key = process.env.CLERK_API_KEY;
     const userDetails = await Promise.all(
       senders.map((senderId) =>
@@ -38,25 +49,26 @@ const getSendersWithProducts = async (req, res) => {
           .get(`https://api.clerk.dev/v1/users/${senderId}`, {
             headers: { Authorization: `Bearer ${clerck_key}` },
           })
-          .then((res) => ({ id: senderId, name: res.data.first_name, email: res.data.email_addresses[0].email_address }))
-
-          .catch((err) => ({ id: senderId, name: "Unknown" }))
+          .then((res) => ({
+            id: senderId,
+            name: res.data.first_name,
+            email: res.data.email_addresses[0].email_address,
+          }))
+          .catch(() => ({
+            id: senderId,
+            name: "Unknown",
+            email: "Unknown",
+          }))
       )
     );
 
-    // Récupérer les détails des produits
-    const productIds = [...new Set(Object.values(senderProductMap).flat())]; // Obtenir tous les IDs de produit uniques
-    const productDetails = await Product.find({
-      _id: { $in: productIds }, // Utilisation correcte d'un tableau
-    });
-
-    // Construire la réponse finale
+    // Construire la réponse avec les produits de l'utilisateur concernés
     const response = senders.map((senderId) => ({
       senderId,
       senderName: userDetails.find((user) => user.id === senderId)?.name || "Unknown",
       senderEmail: userDetails.find((user) => user.id === senderId)?.email || "Unknown",
       products: senderProductMap[senderId].map((productId) =>
-        productDetails.find((prod) => prod._id.toString() === productId)
+        userProducts.find((prod) => prod._id.toString() === productId)
       ),
     }));
 
@@ -67,61 +79,53 @@ const getSendersWithProducts = async (req, res) => {
   }
 };
 
+
 const getProductOwnersWithProducts = async (req, res) => {
   const { senderId } = req.params;
 
   try {
+    // Récupérer les messages envoyés par l'utilisateur
     const messages = await Message.find({ senderId });
 
-    const receivers = [];
-    const receiverProductMap = {};
+    // Récupérer les produits associés aux messages
+    const productIds = [...new Set(messages.map(msg => msg.productId.toString()))];
+    const products = await Product.find({ _id: { $in: productIds } });
 
-    messages.forEach((messageDoc) => {
-      if (messageDoc.senderId === senderId) {
-        if (!receivers.includes(messageDoc.receiverId)) {
-          receivers.push(messageDoc.receiverId);
-        }
+    // Filtrer les produits qui n'appartiennent pas à l'utilisateur connecté
+    const filteredProducts = products.filter(product => product.userId !== senderId);
 
-        if (!receiverProductMap[messageDoc.receiverId]) {
-          receiverProductMap[messageDoc.receiverId] = new Set();
-        }
-
-        receiverProductMap[messageDoc.receiverId].add(messageDoc.productId.toString());
+    // Regrouper les produits par propriétaire
+    const productOwnerMap = {};
+    filteredProducts.forEach(product => {
+      if (!productOwnerMap[product.userId]) {
+        productOwnerMap[product.userId] = [];
       }
+      productOwnerMap[product.userId].push(product);
     });
 
-    Object.keys(receiverProductMap).forEach((key) => {
-      receiverProductMap[key] = Array.from(receiverProductMap[key]);
-    });
-
-    // Récupérer les détails des utilisateurs (product owners)
+    // Récupérer les informations des propriétaires
     const clerck_key = process.env.CLERK_API_KEY;
     const userDetails = await Promise.all(
-      receivers.map((receiverId) =>
+      Object.keys(productOwnerMap).map(ownerId =>
         axios
-          .get(`https://api.clerk.dev/v1/users/${receiverId}`, {
+          .get(`https://api.clerk.dev/v1/users/${ownerId}`, {
             headers: { Authorization: `Bearer ${clerck_key}` },
           })
-          .then((res) => ({ id: receiverId, name: res.data.first_name, email: res.data.email_addresses[0].email_address }))
-          // .then((res) => (console.log(res.data.email_addresses[0].email_address)))
-          .catch(() => ({ id: receiverId, name: "Unknown", email: "Unknown" }))
+          .then(res => ({
+            id: ownerId,
+            name: res.data.first_name || "Unknown",
+            email: res.data.email_addresses[0]?.email_address || "Unknown",
+          }))
+          .catch(() => ({ id: ownerId, name: "Unknown", email: "Unknown" }))
       )
-      // 
     );
 
-    // Récupérer les détails des produits
-    const productIds = [...new Set(Object.values(receiverProductMap).flat())];
-    const productDetails = await Product.find({
-      _id: { $in: productIds },
-    });
-
-    const response = receivers.map((receiverId) => ({
-      receiverId,
-      receiverName: userDetails.find((user) => user.id === receiverId)?.name || "Unknown",
-      receiverEmail: userDetails.find((user) => user.id === receiverId)?.email || "Unknown",
-      products: receiverProductMap[receiverId].map((productId) =>
-        productDetails.find((prod) => prod._id.toString() === productId)
-      ),
+    // Construire la réponse
+    const response = userDetails.map(user => ({
+      receiverId: user.id,
+      receiverName: user.name,
+      receiverEmail: user.email,
+      products: productOwnerMap[user.id] || [],
     }));
 
     res.status(200).json(response);
@@ -130,7 +134,6 @@ const getProductOwnersWithProducts = async (req, res) => {
     res.status(500).send("Error fetching product owners and products");
   }
 };
-
 
 
 const getOneMessage = async (req, res) => {

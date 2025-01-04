@@ -16,20 +16,24 @@ import { BASE_URL } from "@/Services/api";
 
 // Palette de couleurs
 const COLORS = {
-  primary: "#E63946", // Rouge vif
-  secondary: "#1A1A1A", // Noir profond
-  white: "#FFFFFF", // Blanc
-  lightGray: "#F8F8F8", // Gris très clair
-  darkGray: "#333333", // Gris foncé
-  error: "#FF0000", // Rouge erreur
+  primary: '#E63946',     // Rouge vif
+  secondary: '#1A1A1A',   // Noir profond
+  white: '#FFFFFF',       // Blanc
+  lightGray: '#F8F8F8',   // Gris très clair
+  darkGray: '#333333',    // Gris foncé
+  error: '#FF0000',       // Rouge erreur
 };
 
-const Connection = () => {
+const DemandeDiscussion = () => {
   const router = useRouter();
   const { user } = useUser();
-  const [productOwners, setProductOwners] = useState([]);
+  const [senders, setSenders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleGoBack = () => {
+    router.back();
+  };
 
   const fetchData = async () => {
     try {
@@ -38,13 +42,10 @@ const Connection = () => {
         return;
       }
 
-      const ownersResponse = await axios.get(
-        `${BASE_URL}/message/client/${user.id}`
-      );
-      setProductOwners(ownersResponse.data);
+      const sendersResponse = await axios.get(`${BASE_URL}/message/receiver/${user.id}`);
+      setSenders(sendersResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setProductOwners([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -60,96 +61,121 @@ const Connection = () => {
     fetchData();
   }, []);
 
-  const handleProductPress = (product, productOwnerId) => {
+  const handleProductPressAsProductOwner = (product, clientId) => {
     router.push(
-      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${productOwnerId}&clientId=${user?.id}`
+      `/Profil_infos/Chat?productId=${product._id}&productOwnerId=${user?.id}&clientId=${clientId}`
     );
   };
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  const handleCreateTransaction = async (product, clientId) => {
+    try {
+      const transactionData = {
+        senderId: clientId,
+        receiverId: user?.id,
+        productId: product._id,
+        status: "pending",
+      };
 
-  const ConversationCard = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Icon name="person" size={24} color={COLORS.primary} />
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>
-            {item.senderName || item.receiverName}
-          </Text>
-          <Text style={styles.userEmail}>
-            {item.senderEmail || item.receiverEmail}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.productsContainer}>
-              {item.products.map((product) => (
-                <View key={product._id} style={styles.productItem}>
-                  <View style={styles.productInfo}>
-                    <Icon name="shopping-bag" size={20} color={COLORS.primary} />
-                    <TouchableOpacity 
-                      onPress={() => handleProductPress(product, item.receiverId)}
-                      style={styles.productNameContainer}
-                    >
-                      <Text style={styles.productName}>{product.name}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-    </View>
-  );
+      await axios.post(`${BASE_URL}/transaction/add`, transactionData);
+      alert("Transaction créée avec succès!");
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      alert("Échec de la création de la transaction.");
+    }
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
-        <Text style={styles.loadingText}>Loading your conversations...</Text>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Chargement en cours...</Text>
       </View>
     );
   }
 
+  const ClientCard = ({ item }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Icon name="person" size={24} color={COLORS.primary} />
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{item.senderName || "Client"}</Text>
+          <Text style={styles.userEmail}>{item.senderEmail}</Text>
+        </View>
+      </View>
+      
+      <View style={styles.productsContainer}>
+        {item.products.map((product) => (
+          <View key={product._id} style={styles.productItem}>
+            <View style={styles.productInfo}>
+              <Icon name="shopping-bag" size={20} color={COLORS.primary} />
+              <TouchableOpacity 
+                onPress={() => handleProductPressAsProductOwner(product, item.senderId)}
+                style={styles.productNameContainer}
+              >
+                <Text style={styles.productName}>{product.name}</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity
+              style={styles.transactionButton}
+              onPress={() => handleCreateTransaction(product, item.senderId)}
+            >
+              <Text style={styles.buttonText}>Créer Transaction</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={["#3498db"]}
-        />
-      }
-    >
+    <View style={styles.mainContainer}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <TouchableOpacity 
+          onPress={handleGoBack}
+          style={styles.backButton}
+        >
           <Icon name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
-
         <View style={styles.headerTitleContainer}>
-          <Icon name="chat" size={28} color={COLORS.primary} />
-          <Text style={styles.headerTitle}>My Conversations</Text>
+          <Icon name="forum" size={28} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>Demandes de Discussion</Text>
         </View>
       </View>
 
-      {productOwners.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Icon name="forum" size={64} color="#bdc3c7" />
-          <Text style={styles.emptyStateText}>No conversations yet</Text>
-          <Text style={styles.emptyStateSubtext}>
-            Start chatting with product owners to see them here
-          </Text>
-        </View>
-      ) : (
-        productOwners.map((item, index) => (
-          <ConversationCard key={index} item={item} />
-        ))
-      )}
-    </ScrollView>
+      <ScrollView 
+        style={styles.container}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
+      >
+        {senders.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Icon name="inbox" size={64} color={COLORS.primary} />
+            <Text style={styles.emptyStateText}>Aucune demande</Text>
+            <Text style={styles.emptyStateSubtext}>
+              Vous n'avez pas encore reçu de demandes de discussion
+            </Text>
+          </View>
+        ) : (
+          senders.map((item, index) => (
+            <ClientCard key={index} item={item} />
+          ))
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
@@ -286,4 +312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Connection;
+export default DemandeDiscussion;

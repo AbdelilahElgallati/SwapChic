@@ -20,7 +20,8 @@ const ProfilInfoLayout = () => {
         options={{ title: "Modifier mon profil" }}
       />
       <Stack.Screen name="Chat" options={{ headerShown: false }} />
-      <Stack.Screen name="Connection" options={{ title: "Discussions" }} />
+      <Stack.Screen name="Connection" options={{ headerShown: false }} />
+      <Stack.Screen name="DemandeDiscussion" options={{ headerShown: false }} />
       <Stack.Screen
         name="Favorite"
         options={{
@@ -32,7 +33,8 @@ const ProfilInfoLayout = () => {
           ),
         }}
       />
-      <Stack.Screen name="Transaction" options={{ title: "Transaction" }} />
+      <Stack.Screen name="Transaction" options={{ headerShown: false }} />
+      <Stack.Screen name="Achat" options={{ headerShown: false }} />
     </Stack>
   );
 };

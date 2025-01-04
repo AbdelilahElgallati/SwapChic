@@ -132,7 +132,7 @@ const ProductCategory = () => {
               </TouchableOpacity>
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.productPrice}>${item.price}</Text>
+                <Text style={styles.productPrice}>{item.price} DH</Text>
               </View>
               <TouchableOpacity
                 onPress={() => handleLike(item._id)}

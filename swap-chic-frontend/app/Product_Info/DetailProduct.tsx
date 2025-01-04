@@ -11,15 +11,16 @@ import {
   RefreshControl,
   Linking,
 } from "react-native";
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 import { getOneProduct, fetchUserById } from "../../Services/api";
 import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
+import { FontAwesome6 } from "react-native-vector-icons";
 
 const DetailProduct = () => {
   const router = useRouter();
-  const {user} = useUser();
+  const { user } = useUser();
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -82,7 +83,7 @@ const DetailProduct = () => {
   );
 
   const startChat = (receiverId, productId) => {
-    const clientId = user?.id; 
+    const clientId = user?.id;
     const productOwnerId = receiverId;
     if (!receiverId) {
       Alert.alert(
@@ -91,7 +92,9 @@ const DetailProduct = () => {
       );
       return;
     }
-    router.push(`/Profil_infos/Chat?productId=${productId}&clientId=${clientId}&productOwnerId=${productOwnerId}`);
+    router.push(
+      `/Profil_infos/Chat?productId=${productId}&clientId=${clientId}&productOwnerId=${productOwnerId}`
+    );
   };
 
   const handleShowMoreDescription = () => {
@@ -142,8 +145,8 @@ const DetailProduct = () => {
             {product.categoryId?.name || "Non spécifiée"}
           </Text>
           <Text style={styles.productPrice}>
-            <FontAwesome name="dollar" size={16} color="#3498db" />{" "}
-            {product.price || "0"} €
+            <FontAwesome name="money" size={16} color="#3498db" />{" "}
+            {product.price || "0"} DH
           </Text>
         </View>
 
@@ -180,13 +183,17 @@ const DetailProduct = () => {
               <FontAwesome name="user" size={16} color="#333" /> Posté par :{" "}
               {userProduct.first_name} {userProduct.last_name}
             </Text>
-            <TouchableOpacity
-              style={styles.chatButton}
-              onPress={() => startChat(userProduct.id, product._id)}
-            >
-              <Text style={styles.chatButtonText}>Démarrer une discussion</Text>
-              <FontAwesome name="comment" size={18} color="#fff" />
-            </TouchableOpacity>
+            {product.userId != user.id && (
+              <TouchableOpacity
+                style={styles.chatButton}
+                onPress={() => startChat(userProduct.id, product._id)}
+              >
+                <Text style={styles.chatButtonText}>
+                  Démarrer une discussion
+                </Text>
+                <FontAwesome name="comment" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
           </>
         )}
       </View>
@@ -294,7 +301,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   chatButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: "#da051d",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

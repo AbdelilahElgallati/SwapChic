@@ -26,18 +26,21 @@ const getAlltransactions = async (req, res) => {
     }
 }
 
-const getAlltransactionsSender = async (req, res) => {
+const getAlltransactionsClient = async (req, res) => {
   try {
-    const transactions = await Transaction.find({ senderId: req.params.id, active:true });
+    const transactions = await Transaction.find({ senderId: req.params.id }).populate("productId");
+    console.log(transactions)
     res.status(201).json(transactions);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des transactions");
   }
 }
 
-const getAlltransactionsReceiver = async (req, res) => {
+const getAlltransactionsProductOwner = async (req, res) => {
+  console.log(req.params)
   try {
-    const transactions = await Transaction.find({ receiverId: req.params.id, active:true });
+    const transactions = await Transaction.find({ receiverId: req.params.id }).populate("productId");
+    console.log(transactions)
     res.status(201).json(transactions);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des transactions");
@@ -74,4 +77,4 @@ const  removeTransaction = async (req, res) => {
   }
 }
 
-module.exports = {addTransaction,getAlltransactions,getAlltransactionsSender,getAlltransactionsReceiver,getOneTransaction,updateTransaction,removeTransaction};
+module.exports = {addTransaction,getAlltransactions,getAlltransactionsClient,getAlltransactionsProductOwner,getOneTransaction,updateTransaction,removeTransaction};

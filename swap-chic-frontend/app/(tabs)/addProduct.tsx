@@ -147,7 +147,6 @@ const addProduct = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         Alert.alert("Succès", "Produit ajouté avec succès.");
 

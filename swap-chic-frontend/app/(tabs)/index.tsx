@@ -186,7 +186,7 @@ const Dashboard = () => {
                 </TouchableOpacity>
                 <View style={styles.productInfo}>
                   <Text style={styles.productName}>{product.name}</Text>
-                  <Text style={styles.productPrice}>${product.price}</Text>
+                  <Text style={styles.productPrice}>{product.price} DH</Text>
                 </View>
                 <TouchableOpacity
                   onPress={() => handleLike(product._id)}

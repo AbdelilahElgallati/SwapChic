@@ -15,7 +15,7 @@ const ProductInfoLayout = () => {
     >
       <Stack.Screen
         name="MyProducts"
-        options={{ title: "Mes produits partagés" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="DetailProduct"

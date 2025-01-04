@@ -85,8 +85,10 @@ const Chat = () => {
     try {
       let data = [];
       if (user.id == clientId) {
+        // console.log("i am a client")
         data = await fetchUserById(productOwnerId);
       } else if (user.id == productOwnerId) {
+        // console.log("i am a product owner")
         data = await fetchUserById(clientId);
       }
       setReveiver(data);
@@ -324,6 +326,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#DDD",
     backgroundColor: "#FFF",
+    bottom: 0,
   },
   input: {
     flex: 1,

@@ -22,7 +22,7 @@ export default function TabNavigation() {
           initialRouteName="Home"
         >
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="index" component={WelcomeScreen} />  {/* Route Welcome */}
+          {/* <Stack.Screen name="index" component={WelcomeScreen} />  Route Welcome */}
           <Stack.Screen name="Explore" component={ExploreScreen} />
           <Stack.Screen name="AddPost" component={AddPostScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />

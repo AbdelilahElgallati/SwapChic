@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import TabNavigation from "../Navigation/TabNavigation";
 import * as SecureStore from "expo-secure-store";
-import { ClerkProvider, RedirectToSignIn, SignedIn, SignedOut } from "@clerk/clerk-expo";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 
 export default function RootLayout() {
 

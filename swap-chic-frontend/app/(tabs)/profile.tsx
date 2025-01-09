@@ -8,12 +8,13 @@ import {
   RefreshControl,
 } from "react-native";
 import React, { useState } from "react";
-import bg from "@/assets/images/bgPrf.jpg";
+// import bg from "@/assets/images/bgPrf.jpg";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { SimpleLineIcons } from "@expo/vector-icons";
 
 export default function Profil() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function Profil() {
   const handleLogout = async () => {
     try {
       await signOut();
-      router.replace("/index");
+      router.replace("/");
     } catch (error) {
       console.error("Failed to log out:", error);
     }
@@ -42,7 +43,6 @@ export default function Profil() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.container}>
-        <Image source={bg} style={styles.headerImage} />
         <View style={styles.profileSection}>
           <Image source={{ uri: user?.imageUrl }} style={styles.profileImage} />
           <Text style={styles.userName}>{user?.fullName}</Text>
@@ -51,13 +51,13 @@ export default function Profil() {
         <View style={styles.boxContainer}>
           {menuItems.map((item, index) => (
             <TouchableOpacity key={index} style={styles.box} onPress={() => router.push(item.route)}>
-              <Icon name={item.icon} size={24} color="#1a1a1a" />
+              <Icon name={item.icon} size={24} color="#000" />
               <Text style={styles.boxText}>{item.label}</Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <AntDesign name="logout" size={24} color="#1a1a1a" />
-            <Text style={styles.boxText}>Log out</Text>
+          <SimpleLineIcons name="logout" size={24} color="#da051d" />
+            <Text style={styles.boxlogout}>Log out</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -68,10 +68,10 @@ export default function Profil() {
 const menuItems = [
   { label: "My Products", route: "/Product_Info/MyProducts", icon: "shopping-bag" },
   { label: "Favorite", route: "/Profil_infos/Favorite", icon: "favorite-outline" },
-  { label: "Demande Discussion", route: "/Profil_infos/DemandeDiscussion", icon: "forum" },
-  { label: "Mes Conversations", route: "/Profil_infos/Connection", icon: "chat" },
+  { label: "Request Discussion", route: "/Profil_infos/DemandeDiscussion", icon: "forum" },
+  { label: "My Conversations", route: "/Profil_infos/Connection", icon: "chat" },
   { label: "Transaction", route: "/Profil_infos/Transaction", icon: "swap-horiz" },
-  { label: "Achat", route: "/Profil_infos/Achat", icon: "shopping-cart" },
+  { label: "Purchase", route: "/Profil_infos/Achat", icon: "shopping-cart" },
 ];
 
 const styles = StyleSheet.create({
@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     borderWidth: 2,
     borderColor: "#da051d",
   },
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 16,
-    color: "#bbb",
+    color: "gray",
   },
   boxContainer: {
     padding: 20,
@@ -117,24 +117,34 @@ const styles = StyleSheet.create({
   box: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#da051d",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    // backgroundColor: "#da051d",
+    padding: 20,
+    borderBottomWidth:0.5,
+    borderBottomColor:"rgba(0,0,0,0.5)",
+    // borderRadius: 10,
+    // marginBottom: 10,
+    // width:"103%",
   },
   boxText: {
-    color: "#1a1a1a",
+    color: "#000",
     fontSize: 16,
     marginLeft: 10,
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ff0000",
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
+    // backgroundColor: "#f5f5f5f5",
+    padding: 20,
+    // borderRadius: 10,
+    // marginTop: 5,
+    // marginLeft:5,
     justifyContent: "center",
+  },
+  boxlogout:{
+    color:"#da051d",
+    marginLeft: 10,
+    fontWeight:"bold",
+    fontSize: 15,
   },
 });
 

@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 
-export const BASE_URL = "http://192.168.0.192:3001";
+export const BASE_URL = "http://192.168.0.177:3001";
 
 
 // User function

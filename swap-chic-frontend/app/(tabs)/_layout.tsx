@@ -14,18 +14,19 @@ const Layout = () => {
       screenOptions={{
       headerShown: false,
       
-      tabBarActiveTintColor: "#fff",
+      tabBarActiveTintColor: "#da051d", 
+        tabBarInactiveTintColor: "#fff",
       tabBarStyle: {
         // margin: 10,
         paddingTop: 8,
-        backgroundColor: "#000", // Fond noir
-        borderRadius: 35, // Coins arrondis plus petits
-        marginHorizontal: 15, // Espacement horizontal
-        marginVertical: 15, // Espacement vertical
-        height: 70, // Hauteur ajustée
-        position: "absolute", // Position absolue pour un placement précis
-        bottom: 10, // Distance par rapport au bas
-        marginTop:10, // Distance par rapport au haut
+        backgroundColor: "#000", 
+        borderRadius: 35, 
+        marginHorizontal: 15, 
+        marginVertical: 15, 
+        height: 70, 
+        position: "absolute", 
+        bottom: 10, 
+        marginTop:10, 
       },
       
       // tabBarBackground: () => (
@@ -38,7 +39,7 @@ const Layout = () => {
       options={{
         title: "Home",
         tabBarIcon: ({ color }) => (
-        <FontAwesome size={28} name="home" color="#da051d" style={{ alignSelf: 'center' }} />
+        <FontAwesome size={28} name="home" color={color} style={{ alignSelf: 'center' }} />
         ),
       }}
       />

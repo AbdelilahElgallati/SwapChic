@@ -27,6 +27,12 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+
+// import { ClerkProvider } from "@clerk/clerk-expo";
+// import { SignedOut, SignedIn } from "@clerk/clerk-react";
+import { NavigationContainer } from "@react-navigation/native";
+import TabNavigation from "../Navigation/TabNavigation";
+import * as SecureStore from "expo-secure-store";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 
 export default function RootLayout() {

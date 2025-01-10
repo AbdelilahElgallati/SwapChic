@@ -16,7 +16,8 @@ import { useUser } from "@clerk/clerk-react";
 import { Picker } from "@react-native-picker/picker";
 import { getCategory } from "../../Services/api";
 import { BASE_URL } from "../../Services/api";
-import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const COLORS = {
   primary: '#E63946',     // Rouge vif
@@ -184,7 +185,7 @@ const addProduct = () => {
       {/* Improved Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <MaterialIcons name="add" size={28} color={COLORS.primary} style={styles.logoIcon} />
+        <Ionicons name="add-circle" size={30} color={COLORS.primary} />
           <Text style={styles.headerTitle}>Ajoute de produit</Text>
         </View>
       </View>
@@ -198,7 +199,7 @@ const addProduct = () => {
 
           <TextInput
             style={styles.input}
-            placeholder="Nom du produit"
+            placeholder="Product Name"
             value={name}
             onChangeText={setName}
           />
@@ -223,19 +224,19 @@ const addProduct = () => {
 
           <TextInput
             style={styles.input}
-            placeholder="Prix"
+            placeholder="Price"
             value={price}
             onChangeText={setPrice}
             keyboardType="numeric"
           />
 
-          <Text style={styles.label}>Catégorie :</Text>
+          <Text style={styles.label}>Category :</Text>
           <Picker
             selectedValue={categoryId}
             onValueChange={(itemValue) => setCategoryId(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Sélectionner une catégorie" value="" />
+            <Picker.Item label="Select a Category" value="" />
             {categories.map((category) => (
               <Picker.Item
                 key={category._id}
@@ -268,7 +269,7 @@ const addProduct = () => {
 
           <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
             <Text style={styles.photoButtonText}>
-              {photo ? "Changer de photo" : "Ajouter une photo"}
+              {photo ? "Change photo" : "Add photo"}
             </Text>
           </TouchableOpacity>
           {photo && (
@@ -281,7 +282,7 @@ const addProduct = () => {
             disabled={isSubmitting}
           >
             <Text style={styles.submitButtonText}>
-              {isSubmitting ? "En cours..." : "Enregistrer"}
+              {isSubmitting ? "In Progress..." : "Save"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -313,6 +314,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.secondary,
+    marginLeft:10,
   },
   scrollContainer: {
     flexGrow: 1,

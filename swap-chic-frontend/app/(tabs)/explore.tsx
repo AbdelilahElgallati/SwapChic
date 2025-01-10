@@ -78,12 +78,12 @@ const Explore = () => {
       {/* Improved Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <FontAwesome name="compass" size={24} color={COLORS.primary} style={styles.logoIcon} />
+          <FontAwesome name="compass" size={30} color={COLORS.primary} style={styles.logoIcon} />
           <Text style={styles.headerTitle}>Categories</Text>
         </View>
         <View style={styles.userActions}>
           <TouchableOpacity style={styles.notificationBtn}>
-            <MaterialIcons name="notifications-none" size={24} color={COLORS.primary} />
+            <MaterialIcons name="notifications-none" size={24} color="#000" />
             <View style={styles.notificationBadge}>
               <Text style={styles.badgeText}>2</Text>
             </View>
@@ -102,11 +102,11 @@ const Explore = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.searchWrapper}>
             <View style={styles.searchBar}>
-              <AntDesign name="search1" size={20} color={COLORS.darkGray} />
+              <AntDesign name="search1" size={24} color="#666" />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search categories..."
-                placeholderTextColor={COLORS.darkGray}
+                placeholderTextColor="#666"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 onSubmitEditing={() => handleSearch(searchQuery)}
@@ -189,19 +189,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   notificationBtn: {
-    position: 'relative',
+    position: "relative",
     marginRight: 16,
+    // borderWidth:1,
+    padding:3,
+    borderRadius:16,
+    backgroundColor:"#F5F5F5F5",
   },
   notificationBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: COLORS.primary,
+    position: "absolute",
+    top: -3,
+    right: -3,
+    backgroundColor: "#E53E3E",
     borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
   badgeText: {
     color: COLORS.white,
@@ -217,14 +221,16 @@ const styles = StyleSheet.create({
   },
   searchWrapper: {
     padding: 20,
+    width:"102%",
   },
   searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.lightGray,
+    height:55,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
     paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 7,
+    borderRadius: 50,
   },
   searchInput: {
     flex: 1,
@@ -261,6 +267,8 @@ const styles = StyleSheet.create({
   },
   categoryContent: {
     padding: 16,
+    backgroundColor:"rgba(0,0,0,0.3)",
+    elevation:0.5,
   },
   categoryName: {
     fontSize: 24,

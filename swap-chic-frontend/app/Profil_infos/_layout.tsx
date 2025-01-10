@@ -25,6 +25,7 @@ const ProfilInfoLayout = () => {
       <Stack.Screen name="Favorite" options={{ headerShown: false }} />
       <Stack.Screen name="Transaction" options={{ headerShown: false }} />
       <Stack.Screen name="Achat" options={{ headerShown: false }} />
+      {/* <Stack.Screen name="logout"options={{headerShown: false}}/> */}
     </Stack>
   );
 };

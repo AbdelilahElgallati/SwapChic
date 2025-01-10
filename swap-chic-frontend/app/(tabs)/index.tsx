@@ -177,7 +177,7 @@ const Dashboard = () => {
             <MaterialIcons
               name="notifications-none"
               size={24}
-              color="#E53E3E"
+              color="#000"
             />
             <View style={styles.notificationBadge}>
               <Text style={styles.badgeText}>2</Text>
@@ -196,7 +196,7 @@ const Dashboard = () => {
         {/* Enhanced Search Bar */}
         <View style={styles.searchWrapper}>
           <View style={styles.searchBar}>
-            <AntDesign name="search1" size={20} color="#666" />
+            <AntDesign name="search1" size={24} color="#666" />
             <TextInput
               style={styles.searchInput}
               placeholder="Search products..."
@@ -352,8 +352,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   brandName: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
+    elevation: 3,
   },
   brandAccent: {
     color: "#E53E3E",
@@ -365,15 +366,19 @@ const styles = StyleSheet.create({
   notificationBtn: {
     position: "relative",
     marginRight: 16,
+    // borderWidth:1,
+    padding:3,
+    borderRadius:16,
+    backgroundColor:"#F5F5F5F5",
   },
   notificationBadge: {
     position: "absolute",
-    top: -5,
-    right: -5,
+    top: -3,
+    right: -3,
     backgroundColor: "#E53E3E",
     borderRadius: 10,
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -391,19 +396,21 @@ const styles = StyleSheet.create({
   },
   searchWrapper: {
     padding: 20,
+    width:"102%",
   },
   searchBar: {
+    height:55,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 7,
+    borderRadius: 50,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 10,
-    fontSize: 16,
+    marginLeft: 15,
+    fontSize: 15,
     color: "#000",
   },
   categoriesScroll: {
@@ -458,8 +465,8 @@ const styles = StyleSheet.create({
   likeBtn: {
     position: "absolute",
     top: 10,
-    right: 10,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    right: 8,
+    backgroundColor: "rgba(0,0,0,0.7)",
     padding: 8,
     borderRadius: 20,
   },
@@ -479,9 +486,10 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   productPrice: {
+    textAlign:"right",
     fontSize: 16,
     fontWeight: "600",
-    color: "#E53E3E",
+    color: "green",
   },
   emptyState: {
     flex: 1,

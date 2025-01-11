@@ -8,14 +8,15 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { useUser } from "@clerk/clerk-react";
+
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useOAuth } from "@clerk/clerk-expo";
+// import { useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 import imgbg from "@/assets/images/swapchic.jpg";
 import { useWarmUpBrowser } from "@/hooks/warmUpBrowser";
 import { useFocusEffect } from "@react-navigation/native";
+import { useAuth, useUser, useOAuth } from "@clerk/clerk-expo";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -23,16 +24,16 @@ const { width, height } = Dimensions.get("window");
 
 const WelcomeScreen = () => {
   useWarmUpBrowser();
-  const { user, isLoaded } = useUser();
+  const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
   const router = useRouter();
   const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
   useEffect(() => {
-    if (isLoaded && user) {
-      // console.log("User exists. Redirecting to tabs...");
-      router.push("/(tabs)");
+    if (isLoaded && isSignedIn) {
+      router.replace("/(tabs)/");
     }
-  }, [isLoaded, user]);
+  }, [isLoaded, isSignedIn]);
 
   useFocusEffect(
     useCallback(() => {
@@ -52,7 +53,7 @@ const WelcomeScreen = () => {
 
       if (createdSessionId) {
         setActive({ session: createdSessionId });
-        router.replace("/(tabs)"); // Rediriger vers la page "(tabs)" après connexion
+        router.replace("/(tabs)"); 
       } else {
         Alert.alert("Erreur", "Veuillez compléter le processus d’authentification.");
       }

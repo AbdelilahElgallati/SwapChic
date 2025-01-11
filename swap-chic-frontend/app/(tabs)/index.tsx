@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { useRouter, useFocusEffect } from "expo-router";
 import {
   getProduct,
@@ -39,6 +39,7 @@ const COLORS = {
 const Dashboard = () => {
   const router = useRouter();
   const { user } = useUser();
+  const { isSignedIn } = useAuth();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [likedProducts, setLikedProducts] = useState([]);
@@ -47,14 +48,21 @@ const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserLikes = async () => {
+  useEffect(() => {
+    if (!isSignedIn) {
+      router.replace("/");
+    }
+  }, [isSignedIn, router]);
+
+  const fetchUserLikes = useCallback(async () => {
+    if (!user?.id) return;
     try {
-      const likes = await getAllLikeUser(user?.id);
+      const likes = await getAllLikeUser(user.id);
       setLikedProducts(likes.map((like) => like.productId));
     } catch (error) {
       console.error("Error fetching user likes", error);
     }
-  };
+  }, [user?.id]);
 
   const fetchProducts = async () => {
     try {

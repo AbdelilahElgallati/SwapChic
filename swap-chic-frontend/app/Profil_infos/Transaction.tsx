@@ -1,123 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   Image,
-//   FlatList,
-//   StyleSheet,
-//   TouchableOpacity,
-//   ActivityIndicator,
-//   SafeAreaView,
-// } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-// import axios from 'axios';
-// import { format } from 'date-fns';
-// import { fr } from 'date-fns/locale';
-// import Icon from 'react-native-vector-icons/Ionicons';
-// import { BASE_URL, fetchUserById } from '@/Services/api';
-// import { useUser } from '@clerk/clerk-expo';
-
-// const Transaction = () => {
-//   const {user} = useUser();
-//   const [transactions, setTransactions] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const navigation = useNavigation();
-
-//   // Fonction pour charger les transactions
-//   const fetchTransactions = async () => {
-//     try {
-//       console.log("start")
-//       const response = await axios.get(`${BASE_URL}/transaction/reciever/${user?.id}`);
-//       console.log("all transactions : ")
-//       console.log(response.data)
-//       const transactionsWithUsers = await Promise.all(
-//         response.data.map(async (transaction) => {
-//           // Récupérer les informations de l'utilisateur (sender)
-//           const senderResponse = await fetchUserById(transaction.senderId) ;
-//           return {
-//             ...transaction,
-//             sender: senderResponse,
-//           };
-//         })
-//       );
-//       setTransactions(transactionsWithUsers);
-//       console.log(transactions)
-//       setLoading(false);
-//     } catch (error) {
-//       console.error('Erreur lors du chargement des transactions:', error);
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchTransactions();
-//   }, []);
-
-//   const renderTransaction = ({ item }) => (
-//     <View style={styles.transactionCard}>
-//       <View style={styles.userInfoContainer}>
-//         <Image
-//           source={{ uri: item.productId.photo }}
-//           style={styles.productImage}
-//         />
-//         <View style={styles.userInfo}>
-//           <Text style={styles.userName}>
-//             {item.sender.first_name} {item.sender.last_name}
-//           </Text>
-//           <Text style={styles.userEmail}>{item.sender.emailAddresses[0].emailAddress}</Text>
-//         </View>
-//       </View>
-
-//       <View style={styles.productInfo}>
-//         <Text style={styles.productName}>{item.productId.name}</Text>
-//         <View style={styles.priceTypeContainer}>
-//           <Text style={styles.price}>{item.productId.price} €</Text>
-//           <View style={[styles.typeTag,
-//             item.productId.type === 'Sale' && styles.saleTag,
-//             item.productId.type === 'Gift' && styles.giftTag,
-//             item.productId.type === 'Exchange' && styles.exchangeTag,
-//           ]}>
-//             <Text style={styles.typeText}>{item.productId.type}</Text>
-//           </View>
-//         </View>
-//         <Text style={styles.date}>
-//           {format(new Date(item.startdate), 'dd MMMM yyyy', { locale: fr })}
-//         </Text>
-//       </View>
-//     </View>
-//   );
-
-//   if (loading) {
-//     return (
-//       <View style={styles.loadingContainer}>
-//         <ActivityIndicator size="large" color="#FF0000" />
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <View style={styles.header}>
-//         <TouchableOpacity
-//           onPress={() => navigation.goBack()}
-//           style={styles.backButton}
-//         >
-//           <Icon name="arrow-back" size={24} color="#FFFFFF" />
-//         </TouchableOpacity>
-//         <Text style={styles.headerTitle}>Transactions</Text>
-//       </View>
-
-//       <FlatList
-//         data={transactions}
-//         renderItem={renderTransaction}
-//         keyExtractor={item => item._id}
-//         contentContainerStyle={styles.listContainer}
-//         showsVerticalScrollIndicator={false}
-//       />
-//     </SafeAreaView>
-//   );
-// };
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -133,13 +13,11 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-// import Icon from "react-native-vector-icons/Ionicons";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { BASE_URL, fetchUserById } from "@/Services/api";
 import { useUser } from "@clerk/clerk-expo";
 
-// Type definitions
 interface Transaction {
   _id: string;
   senderId: string;

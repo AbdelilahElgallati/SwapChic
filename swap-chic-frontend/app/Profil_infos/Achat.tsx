@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { BASE_URL, fetchUserById } from "@/Services/api";
 import { useUser } from "@clerk/clerk-expo";
 
-// Type definitions
+
 interface Transaction {
   _id: string;
   senderId: string;

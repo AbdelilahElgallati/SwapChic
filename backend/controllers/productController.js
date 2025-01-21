@@ -17,7 +17,6 @@ const addProduct = async (req, res) => {
       !price ||
       !type
     ) {
-      console.log("Tous les champs doivent être remplis.");
 
       return res.status(400).json({
         success: false,

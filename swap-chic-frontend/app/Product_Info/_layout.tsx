@@ -10,25 +10,13 @@ const ProductInfoLayout = () => {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="MyProducts"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="DetailProduct"
-        options={{ title: "Detail de produit" }}
-      />
-      <Stack.Screen
-        name="ProductCategory"
-        options={{ headerShown: false, }}
-      />
-      <Stack.Screen
-        name="EditProduct"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="MyProducts" />
+      <Stack.Screen name="DetailProduct" />
+      <Stack.Screen name="ProductCategory" />
+      <Stack.Screen name="EditProduct" />
     </Stack>
   );
 };

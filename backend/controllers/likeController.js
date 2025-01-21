@@ -36,7 +36,7 @@ const getAllLikesUser = async (req, res) => {
 }
 
 const getAllLikesUserId = async (req, res) => {
-  console.log(req.params)
+
   try {
     const likedProducts = await Like.find({ userId: req.params.userId }).populate({
       path: "productId",
@@ -44,7 +44,7 @@ const getAllLikesUserId = async (req, res) => {
     });
 
     const products = likedProducts.map((like) => like.productId);
-    console.log(products)
+
     res.status(200).json(products);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la recherche des Likes");
@@ -78,8 +78,6 @@ const  getOneLikeByProductIdAndUserId = async (req, res) => {
 const  removeLike = async (req, res) => {
   try {
     const { id } = req.params;
-
-    console.log(`Removing like with ID: ${id}`);
 
     const like = await Like.findByIdAndDelete(id);
 

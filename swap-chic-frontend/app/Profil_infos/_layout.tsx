@@ -12,20 +12,15 @@ const ProfilInfoLayout = () => {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="EditProfile"
-        options={{ title: "Modifier mon profil" }}
-      />
-      <Stack.Screen name="Chat" options={{ headerShown: false }} />
-      <Stack.Screen name="Connection" options={{ headerShown: false }} />
-      <Stack.Screen name="DemandeDiscussion" options={{ headerShown: false }} />
-      <Stack.Screen name="Favorite" options={{ headerShown: false }} />
-      <Stack.Screen name="Transaction" options={{ headerShown: false }} />
-      <Stack.Screen name="Achat" options={{ headerShown: false }} />
-      {/* <Stack.Screen name="logout"options={{headerShown: false}}/> */}
+      <Stack.Screen name="Chat" />
+      <Stack.Screen name="Connection" />
+      <Stack.Screen name="DemandeDiscussion" />
+      <Stack.Screen name="Favorite" />
+      <Stack.Screen name="Transaction" />
+      <Stack.Screen name="Achat" />
     </Stack>
   );
 };

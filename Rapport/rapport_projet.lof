@@ -1,20 +1,34 @@
 \babel@toc {french}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Découpage du projet en tâches}}{x}{figure.2.1}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Cycle de vie en modèle V}}{xi}{figure.2.2}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Diagramme de Gantt}}{xi}{figure.2.3}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Diagramme de cas d'utilisation}}{xii}{figure.2.4}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces Diagramme de classes}}{xiii}{figure.2.5}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces Diagramme de séquence : Connexion des utilisateurs}}{xiv}{figure.2.6}%
-\contentsline {figure}{\numberline {2.7}{\ignorespaces Diagramme de séquence : Recherche des articles}}{xiv}{figure.2.7}%
-\contentsline {figure}{\numberline {2.8}{\ignorespaces Diagramme de séquence : Transaction}}{xv}{figure.2.8}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Découpage du projet en tâches}}{10}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Cycle de vie en modèle V}}{11}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Diagramme de Gantt}}{11}{figure.2.3}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Diagramme de cas d'utilisation}}{12}{figure.2.4}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Diagramme de classes}}{13}{figure.2.5}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Diagramme de séquence : Connexion des utilisateurs}}{14}{figure.2.6}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Diagramme de séquence : Recherche des articles}}{14}{figure.2.7}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Diagramme de séquence : Transaction}}{15}{figure.2.8}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Outils de développement et de gestion de projet}}{xvii}{figure.3.1}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Technologies principales du projet}}{xvii}{figure.3.2}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Page d'accueil de l'application SwapChic. Cette interface présente les produits récents et les catégories populaires, permettant aux utilisateurs de naviguer facilement.}}{xix}{figure.3.3}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Page d'inscription de l'application. Les utilisateurs peuvent s'inscrire via Google ou en remplissant un formulaire manuel.}}{xx}{figure.3.4}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Catalogue de produits. Les utilisateurs peuvent parcourir les produits par catégories et appliquer des filtres pour affiner leur recherche.}}{xxi}{figure.3.5}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Page de détails d'un produit. Cette interface affiche des informations détaillées sur le produit, y compris des photos, une description, le prix et les conditions d'échange.}}{xxii}{figure.3.6}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces Messagerie intégrée. Les utilisateurs peuvent discuter et négocier les détails des transactions directement dans l'application.}}{xxiii}{figure.3.7}%
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Tableau de bord utilisateur. Les utilisateurs peuvent suivre leurs transactions, gérer leurs produits et consulter leurs interactions.}}{xxiv}{figure.3.8}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Outils de développement et de gestion de projet}}{17}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Technologies principales du projet}}{17}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Page d'accueil (Welcome Page)}}{19}{figure.3.3}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Page de choix de compte Google}}{19}{figure.3.4}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Page d'accueil (Home)}}{20}{figure.3.5}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Page de résultats de recherche (produit existant)}}{21}{figure.3.6}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Page de résultats de recherche par catégorie (produits existants)}}{21}{figure.3.7}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Page de résultats de recherche par catégorie (aucun produit)}}{22}{figure.3.8}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Page de détails d'un produit}}{23}{figure.3.9}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Page de détails d'un produit (propriétaire)}}{23}{figure.3.10}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Page de discussion avec le propriétaire du produit}}{24}{figure.3.11}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Page Explore}}{25}{figure.3.12}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Page des produits d'une catégorie}}{25}{figure.3.13}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Page des produits d'une catégorie (vide)}}{26}{figure.3.14}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Page d'ajout de produit}}{26}{figure.3.15}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Page de profil utilisateur}}{27}{figure.3.16}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Page de vos produits}}{27}{figure.3.17}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Page des favoris}}{28}{figure.3.18}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Page des demandes de discussion}}{28}{figure.3.19}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Page de vos conversations}}{29}{figure.3.20}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces Page des transactions}}{29}{figure.3.21}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Page des achats}}{30}{figure.3.22}%

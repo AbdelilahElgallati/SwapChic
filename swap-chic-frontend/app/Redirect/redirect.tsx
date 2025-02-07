@@ -6,7 +6,7 @@ const Redirect = () => {
     const router = useRouter();
 
     useEffect(() => {
-        console.log("From redirect");
+        // console.log("From redirect");
         setTimeout(() => {
             router.replace("/"); 
         }, 50); 

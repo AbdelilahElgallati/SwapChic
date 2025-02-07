@@ -87,7 +87,7 @@ const Explore = () => {
             <View style={styles.notificationBadge}>
               <Text style={styles.badgeText}>2</Text>
             </View>
-          </TouchableOpacity> */}+
+          </TouchableOpacity> */}
           <Image source={{ uri: user?.imageUrl }} style={styles.userAvatar} />
         </View>
       </View>
